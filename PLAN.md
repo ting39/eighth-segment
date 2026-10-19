@@ -98,11 +98,11 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
 - [x] Design doc: core rule, knowledge-lock list, world map sketch, name
 - [x] Engine: fixed-step physics, tilemap + display collision, input layer, room transitions
 - [x] Feel tuning + automated physics tests (test/physics.test.mjs, 12 tests)
-- [ ] Art & audio generation (VFD renderer, glow, sfx, region music)
-- [ ] World: rooms, locks, secrets, endings
-- [ ] Solver + replay harness proves completability; softlock audit
-- [ ] Menus, save, settings (volume digits, speed, remap), touch/gamepad, title & ending
-- [ ] Publish ting39/eighth-segment + Pages + CARD.json + MORNING_REPORT entry
+- [x] Art & audio generation (VFD renderer, glow, sfx, region music)
+- [x] World: 18 rooms (+secret title room), 3 stray points, 3 endings
+- [x] Solver + replay harness proves completability (test/route.test.mjs); world validators
+- [x] Menus, save, settings (volume digits, speed, remap), touch/gamepad, title & ending
+- [x] Publish ting39/eighth-segment + Pages + CARD.json + MORNING_REPORT entry
 - [ ] Polish passes (juice, difficulty curve, hints that don't spoil)
 
 ## Progress log
@@ -132,3 +132,14 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
   (3 rooms each), Overflow (3), master room with slots (ENDINGS in rooms.js; triggers kind 'slot'),
   replay test (test/route.test.mjs replaying replays/route.json), spawn-marker rendering, publish.
   Stopped here: 5-hour usage limit reached.
+- 2026-10-20 (after 5h reset) — Built tally4, hub (real clock), clock1 (time drop), clock2 (stand still,
+  point), coord1 (position bridge), coord2 (binary stairs, point, π hint), gate (idle drop), over1 (hex
+  jumps), over2 (music volume), master (slots: after 3 = true ending). Room maps for these are generated
+  by `tools/rooms_src/rest.py` (edit there, re-run; it rewrites the blocks in src/rooms.js). Route
+  goals now support `idle:N`, `time:N@x,y`, `deaths:N/mod`. Full route replays to the true ending
+  (122 s, 15 deaths, both reachable points). 18 tests pass. PUBLISHED: https://ting39.github.io/eighth-segment/
+  World grid: boot row y=6 (title -1..climb 3), tally1 (3,5) tally2 (2,5) tally3 (1,5) tally4 (1,4)
+  hub (1,3) clock1 (2,3) clock2 (3,3) coord1 (0,3) coord2 (-1,3) gate (1,2) over1 (1,1) over2 (1,0)
+  master (2,0).
+  POLISH IDEAS (next): playtest feel in a visible browser; more rooms per region (target 25+); hub
+  clock secret (◇14), HUD-solid secret (◇13); better music; ending animation; mobile layout check.
