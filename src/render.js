@@ -81,24 +81,24 @@ export function createRenderer(canvas) {
         x.fillStyle = hexA(pal.edge, 0.35); x.fillRect(px, py + 1, TILE, 1);
       } else if (v >= T.SPIKE_U && v <= T.SPIKE_R) {
         x.fillStyle = pal.hazard;
-        for (let i = 0; i < 4; i++) {
-          // two small teeth per tile
-          const a = i, len = 3 - Math.abs(1.5 - i) * 0 ;
-          for (let k = 0; k < 2; k++) {
-            const o = k * 4;
-            const h = [1, 2, 3, 2][i];
-            if (v === T.SPIKE_U) x.fillRect(px + o + i, py + 8 - h * 1.33 | 0, 1, Math.ceil(h * 1.33));
-            if (v === T.SPIKE_D) x.fillRect(px + o + i, py, 1, Math.ceil(h * 1.33));
-            if (v === T.SPIKE_L) x.fillRect(px + 8 - Math.ceil(h * 1.33), py + o + i, Math.ceil(h * 1.33), 1);
-            if (v === T.SPIKE_R) x.fillRect(px, py + o + i, Math.ceil(h * 1.33), 1);
-            void a; void len;
-          }
+        for (let k = 0; k < 2; k++) for (let i = 0; i < 4; i++) {
+          const h = [1, 3, 4, 2][i], o = k * 4 + i;
+          if (v === T.SPIKE_U) x.fillRect(px + o, py + 8 - h, 1, h);
+          else if (v === T.SPIKE_D) x.fillRect(px + o, py, 1, h);
+          else if (v === T.SPIKE_L) x.fillRect(px + 8 - h, py + o, h, 1);
+          else x.fillRect(px, py + o, h, 1);
         }
       } else if (v === T.HAZARD) {
         x.fillStyle = hexA(pal.hazard, 0.5); x.fillRect(px + 1, py + 1, 6, 6);
         x.fillStyle = pal.hazard;
         for (let i = 1; i < 7; i += 2) { x.fillRect(px + i, py + 1 + ((i * 3) % 5), 1, 1); x.fillRect(px + 1 + ((i * 5) % 6), py + i, 1, 1); }
       }
+    }
+    // respawn markers: a faint bracket on the floor
+    for (const sp of room.spawns) {
+      x.fillStyle = hexA(pal.edge, 0.35);
+      const px = sp.tx * TILE, py = sp.ty * TILE + TILE - 1;
+      x.fillRect(px + 1, py, 1, 1); x.fillRect(px + 6, py, 1, 1); x.fillRect(px + 1, py - 1, 1, 1); x.fillRect(px + 6, py - 1, 1, 1);
     }
     // ghost segments
     for (const d of room.displays) {

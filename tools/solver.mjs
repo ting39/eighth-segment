@@ -41,7 +41,7 @@ function key(g, prof, macro, cs = 0) {
   if (prof.deathMod > 1) k += `|d${c.deaths % prof.deathMod}`;
   if (prof.jumpMod > 1) k += `|j${c.jumps % prof.jumpMod}`;
   if (prof.timePeriod) k += `|t${Math.floor((c.steps % prof.timePeriod) / macro)}`;
-  if (prof.idle) k += `|i${Math.min(c.idle >> 3, 200)}`;
+  if (prof.idle) k += `|i${Math.min(c.idle >> 2, 300)}`;
   if (prof.visits) k += `|v${(c.visits[g.room.id] || 0) % 10}`;
   if (prof.volume) k += `|o${g.volume}`;
   return k;
@@ -54,6 +54,7 @@ export function solve(g, goal, opts = {}) {
   const w = opts.weight ?? 2.5;
   const allowRestart = opts.restart ?? true;
   const startRoom = g.room;
+  const startDeaths = g.c.deaths;
   const prof = roomProfile(startRoom);
   if (opts.timePeriod) prof.timePeriod = opts.timePeriod;
   const allowed = new Set([startRoom.id, goal.room].filter(Boolean));
@@ -79,6 +80,8 @@ export function solve(g, goal, opts = {}) {
   }
   const STEPS_PER_TILE = TS / K.RUN;
   const h = (gg) => {
+    if (goal.ctr === 'idle') return Math.max(0, goal.val * 120 - gg.c.idle);
+    if (goal.ctr === 'time') { const P = goal.mod * 120; return (((goal.val * 120 - gg.c.steps) % P) + P) % P; }
     if (goal.ctr) { const m = goal.mod || 10; return ((((goal.val - gg.c[goal.ctr]) % m) + m) % m) * (goal.ctr === 'deaths' ? 60 : 30); }
     const tx = Math.min(RW - 1, Math.max(0, Math.floor((gg.p.x + 768) / TS)));
     const ty = Math.min(RH - 1, Math.max(0, Math.floor((gg.p.y + 768) / TS)));
@@ -86,8 +89,12 @@ export function solve(g, goal, opts = {}) {
     return (d < 0 ? 200 : d) * STEPS_PER_TILE;
   };
   const reached = (gg) => {
+    if (!goal.room && gg.room !== startRoom) return false;
+    if (goal.stay && !(Math.floor((gg.p.x + 768) / TS) === goal.stay[0] && Math.floor((gg.p.y + 768) / TS) === goal.stay[1])) return false;
     if (goal.room) return gg.room.id === goal.room && !gg.p.dead;
     if (goal.at) return !gg.p.dead && Math.floor((gg.p.x + 768) / TS) === goal.at[0] && Math.floor((gg.p.y + 768) / TS) === goal.at[1];
+    if (goal.ctr === 'idle') return !gg.p.dead && gg.p.ground && gg.c.deaths === startDeaths && Math.floor(gg.c.idle / 120) === goal.val;
+    if (goal.ctr === 'time') return !gg.p.dead && gg.p.ground && Math.floor(gg.c.steps / 120) % goal.mod === goal.val;
     if (goal.ctr) return !gg.p.dead && gg.p.ground && ((gg.c[goal.ctr] % (goal.mod || 10)) + (goal.mod || 10)) % (goal.mod || 10) === goal.val;
     if (goal.event) return gg.events.some((e) => e.type === goal.event && (!goal.id || e.id === goal.id));
     return false;

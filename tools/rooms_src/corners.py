@@ -1,0 +1,11 @@
+import sys; sys.path.insert(0, __import__('os').path.join(__import__('os').path.dirname(__file__), '..'))
+from roomgen import Room
+r = Room().border(l=range(13,17), r=range(13,17))
+r.rect(0,0,40,2); r.rect(0,17,40,5)
+r.rect(18,2,1,2); r.put(12,4,'A'); r.put(18,16,'#')
+r.rect(4,14,3,3); r.rect(8,11,4,1)
+r.rect(19,11,4,1); r.rect(19,16,9,1,'^')
+r.rect(32,2,1,4); r.put(27,6,'C'); r.put(32,16,'#')
+r.rect(28,14,3,1)
+r.put(1,16,'P'); r.put(34,16,'P')
+print(r.js())

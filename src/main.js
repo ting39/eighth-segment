@@ -11,6 +11,7 @@ const SHOT = params.has('shot');
 const SAVE_KEY = 'eighth-segment/v1';
 
 const world = buildWorld(ROOMS);
+const TOTAL_POINTS = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
 const canvas = document.getElementById('screen');
 const R = createRenderer(canvas);
 const input = createInput();
@@ -281,6 +282,10 @@ function drawHud(x, pal, dt) {
     x.fillRect(42, 6, 1, 1); x.fillRect(44, 6, 1, 1); x.fillRect(43, 7, 1, 1); x.fillRect(42, 8, 1, 1); x.fillRect(44, 8, 1, 1);
     R.segNum(x, String(game.c.deaths % 10000), 47, 4, R.hexA(pal.lit, 0.85), R.hexA(pal.lit, 0.08));
   }
+  if (game.room.id === START_ROOM && game.c.jumps < 3) {
+    const hint = input.lastDevice === 'touch' ? '' : input.lastDevice === 'pad' ? 'STICK MOVE   A JUMP' : 'ARROWS MOVE   Z / SPACE JUMP';
+    if (hint) R.text(hint, (W - R.textWidth(hint)) / 2, 40, R.hexA(pal.edge, 0.55));
+  }
   if (banner) {
     banner.t += dt;
     const a = Math.min(1, banner.t * 3, Math.max(0, 3 - banner.t));
@@ -379,7 +384,7 @@ function drawEnding(x, pal) {
   R.text(end.title, (W - R.textWidth(end.title)) / 2, y, R.hexA(pal.lit, a)); y += 16;
   for (const line of end.lines) { R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA('#ffffff', a * 0.85)); y += 9; }
   y += 8;
-  const stats = [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/8`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
+  const stats = [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/${TOTAL_POINTS}`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
   for (const s of stats) { R.text(s, (W - R.textWidth(s)) / 2, y, R.hexA(pal.edge, a)); y += 9; }
   if (e.t > 3) R.text('PRESS JUMP', (W - R.textWidth('PRESS JUMP')) / 2, H - 14, R.hexA(pal.edge, 0.5 + 0.5 * Math.sin(e.t * 4)));
 }
