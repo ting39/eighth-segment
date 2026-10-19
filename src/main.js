@@ -23,7 +23,7 @@ const store = {
 };
 const saved = store.load() || {};
 const settings = Object.assign({
-  music: 6, sfx: 7, speed: 100, glow: true, shake: true, flashes: true, hud: true, touch: 'auto',
+  music: 6, sfx: 7, speed: 100, glow: true, shake: true, flashes: true, hud: true, hints: true, touch: 'auto',
   keys: structuredClone(DEFAULT_KEYS),
 }, saved.settings || {});
 input.keys = settings.keys;
@@ -150,6 +150,7 @@ function settingsMenu(back) {
     { label: 'SCREEN SHAKE', value: () => (settings.shake ? 'ON' : 'OFF'), adj: () => { settings.shake = !settings.shake; } },
     { label: 'FLASHES', value: () => (settings.flashes ? 'ON' : 'OFF'), adj: () => { settings.flashes = !settings.flashes; } },
     { label: 'HUD (TIME/DEATHS)', value: () => (settings.hud ? 'ON' : 'OFF'), adj: () => { settings.hud = !settings.hud; } },
+    { label: 'HINTS WHEN STUCK', value: () => (settings.hints ? 'ON' : 'OFF'), adj: () => { settings.hints = !settings.hints; } },
     { label: 'TOUCH BUTTONS', value: () => settings.touch.toUpperCase(), adj: (d) => { const o = ['auto', 'on', 'off']; settings.touch = o[(o.indexOf(settings.touch) + (d || 1) + 3) % 3]; } },
     ...['left', 'right', 'jump'].map((act) => ({
       label: 'KEY ' + act.toUpperCase(), value: () => (settings.keys[act][0] ? keyName(settings.keys[act][0]) : '-'),
@@ -262,7 +263,7 @@ function draw(dt) {
     squash,
     onSegOn: () => { if (mode === 'play') sfx.seg(); },
     overlay: (x, pal) => {
-      if (mode === 'play' || mode === 'pause') drawHud(x, pal, dt);
+      if (mode === 'play' || mode === 'pause') { drawHints(x, pal); drawHud(x, pal, dt); }
       if (mode === 'title') drawTitle(x, pal);
       if (mode === 'pause' || (mode === 'title' && menu && menu.title)) drawMenu(x, pal);
       if (mode === 'title' && menu && !menu.title) drawMenu(x, pal, 112);
@@ -271,6 +272,36 @@ function draw(dt) {
       if (DEV && devOverlay) drawDev(x);
     },
   });
+}
+
+// Hints that don't spoil: after a while stuck in one room, each wired display grows a small glyph
+// for the quantity it counts (the death glyph is the HUD's). It says what to watch, never what to do.
+const HINT_GLYPHS = {
+  deaths: ['101', '010', '101'],
+  jumps: ['00100', '01110', '10101', '00100', '00100'],
+  time: ['01110', '10101', '10111', '10001', '01110'],
+  pos: ['00000', '01010', '11111', '01010', '00000'],
+  idle: ['1111', '0010', '0100', '1111'],
+};
+const roomStay = { id: null, d0: 0, s0: 0 };
+function drawHints(x, pal) {
+  const room = game.room;
+  if (roomStay.id !== room.id) Object.assign(roomStay, { id: room.id, d0: game.c.deaths, s0: game.c.steps });
+  if (!settings.hints) return;
+  const stuck = Math.max((game.c.deaths - roomStay.d0 - 6) / 4, ((game.c.steps - roomStay.s0) / HZ - 150) / 30);
+  if (stuck <= 0) return;
+  const a = Math.min(1, stuck) * (0.75 + 0.15 * Math.sin(performance.now() / 400));
+  for (const d of room.displays) {
+    const g = HINT_GLYPHS[d.src];
+    if (!g || d.icon) continue;
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity;
+    for (const [cx, cy, cw] of d.cells) { x0 = Math.min(x0, cx); x1 = Math.max(x1, cx + cw); y0 = Math.min(y0, cy); }
+    let px = x0 * TILE - g[0].length - 3;
+    if (px < 2) px = x1 * TILE + 3;
+    const py = y0 * TILE + 1;
+    x.fillStyle = R.hexA(d.src === 'deaths' ? pal.hazard : pal.edge, a);
+    g.forEach((row, j) => { for (let i = 0; i < row.length; i++) if (row[i] === '1') x.fillRect(px + i, py + j, 1, 1); });
+  }
 }
 
 function drawHud(x, pal, dt) {
@@ -467,6 +498,7 @@ if (SHOT) {
   mode = params.has('title') ? 'title' : 'play';
   if (mode === 'title') menu = titleMenu();
   devOverlay = params.has('grid');
+  if (params.has('stuck')) Object.assign(roomStay, { id, d0: c.deaths - 20, s0: 0 });
   draw(0);
 } else {
   menu = titleMenu();
