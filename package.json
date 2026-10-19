@@ -1,0 +1,12 @@
+{
+  "name": "eighth-segment",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A hard, minimal precision platformer where every number counts something.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "solve": "nice -n 15 node tools/solve.mjs",
+    "serve": "python3 -m http.server 8101"
+  }
+}

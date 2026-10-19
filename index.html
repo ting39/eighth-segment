@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Eighth Segment</title>
+<meta name="description" content="A hard, minimal precision platformer. You are the decimal point. Lit segments are solid. Every number is counting something.">
+<meta name="theme-color" content="#030b0c">
+<meta property="og:title" content="Eighth Segment">
+<meta property="og:description" content="A hard, minimal precision platformer where every number counts something.">
+<meta property="og:image" content="https://ting39.github.io/eighth-segment/og.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="screen" aria-label="Eighth Segment game screen"></canvas>
+<div id="touch" hidden>
+  <div class="tl">
+    <button data-touch="left" aria-label="Left">◀</button>
+    <button data-touch="right" aria-label="Right">▶</button>
+  </div>
+  <div class="tr">
+    <button data-touch="jump" class="jump" aria-label="Jump">●</button>
+  </div>
+  <button data-touch="pause" class="pause" aria-label="Pause">II</button>
+</div>
+<noscript>Eighth Segment needs JavaScript.</noscript>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
