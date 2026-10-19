@@ -10,8 +10,8 @@ export const PALETTES = {
   tally:  { lit: '#ffb347', wall: '#3a2508', edge: '#d98a2b', bg0: '#0c0703', bg1: '#1b1006', hazard: '#ff4d6d', name: 'TALLY' },
   clock:  { lit: '#7dff8a', wall: '#0d3312', edge: '#46c457', bg0: '#030b04', bg1: '#08180a', hazard: '#ff6a3d', name: 'CLOCKWORK' },
   coord:  { lit: '#ff7ae3', wall: '#3a0d33', edge: '#c94fb5', bg0: '#0b030a', bg1: '#190818', hazard: '#ffd23d', name: 'COORDINATES' },
-  over:   { lit: '#f2f4ff', wall: '#262a3a', edge: '#9aa3c9', bg0: '#05060b', bg1: '#0e1020', hazard: '#ff3d5a', name: 'OVERFLOW' },
-  master: { lit: '#fff3c2', wall: '#2e2a1a', edge: '#c9b875', bg0: '#060604', bg1: '#141208', hazard: '#ff3d5a', name: 'MASTER READOUT' },
+  over:   { lit: '#f2f4ff', wall: '#141724', edge: '#9aa3c9', bg0: '#05060b', bg1: '#0e1020', hazard: '#ff3d5a', name: 'OVERFLOW' },
+  master: { lit: '#fff3c2', wall: '#1d1a0f', edge: '#c9b875', bg0: '#060604', bg1: '#141208', hazard: '#ff3d5a', name: 'MASTER READOUT' },
 };
 
 function hexA(hex, a) {
