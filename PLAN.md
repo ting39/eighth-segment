@@ -122,3 +122,13 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
   left-column shaft (f,e off) {1,3,7}; middle-corner pass (g off) {0,1,7}.
   NEXT: finish tally1 lock check (target {7,9}), tally2..5 (deaths, then jumps), hub, 2 short regions,
   master room, replay test, publish.
+- 2026-10-20 03:30 — Rooms wake→lit→corners→climb→tally1 (deaths≡7)→tally2 (deaths≡1)→tally3 (jumps "cup":
+  enter at 4, jump → 5 opens right) all solved end-to-end by `node tools/route.mjs` (waypoint route in
+  `tools/route-goals.mjs`, output `replays/route.json`; goals: room id, `at:x,y`, `deaths:n`, `jumps:n`).
+  Single-shot A* fails on counter rooms → always give waypoints. Never `pkill -f` a pattern that appears
+  in your own command (it kills the shell). Room scripts live in session scratch; re-author with
+  `tools/roomgen.py` if needed (maps in src/rooms.js are the source of truth).
+  NEXT: tally3's top exit leads to (1,4) = tally4 (not yet built); then hub, Clockwork/Coordinates
+  (3 rooms each), Overflow (3), master room with slots (ENDINGS in rooms.js; triggers kind 'slot'),
+  replay test (test/route.test.mjs replaying replays/route.json), spawn-marker rendering, publish.
+  Stopped here: 5-hour usage limit reached.

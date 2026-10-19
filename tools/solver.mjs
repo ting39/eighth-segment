@@ -35,9 +35,9 @@ function roomProfile(room) {
   return prof;
 }
 
-function key(g, prof, macro) {
+function key(g, prof, macro, cs = 0) {
   const p = g.p, c = g.c;
-  let k = `${g.room.id}|${p.x >> 8}|${p.y >> 8}|${p.vx >> 4}|${p.vy >> 5}|${p.ground ? 1 : 0}${p.coyote > 0 ? 1 : 0}${p.buf > 0 ? 1 : 0}${p.prevJump ? 1 : 0}${p.jumping ? 1 : 0}|${p.dead ? p.dtimer : 0}`;
+  let k = `${g.room.id}|${p.x >> (8 + cs)}|${p.y >> (8 + cs)}|${p.vx >> (4 + cs)}|${p.vy >> (5 + cs)}|${p.ground ? 1 : 0}${p.coyote > 0 ? 1 : 0}${p.buf > 0 ? 1 : 0}${p.prevJump ? 1 : 0}${p.jumping ? 1 : 0}|${p.dead ? p.dtimer : 0}`;
   if (prof.deathMod > 1) k += `|d${c.deaths % prof.deathMod}`;
   if (prof.jumpMod > 1) k += `|j${c.jumps % prof.jumpMod}`;
   if (prof.timePeriod) k += `|t${Math.floor((c.steps % prof.timePeriod) / macro)}`;
@@ -79,6 +79,7 @@ export function solve(g, goal, opts = {}) {
   }
   const STEPS_PER_TILE = TS / K.RUN;
   const h = (gg) => {
+    if (goal.ctr) { const m = goal.mod || 10; return ((((goal.val - gg.c[goal.ctr]) % m) + m) % m) * (goal.ctr === 'deaths' ? 60 : 30); }
     const tx = Math.min(RW - 1, Math.max(0, Math.floor((gg.p.x + 768) / TS)));
     const ty = Math.min(RH - 1, Math.max(0, Math.floor((gg.p.y + 768) / TS)));
     const d = dist[ty * RW + tx];
@@ -87,6 +88,7 @@ export function solve(g, goal, opts = {}) {
   const reached = (gg) => {
     if (goal.room) return gg.room.id === goal.room && !gg.p.dead;
     if (goal.at) return !gg.p.dead && Math.floor((gg.p.x + 768) / TS) === goal.at[0] && Math.floor((gg.p.y + 768) / TS) === goal.at[1];
+    if (goal.ctr) return !gg.p.dead && gg.p.ground && ((gg.c[goal.ctr] % (goal.mod || 10)) + (goal.mod || 10)) % (goal.mod || 10) === goal.val;
     if (goal.event) return gg.events.some((e) => e.type === goal.event && (!goal.id || e.id === goal.id));
     return false;
   };
@@ -98,7 +100,7 @@ export function solve(g, goal, opts = {}) {
   const seen = new Set();
   const heap = new Heap();
   const root = { s: snapshot(g), parent: null, act: null, cost: 0, f: 0 };
-  seen.add(key(g, prof, macro));
+  seen.add(key(g, prof, macro, opts.coarse || 0));
   heap.push(root);
   let expanded = 0;
   while (heap.size) {
@@ -129,7 +131,7 @@ export function solve(g, goal, opts = {}) {
       const child = { s: snapshot(g), parent: node, act: [a, n], cost: node.cost + cost, f: 0 };
       if (ok) return { ok: true, inputs: unwind(child), expanded, state: child.s };
       if (g.room.id !== startRoom.id) continue; // entered goal room but dead? skip
-      const k = key(g, prof, macro);
+      const k = key(g, prof, macro, opts.coarse || 0);
       if (seen.has(k)) continue;
       seen.add(k);
       child.f = child.cost + w * h(g);
@@ -163,7 +165,8 @@ export function replay(g, rle, onStep) {
 
 // Try a portfolio of search settings, cheapest first.
 export const PORTFOLIO = [
-  { macro: 8, weight: 1.2, maxNodes: 150_000 },
+  { macro: 8, weight: 1.2, maxNodes: 60_000 },
+  { macro: 8, weight: 3, maxNodes: 200_000, coarse: 2 },
   { macro: 6, weight: 2, maxNodes: 250_000 },
   { macro: 4, weight: 1.5, maxNodes: 400_000 },
   { macro: 3, weight: 3, maxNodes: 600_000 },
