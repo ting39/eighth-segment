@@ -22,6 +22,7 @@ r.rect(6,1,25,18); r.rect(31,1,8,13)          # solid mass; corridor row 19 unde
 r.rect(18,13,4,6,'.'); r.put(18,13,'B')        # housing for the hanging digit (d at row 19)
 for (x,y) in [(1,17),(4,14),(1,11),(4,8),(1,5),(4,3)]: r.rect(x,y,2,1)
 r.put(32,19,'P'); r.put(3,19,'P')
+for y in (17,18,19): r.put(39,y,'X')         # fake wall -> FINE PRINT (drawn open on the map)
 emit('tally4','1','4','tally','MIND YOUR HEAD', r, "{ B: { s: 2, src: 'jumps' } }")
 
 # ---------------- hub (1,3): junction + real wall clock
@@ -32,6 +33,11 @@ r.rect(1,3,3,1)   # top-left ledge under the exit
 r.put(22,2,'H'); r.put(26,2,'I'); r.put(31,2,'M'); r.put(35,2,'N')
 r.put(30,4,'#'); r.put(30,6,'#')
 r.put(8,19,'P'); r.put(37,19,'P'); r.put(1,19,'P')
+# clock secret: ledges up to the minute-ones digit; brackets under its corners leave bar d as the only
+# way into its lower cell (point) -> open on minutes ending 1/4/7 (test/secrets.test.mjs)
+r.rect(35,17,3,1); r.rect(32,14,3,1); r.rect(36,11,3,1)
+for x in (34,35,38): r.put(x,8,'#')
+r.put(36,7,'o')
 emit('hub','1','3','tally','JUNCTION', r,
      "{ H: { s: 2, src: 'clock', place: 3 }, I: { s: 2, src: 'clock', place: 2 }, M: { s: 2, src: 'clock', place: 1 }, N: { s: 2, src: 'clock', place: 0 } }",
      "\n    text: [{ s: 'LOCAL TIME', x: 26, y: 10, ox: 2 }],")
@@ -149,6 +155,15 @@ r.put(2,17,'a'); r.put(8,17,'b'); r.put(14,17,'c')
 r.put(1,7,'P')
 emit('master','2','0','master','MASTER READOUT', r, '{ ' + ', '.join(disp) + ' }',
      "\n    triggers: { a: { kind: 'slot', id: 2 }, b: { kind: 'slot', id: 3 }, c: { kind: 'slot', id: 1 } },\n    text: [{ s: 'PUT THE POINT WHERE IT BELONGS', x: 8, y: 4 }],")
+
+# ---------------- fineprint (2,4): secret. The HUD, giant and solid: seconds digit, hazard x, deaths digit.
+r = Room().border(l=range(17,20))
+r.rect(1,1,38,10); r.rect(1,20,38,1)            # corridor rows 11-19 = exactly one digit tall
+r.put(12,11,'J'); r.put(27,11,'K')
+for (x,y) in [(20,14),(22,14),(21,15),(20,16),(22,16)]: r.put(x,y,'%')
+r.put(2,19,'P'); r.put(24,19,'P'); r.put(36,19,'o')
+emit('fineprint','2','4','tally','FINE PRINT', r, "{ J: { s: 3, src: 'time' }, K: { s: 3, src: 'deaths' } }",
+     "\n    nohud: true,")
 
 path = os.path.join(ROOT, 'src/rooms.js')
 s = open(path).read()

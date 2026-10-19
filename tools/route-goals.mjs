@@ -4,7 +4,9 @@ export const ROUTE = [
   'deaths:7', 'tally2',
   'deaths:1', 'tally3',
   'at:11,8', 'jumps:3', 'at:18,11', 'at:23,11', 'at:36,2',
-  'tally4', 'at:32,19', 'jumps:1', 'at:3,19', 'hub',
+  'tally4', 'at:32,19',
+  // FINE PRINT (secret, through tally4's fake right wall): seconds gate, then deaths ending 1/4/7 (point)
+  'fineprint', 'at:24,19', 'deaths:4', 'event:point', 'tally4', 'at:32,19', 'jumps:1', 'at:3,19', 'hub',
   // Clockwork: time drop, patience drop (point), back through the return shaft
   'at:7,19', 'clock1', 'at:21,7', 'at:30,19', 'clock2', 'at:19,1', 'at:20,1', 'idle:1', 'event:point', 'at:2,19', 'clock1',
   'at:33,7', 'at:28,7', 'time:4@28,7', 'at:21,7', 'at:2,19', 'hub',

@@ -57,9 +57,9 @@ Consequences, all strict and consistent (they are the knowledge locks):
 | ✦10 | **HEX** jumps mod 16 | numbers past 9 (A b C d E F) have shapes 0–9 never make | the digit occasionally shows letters |
 | ✦11 | **MUSIC VOLUME** (settings) | the menu is part of the world | a speaker glyph next to the digit; menu draws volume as the same 7-seg digit |
 | ✦12 | combos (deaths + jumps, position + time…) | everything at once | late rooms |
-| ◇13 | **the HUD** | in one room the HUD counters are giant and solid | secret |
+| ◇13 | **the HUD** | in one room the HUD counters are giant and solid | FINE PRINT (2,4), built 10-20 |
 | ◇14 | **wall clock** (real local time HH:MM) | the hub clock is real; wait for a minute ending in 1, 4 or 7 | stray point sealed in the minute digit's lower cell (built 10-20) |
-| ◇15 | **the map** | a wall that is drawn open on the pause map is fake | secret |
+| ◇15 | **the map** | a wall that is drawn open on the pause map is fake | tally4's right wall → FINE PRINT |
 | ◇16 | **the title** | the title letters are a room; walk left from the start | secret |
 | ★ | **where the point goes** | the Master Readout has several slots; the right one comes from clues in secret rooms | true ending |
 
@@ -155,3 +155,10 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
   Gotchas: the in-app browser pane freezes rAF when hidden and caches modules (python http.server sends no
   cache headers) → use `_shared/shot.sh` + `?shot` for checks. `tools/locks.mjs ... clock 60` sweeps HHMM 1200+v.
   NEXT polish ideas: ◇13 HUD-solid secret room; more rooms per region (target 25+); music variety.
+- 2026-10-20 08:30 — **◇13+◇15 FINE PRINT** (2,4, tally palette, `nohud`): reached through a fake wall (X) in
+  tally4's right edge rows 17-19 (the pause map draws only true walls, so it shows as a gap). Corridor exactly one
+  digit tall: giant seconds digit (time, s=3) → floating hazard × (die here; P at 24,19) → giant deaths digit
+  (passable on deaths ending 1/4/7, `locks.mjs fineprint at:34,19 deaths`) → stray point. Added to the canonical
+  route after tally4 (`route.mjs --from 15` re-solved; full route now 3 points, 129.8 s, D15). Total points 5
+  (hub clock point is never in the route: real time). hub/tally4/fineprint are now authored in
+  tools/rooms_src/rest.py (hub edits ported there) — edit there and re-run, don't hand-edit those maps.

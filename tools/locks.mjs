@@ -12,7 +12,7 @@ for (let v = 0; v < +mod; v++) {
     if (k === 'spawn') { const [x, y] = val.split(',').map(Number); g.p.x = (x * 8 + 1) * 256; g.p.y = (y * 8 + 2) * 256; g.spawn = { x: g.p.x, y: g.p.y }; }
     else g.c[k] = +val;
   }
-  if (ctr === 'clock') g.clockMinutes = 1200 + v; else if (ctr === 'volume') g.volume = v; else if (ctr === 'visits') g.c.visits[room] = v; else g.c[ctr] = v;
+  if (ctr === 'time') g.c.steps = v * 120; else if (ctr === 'clock') g.clockMinutes = 1200 + v; else if (ctr === 'volume') g.volume = v; else if (ctr === 'visits') g.c.visits[room] = v; else g.c[ctr] = v;
   updateDisplays(g);
   const r = solveAny(g, goal.startsWith('at:') ? { at: goal.slice(3).split(',').map(Number) } : { room: goal }, { noDeath: true, restart: false, quick: true });
   process.stdout.write(`${v}:${r.ok ? 'Y' : '.'} `);

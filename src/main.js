@@ -306,7 +306,7 @@ function drawHints(x, pal) {
 }
 
 function drawHud(x, pal, dt) {
-  if (settings.hud || game.room.hud) {
+  if ((settings.hud || game.room.hud) && !game.room.nohud) {
     const t = game.c.steps / HZ;
     x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillRect(2, 2, 70, 11);
     R.segNum(x, fmtTime(t).replace(/\.\d\d$/, '') , 4, 4, R.hexA(pal.lit, 0.85), R.hexA(pal.lit, 0.08));
