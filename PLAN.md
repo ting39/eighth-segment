@@ -96,8 +96,8 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
 ---------------------------------------------------------------------------------------------------
 ## Checklist
 - [x] Design doc: core rule, knowledge-lock list, world map sketch, name
-- [ ] Engine: fixed-step physics, tilemap + display collision, input layer, room transitions
-- [ ] Feel tuning + automated physics tests
+- [x] Engine: fixed-step physics, tilemap + display collision, input layer, room transitions
+- [x] Feel tuning + automated physics tests (test/physics.test.mjs, 12 tests)
 - [ ] Art & audio generation (VFD renderer, glow, sfx, region music)
 - [ ] World: rooms, locks, secrets, endings
 - [ ] Solver + replay harness proves completability; softlock audit
@@ -108,3 +108,17 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
 ## Progress log
 - 2026-10-20 01:50 — Design doc written. Name: Eighth Segment. Folder kept as `platformer`.
   Weekly usage 28% at start (Pro plan) → keep turns efficient.
+- 2026-10-20 02:45 — Engine done: `src/sim.js` (120 Hz int sim, squeeze/corner forgiveness, crush,
+  checkpoints = standing on a `P` marker), `src/render.js` (VFD look, bloom, mesh), `src/input.js`,
+  `src/audio.js` (sfx + procedural region songs), `src/main.js` (menus, save, settings, map, endings,
+  `?dev`, `?shot&room=ID`). Rooms so far: title(secret), wake, lit, corners, climb, tally1, tally2(stub).
+  Tools: `tools/solver.mjs` (weighted A*, BFS-distance heuristic, portfolio `solveAny`),
+  `tools/try.mjs from to|at:x,y [k=v]`, `tools/locks.mjs room goal counter mod spawn=x,y` (which counter
+  values pass without dying), `tools/show.mjs room [k=v]` (ASCII with segments), `tools/roomgen.py` +
+  `tools/setmap.py id` + `tools/addroom.py` (author maps with drawing ops; scripts in scratch, re-creatable).
+  **Usage is tight (weekly 37% after ~1 h, shared by 3 lanes): scope cut to ~20 rooms.**
+  Design facts learned: no decimal digit has both side bars of a cell unlit → corridors can't pass straight
+  through a cell. Gate elements: a-bridge {0,2,3,5,6,7,8,9}; hanging d-blocker {1,4,7,9};
+  left-column shaft (f,e off) {1,3,7}; middle-corner pass (g off) {0,1,7}.
+  NEXT: finish tally1 lock check (target {7,9}), tally2..5 (deaths, then jumps), hub, 2 short regions,
+  master room, replay test, publish.
