@@ -3,6 +3,7 @@ import { buildWorld, createGame, step, restartRoom, snapshot, restore, updateDis
 import { ROOMS, START_ROOM, ENDINGS } from './rooms.js';
 import { createRenderer, W, H, PALETTES } from './render.js';
 import { createInput, DEFAULT_KEYS, keyName } from './input.js';
+import { digitMask } from './segments.js';
 import { initAudio, sfx, playSong, setVolumes } from './audio.js';
 
 const params = new URLSearchParams(location.search);
@@ -246,7 +247,7 @@ function frame(now) {
     if (mode === 'map') { if (edges.some((e) => e === 'pause' || e === 'back' || e === 'map' || e === 'confirm')) { mode = menu ? 'pause' : 'play'; sfx.move(); } }
     else if (mode === 'ending') {
       endingInfo.t += dt;
-      if (endingInfo.t > 3 && edges.some((e) => e === 'confirm' || e === 'pause')) { mode = 'title'; menu = titleMenu(); playSong('title'); }
+      if (endingInfo.t > 4.5 && edges.some((e) => e === 'confirm' || e === 'pause')) { mode = 'title'; menu = titleMenu(); playSong('title'); }
     } else menuInput(edges);
   }
   squash *= 0.8;
@@ -407,17 +408,55 @@ function drawMap(x, pal) {
   R.text(pts, W - R.textWidth(pts) - 4, 4, R.hexA(pal.edge, 0.8));
 }
 
+// The Master Readout, drawn big: digits light one by one, then the point (you) arcs into the slot
+// you chose. Ending 3 reads 3.14159; the wrong slots read ten times too much / too little.
+const READOUTS = { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
+function bigDigit(x, mask, px, py, on, ghost) {
+  const L = 8;
+  const segs = [[2, 0, L, 2], [L + 2, 2, 2, L], [L + 2, L + 4, 2, L], [2, 2 * L + 4, L, 2], [0, L + 4, 2, L], [0, 2, 2, L], [2, L + 2, L, 2]];
+  segs.forEach(([a, b, w, h], k) => { x.fillStyle = mask & (1 << k) ? on : ghost; x.fillRect(px + a, py + b, w, h); });
+}
+function drawReadout(x, pal, e) {
+  const [digits, slot] = READOUTS[e.id] || READOUTS[3];
+  const pitch = 16, x0 = Math.round((W - digits.length * pitch + 4) / 2), y0 = 18;
+  const lit = Math.max(0, Math.min(digits.length, Math.floor((e.t - 0.6) / 0.18)));
+  if (lit > (e.lit || 0)) { e.lit = lit; sfx.seg(); }
+  const T0 = 0.8 + digits.length * 0.18, T1 = T0 + 0.7;          // point flight
+  const landed = e.t >= T1;
+  if (landed && !e.landed) { e.landed = true; sfx.point(); }
+  // a wrong readout never settles: it flickers now and then
+  const wrong = e.id !== 3 && landed && Math.sin(e.t * 7.3) * Math.sin(e.t * 2.1) > 0.82;
+  const settle = landed ? Math.min(1, (e.t - T1) * 2) : 0;
+  const onCol = e.id === 3 && landed ? R.hexA('#ffffff', 0.55 + 0.45 * settle) : R.hexA(pal.lit, wrong ? 0.35 : 0.95);
+  for (let i = 0; i < digits.length; i++) {
+    bigDigit(x, i < lit ? digitMask(+digits[i]) : 0, x0 + i * pitch, y0, onCol, R.hexA(pal.lit, 0.07));
+  }
+  const sx = x0 + slot * pitch + 13, sy = y0 + 20;                 // the decimal-point slot
+  x.fillStyle = R.hexA(pal.lit, 0.12); x.fillRect(sx, sy, 2, 2);
+  if (e.t < T0) return;
+  const u = Math.min(1, (e.t - T0) / (T1 - T0)), ease = 1 - (1 - u) * (1 - u);
+  const fx = W / 2 + (sx - W / 2) * ease, fy = H + 4 + (sy - H - 4) * ease - Math.sin(u * Math.PI) * 30;
+  x.fillStyle = '#ffffff'; x.fillRect(Math.round(fx), Math.round(fy), 2, 2);
+  if (landed && e.t - T1 < 0.6) {                                   // landing ring
+    const k = (e.t - T1) / 0.6;
+    x.strokeStyle = R.hexA('#ffffff', 0.8 * (1 - k)); x.lineWidth = 1;
+    x.beginPath(); x.arc(sx + 1, sy + 1, 2 + k * 18, 0, Math.PI * 2); x.stroke();
+  }
+}
+
 function drawEnding(x, pal) {
   const e = endingInfo, end = ENDINGS.find((q) => q.id === e.id) || ENDINGS[0];
-  const a = Math.min(1, e.t / 1.5);
-  x.fillStyle = `rgba(0,0,0,${0.85 * a})`; x.fillRect(0, 0, W, H);
-  let y = 24;
-  R.text(end.title, (W - R.textWidth(end.title)) / 2, y, R.hexA(pal.lit, a)); y += 16;
-  for (const line of end.lines) { R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA('#ffffff', a * 0.85)); y += 9; }
-  y += 8;
+  x.fillStyle = `rgba(0,0,0,${0.96 * Math.min(1, e.t / 0.8)})`; x.fillRect(0, 0, W, H);
+  drawReadout(x, pal, e);
+  const a = Math.max(0, Math.min(1, (e.t - 2.9) / 1.2));
+  let y = 54;
+  R.text(end.title, (W - R.textWidth(end.title)) / 2, y, R.hexA(pal.lit, a)); y += 14;
+  for (const line of end.lines.filter((l) => !/^[\d.]+$/.test(l))) { R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA('#ffffff', a * 0.85)); y += 9; }
+  y += 6;
   const stats = [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/${TOTAL_POINTS}`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
-  for (const s of stats) { R.text(s, (W - R.textWidth(s)) / 2, y, R.hexA(pal.edge, a)); y += 9; }
-  if (e.t > 3) R.text('PRESS JUMP', (W - R.textWidth('PRESS JUMP')) / 2, H - 14, R.hexA(pal.edge, 0.5 + 0.5 * Math.sin(e.t * 4)));
+  const b = Math.max(0, Math.min(1, (e.t - 3.6) / 1.2));
+  for (const st of stats) { R.text(st, (W - R.textWidth(st)) / 2, y, R.hexA(pal.edge, b)); y += 9; }
+  if (e.t > 4.5) R.text('PRESS JUMP', (W - R.textWidth('PRESS JUMP')) / 2, H - 12, R.hexA(pal.edge, 0.5 + 0.5 * Math.sin(e.t * 4)));
 }
 
 // ---------------------------------------------------------------- dev ----
@@ -498,6 +537,7 @@ if (SHOT) {
   mode = params.has('title') ? 'title' : 'play';
   if (mode === 'title') menu = titleMenu();
   devOverlay = params.has('grid');
+  if (params.get('ending')) { endingInfo = { id: +params.get('ending'), time: 1234.5, deaths: 88, jumps: 321, points: 2, assisted: false, t: +params.get('t') || 6 }; mode = 'ending'; }
   if (params.has('stuck')) Object.assign(roomStay, { id, d0: c.deaths - 20, s0: 0 });
   draw(0);
 } else {
