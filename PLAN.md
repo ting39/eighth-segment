@@ -58,7 +58,7 @@ Consequences, all strict and consistent (they are the knowledge locks):
 | ✦11 | **MUSIC VOLUME** (settings) | the menu is part of the world | a speaker glyph next to the digit; menu draws volume as the same 7-seg digit |
 | ✦12 | combos (deaths + jumps, position + time…) | everything at once | late rooms |
 | ◇13 | **the HUD** | in one room the HUD counters are giant and solid | secret |
-| ◇14 | **wall clock** (real local time HH:MM) | the hub clock is real; wait for a minute ending in 8 | secret room under the hub |
+| ◇14 | **wall clock** (real local time HH:MM) | the hub clock is real; wait for a minute ending in 1, 4 or 7 | stray point sealed in the minute digit's lower cell (built 10-20) |
 | ◇15 | **the map** | a wall that is drawn open on the pause map is fake | secret |
 | ◇16 | **the title** | the title letters are a room; walk left from the start | secret |
 | ★ | **where the point goes** | the Master Readout has several slots; the right one comes from clues in secret rooms | true ending |
@@ -103,7 +103,7 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
 - [x] Solver + replay harness proves completability (test/route.test.mjs); world validators
 - [x] Menus, save, settings (volume digits, speed, remap), touch/gamepad, title & ending
 - [x] Publish ting39/eighth-segment + Pages + CARD.json + MORNING_REPORT entry
-- [ ] Polish passes (juice, difficulty curve, hints that don't spoil)
+- [ ] Polish passes (juice, difficulty curve, hints that don't spoil) — hints ✓, ending anim ✓, clock secret ✓, mobile checked ✓
 
 ## Progress log
 - 2026-10-20 01:50 — Design doc written. Name: Eighth Segment. Folder kept as `platformer`.
@@ -143,3 +143,15 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
   master (2,0).
   POLISH IDEAS (next): playtest feel in a visible browser; more rooms per region (target 25+); hub
   clock secret (◇14), HUD-solid secret (◇13); better music; ending animation; mobile layout check.
+- 2026-10-20 07:30–08:10 (resume watchdog) — Polish: (1) **hints when stuck**: after 6+ deaths or 150 s in a
+  room, each wired display fades in a tiny glyph for its quantity (deaths = the HUD's pink ×, jumps ↑, time
+  clock, pos ↔, idle z; volume already has its speaker); setting HINTS WHEN STUCK (default on). `?shot&stuck`
+  previews it. (2) **ending animation**: the Master Readout lights digit by digit and the point arcs up into the
+  chosen slot (3.14159 true / 31.4159 / 0314159), wrong endings flicker; text fades in after; `?shot&room=master&
+  ending=N&t=S` previews. (3) **◇14 clock secret**: 4th stray point in the hub, inside the lower cell of the
+  minute-ones digit; ledges up the right side + 3 static corner brackets so the only way in is through bar d →
+  opens exactly on minutes ending 1/4/7 (verified for all 00–59; test/secrets.test.mjs). Route replay unaffected.
+  (4) mobile: portrait fills width with room for touch buttons below; landscape OK — no change.
+  Gotchas: the in-app browser pane freezes rAF when hidden and caches modules (python http.server sends no
+  cache headers) → use `_shared/shot.sh` + `?shot` for checks. `tools/locks.mjs ... clock 60` sweeps HHMM 1200+v.
+  NEXT polish ideas: ◇13 HUD-solid secret room; more rooms per region (target 25+); music variety.

@@ -13,6 +13,8 @@ understand what the numbers mean. Move and jump are the only controls.
   Esc pauses (map, restart room, settings). Progress saves automatically.
 - Settings: music & sound volume, game speed (assist), glow, screen shake, flashes, HUD, touch, keys.
 - No spoilers here: if you are stuck, die more. Or don't. Or stand still.
+- Stuck for a while in one room? Displays quietly show a glyph for what they count
+  (turn off: Settings → HINTS WHEN STUCK).
 
 ## Under the hood
 - `src/sim.js` — deterministic 120 Hz integer simulation (shared by the game, tests and solver):
@@ -22,6 +24,7 @@ understand what the numbers mean. Move and jump are the only controls.
 - `tools/solver.mjs` — weighted A* over the real sim. `tools/route.mjs` solves the whole game from a
   new save (waypoints in `tools/route-goals.mjs`) and records the inputs in `replays/route.json`.
 - `npm test` — physics tests, world validators (edges, spawns, crush-safety for every counter value)
-  and a replay of the recorded route proving the game is completable to the true ending.
+  a replay of the recorded route proving the game is completable to the true ending, and solver
+  checks that secret locks open for exactly the intended values.
 
 Everything (code, pixel art, sound, music) is original and generated in code.
