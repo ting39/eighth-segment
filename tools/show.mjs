@@ -1,7 +1,7 @@
 // Print rooms as ASCII with display segments overlaid.
 // usage: node tools/show.mjs <roomId|all> [deaths=0 jumps=0 time=0 ...]
 import { buildWorld, createGame, updateDisplays, RW, RH } from '../src/sim.js';
-import { ROOMS } from '../src/rooms.js';
+import { ROOMS } from './world.mjs';
 const world = buildWorld(ROOMS);
 const [id = 'all', ...kv] = process.argv.slice(2);
 const set = Object.fromEntries(kv.map((s) => s.split('=')));

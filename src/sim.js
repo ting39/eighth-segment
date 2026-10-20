@@ -64,18 +64,34 @@ export function compileRoom(def) {
   for (const [key, spec] of Object.entries(def.displays || {})) {
     const m = spec.at ? { x: spec.at[0], y: spec.at[1] } : markers[key];
     if (!m) throw new Error(`${def.id}: display marker ${key} missing`);
-    displays.push(compileDisplay(def.id, { ...spec, x: m.x + (spec.dx || 0), y: m.y + (spec.dy || 0) }));
+    displays.push(compileDisplay(def.id, { ...spec, key, x: m.x + (spec.dx || 0), y: m.y + (spec.dy || 0) }));
   }
+  // the HUD as real digits (time tens/ones, deaths tens/ones), one set per HUD position
+  if (def.hudSolid) for (const at of ['top', 'bottom']) {
+    const y = at === 'top' ? 1 : RH - 6;
+    [['time', 1, 1], ['time', 0, 5], ['deaths', 1, 11], ['deaths', 0, 15]].forEach(([src, place, x], i) =>
+      displays.push(compileDisplay(def.id, { key: `hud${at}${i}`, s: 1, src, place, x, y, hudAt: at })));
+  }
+  // interactable parts: buttons and knobs are solid floor pieces; switches and loose segments are not
+  const parts = (def.parts || []).map((pt, i) => {
+    const q = { w: 1, ...pt, i, key: `${def.id}:${pt.kind}${i}` };
+    if (q.kind === 'button' || q.kind === 'knob') for (let x = q.x; x < q.x + q.w; x++) tiles[q.y * RW + x] = T.WALL;
+    if (q.kind === 'seg') q.key = `seg:${def.id}:${q.id ?? i}`;
+    return q;
+  });
   for (const [key, spec] of Object.entries(def.triggers || {})) {
     const m = markers[key];
     if (!m) throw new Error(`${def.id}: trigger marker ${key} missing`);
     items.push({ kind: spec.kind, id: spec.id, x: m.x, y: m.y, w: spec.w || 1, h: spec.h || 1, key: `${def.id}:${key}` });
   }
-  return { ...def, tiles, spawns, start, items, displays };
+  return { ...def, tiles, spawns, start, items, displays, parts };
 }
 
 function compileDisplay(roomId, d) {
   const out = { src: 'static', base: 10, place: 0, div: 1, off: 0, ...d, cells: [] };
+  out.sockKey = `${roomId}:${d.key}`;
+  out.missing = 0;
+  for (const ch of d.sockets || '') out.missing |= 1 << 'abcdefg'.indexOf(ch);
   if (d.t === 'bits') {
     const n = d.n, w = d.w || 1, h = d.h || 1, gap = d.gap ?? 1;
     for (let i = 0; i < n; i++) {
@@ -115,7 +131,7 @@ export function neighbor(world, room, dx, dy) {
 // ---------------------------------------------------------------- state ---
 
 export function newCounters() {
-  return { deaths: 0, jumps: 0, steps: 0, idle: 0, visits: {} };
+  return { deaths: 0, jumps: 0, steps: 0, idle: 0, visits: {}, reg: {}, sw: {}, sock: {} };
 }
 
 export function createGame(world, roomId, opts = {}) {
@@ -126,6 +142,12 @@ export function createGame(world, roomId, opts = {}) {
       jumping: false, face: 1, dead: false, dtimer: 0 },
     c: opts.counters ? structuredCloneCounters(opts.counters) : newCounters(),
     volume: opts.volume ?? 7,
+    bright: opts.bright ?? 5,          // global display brightness 0-9
+    hudpos: opts.hudpos || 'top',      // where the HUD sits: 'top' | 'bottom'
+    carry: null,                       // key of the loose segment being carried
+    pending: null,                     // a just-filled socket cell that stays air until you step out of it
+    partIn: {},                        // transient: which switches the player is inside
+    knobCol: null,
     clockMinutes: opts.clockMinutes ?? 0,
     points: new Set(opts.points || []),
     flags: new Set(opts.flags || []),
@@ -141,11 +163,13 @@ export function createGame(world, roomId, opts = {}) {
 }
 
 function structuredCloneCounters(c) {
-  return { deaths: c.deaths, jumps: c.jumps, steps: c.steps, idle: c.idle, visits: { ...c.visits } };
+  return { deaths: c.deaths, jumps: c.jumps, steps: c.steps, idle: c.idle, visits: { ...c.visits },
+    reg: { ...(c.reg || {}) }, sw: { ...(c.sw || {}) }, sock: { ...(c.sock || {}) } };
 }
 
 function enterRoom(g, room, entry, forcedSpawn) {
   g.room = room;
+  g.partIn = {}; g.knobCol = null; g.pending = null;
   g.nbr = {
     l: !!neighbor(g.world, room, -1, 0), r: !!neighbor(g.world, room, 1, 0),
     u: !!neighbor(g.world, room, 0, -1), d: !!neighbor(g.world, room, 0, 1),
@@ -177,7 +201,10 @@ function placeAtSpawn(g) {
 
 export function sourceValue(g, d) {
   const p = g.p;
-  switch (d.src) {
+  const src = d.sw && g.c.sw[d.sw] ? d.src2 : d.src;
+  if (src.startsWith('reg:')) return g.c.reg[src.slice(4)] || 0;
+  switch (src) {
+    case 'bright': return g.bright;
     case 'static': return d.val ?? 8;
     case 'deaths': return g.c.deaths;
     case 'jumps': return g.c.jumps;
@@ -209,6 +236,9 @@ export function displayLit(g, d) {
     for (let i = 0; i < d.n; i++) if (v & (1 << (d.n - 1 - i))) m |= 1 << i;
   } else m = digitMask(v);
   if (d.inv) m = ~m & ((1 << d.cells.length) - 1);
+  if (d.missing) m &= ~(d.missing & ~(g.c.sock[d.sockKey] || 0));
+  if (d.hudAt && d.hudAt !== g.hudpos) m = 0;
+  if (d.dim && g.bright === 0) m = 0;
   return m;
 }
 
@@ -218,10 +248,14 @@ export function updateDisplays(g) {
   for (const d of g.room.displays) {
     const m = displayLit(g, d);
     d.lit = m;
+    const holes = d.missing & ~(g.c.sock[d.sockKey] || 0);
+    const burnSolid = d.burn && g.bright === 9;
     for (let i = 0; i < d.cells.length; i++) {
-      if (!(m & (1 << i))) continue;
+      const on = m & (1 << i);
+      if (!on && !(burnSolid && !(holes & (1 << i)))) continue;
+      if (g.pending && g.pending.d === d && g.pending.i === i) continue;
       const [x, y, w, h] = d.cells[i];
-      for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) dyn[yy * RW + xx] = 1;
+      for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) dyn[yy * RW + xx] = on ? 1 : 2;
     }
   }
 }
@@ -234,7 +268,7 @@ export function solidAt(g, tx, ty) {
   if (ty < 0) return !g.nbr.u;
   if (ty >= RH) return false;
   const i = ty * RW + tx;
-  return g.room.tiles[i] === T.WALL || g.dyn[i] === 1;
+  return g.room.tiles[i] === T.WALL || g.dyn[i] !== 0;
 }
 
 export function collides(g, x, y) {
@@ -349,9 +383,14 @@ export function kill(g, cause) {
   if (p.dead) return;
   p.dead = true;
   p.dtimer = K.DEATH_STEPS;
+  if (g.carry) { g.events.push({ type: 'drop', key: g.carry }); g.carry = null; }
+  g.pending = null;
   g.c.deaths++;
   g.events.push({ type: 'die', cause, x: p.x, y: p.y });
 }
+
+// Put the player back at the respawn point without counting a death (v2's 'wrong slot' nudge).
+export function respawn(g) { placeAtSpawn(g); g.carry = null; updateDisplays(g); }
 
 // Restart the room from the menu: it is a death, by design.
 export function restartRoom(g) { kill(g, 'restart'); }
@@ -417,6 +456,7 @@ export function step(g, input) {
   if (collides(g, p.x, p.y)) { kill(g, 'crush'); return; }
   if (hazardHit(g)) { kill(g, 'spike'); return; }
   collectItems(g);
+  if (g.room.parts.length || g.carry) usePartsAfterMove(g, wasGround);
   if (p.ground) checkpoint(g);
 }
 
@@ -443,6 +483,71 @@ function edgeCheck(g) {
   enterRoom(g, next, { x: p.x, y: p.y });
   if (collides(g, p.x, p.y)) kill(g, 'crush');
   return true;
+}
+
+function overlapsTiles(p, x, y, w, h) {
+  return p.x < (x + w) * TS && p.x + PW > x * TS && p.y < (y + h) * TS && p.y + PH > y * TS;
+}
+
+// Buttons (+1 on landing), knobs (+/-1 per tile walked across), switches (flip on entering),
+// loose segments (pick up; carry into an empty socket of the same orientation).
+function usePartsAfterMove(g, wasGround) {
+  const p = g.p, c = g.c;
+  const footX = Math.floor((p.x + PW / 2) / TS), footY = Math.floor((p.y + PH) / TS);
+  let onKnob = null;
+  for (const pt of g.room.parts) {
+    if (pt.kind === 'button') {
+      if (p.ground && !wasGround && footY === pt.y && footX >= pt.x && footX < pt.x + pt.w) {
+        c.reg[pt.reg] = ((c.reg[pt.reg] || 0) + 1) % 100;
+        g.events.push({ type: 'button', reg: pt.reg, x: pt.x, y: pt.y });
+      }
+    } else if (pt.kind === 'knob') {
+      if (p.ground && footY === pt.y && footX >= pt.x && footX < pt.x + pt.w) onKnob = pt;
+    } else if (pt.kind === 'switch') {
+      const inside = overlapsTiles(p, pt.x, pt.y, 1, 1);
+      if (inside && !g.partIn[pt.key]) {
+        c.sw[pt.sw] = c.sw[pt.sw] ? 0 : 1;
+        g.events.push({ type: 'switch', sw: pt.sw, on: c.sw[pt.sw], x: pt.x, y: pt.y });
+      }
+      g.partIn[pt.key] = inside;
+    } else if (pt.kind === 'seg') {
+      if (!g.carry && !g.flags.has('used:' + pt.key) && overlapsTiles(p, pt.x, pt.y, 1, 1)) {
+        g.carry = pt.key; g.carryO = pt.o || 'h';
+        g.events.push({ type: 'pickup', key: pt.key, x: pt.x, y: pt.y });
+      }
+    }
+  }
+  if (onKnob) {
+    if (g.knobCol !== null && g.knobCol !== footX) {
+      const r = onKnob.reg, dv = footX - g.knobCol;
+      if (r === 'bright') g.bright = Math.max(0, Math.min(9, g.bright + dv));
+      else c.reg[r] = (((c.reg[r] || 0) + dv) % 100 + 100) % 100;
+      g.events.push({ type: 'knob', reg: r, d: dv, x: footX, y: onKnob.y });
+    }
+    g.knobCol = footX;
+  } else g.knobCol = null;
+  // sockets
+  if (g.carry) {
+    for (const d of g.room.displays) {
+      const holes = d.missing & ~(c.sock[d.sockKey] || 0);
+      if (!holes) continue;
+      for (let i = 0; i < d.cells.length; i++) {
+        if (!(holes & (1 << i))) continue;
+        const [x, y, w, h] = d.cells[i];
+        if ((w >= h ? 'h' : 'v') !== g.carryO || !overlapsTiles(p, x, y, w, h)) continue;
+        c.sock[d.sockKey] = (c.sock[d.sockKey] || 0) | (1 << i);
+        g.flags.add('used:' + g.carry);
+        g.events.push({ type: 'socket', key: g.carry, x, y });
+        g.carry = null;
+        g.pending = { d, i };
+        return;
+      }
+    }
+  }
+  if (g.pending) {
+    const [x, y, w, h] = g.pending.d.cells[g.pending.i];
+    if (!overlapsTiles(p, x, y, w, h)) { g.pending = null; updateDisplays(g); if (collides(g, p.x, p.y)) kill(g, 'crush'); }
+  }
 }
 
 // Standing on a respawn marker makes it the current respawn point.
@@ -477,6 +582,8 @@ export function snapshot(g) {
   return {
     room: g.room.id, p: { ...g.p }, c: structuredCloneCounters(g.c), spawn: { ...g.spawn },
     volume: g.volume, points: [...g.points], flags: [...g.flags],
+    bright: g.bright, hudpos: g.hudpos, carry: g.carry, carryO: g.carryO, knobCol: g.knobCol,
+    partIn: { ...g.partIn }, pending: g.pending ? { k: g.pending.d.key, i: g.pending.i } : null,
   };
 }
 
@@ -490,6 +597,9 @@ export function restore(g, s) {
   g.c = structuredCloneCounters(s.c);
   g.spawn = { ...s.spawn };
   g.volume = s.volume;
+  g.bright = s.bright ?? 5; g.hudpos = s.hudpos || 'top';
+  g.carry = s.carry || null; g.carryO = s.carryO; g.knobCol = s.knobCol ?? null; g.partIn = { ...(s.partIn || {}) };
+  g.pending = s.pending ? { d: g.room.displays.find((d) => d.key === s.pending.k), i: s.pending.i } : null;
   g.points = new Set(s.points);
   g.flags = new Set(s.flags);
   updateDisplays(g);

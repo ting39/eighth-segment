@@ -1,6 +1,6 @@
 // quick: node tools/try.mjs <fromRoom> <toRoom|event:slot> [k=v counters...]
 import { buildWorld, createGame, updateDisplays } from '../src/sim.js';
-import { ROOMS } from '../src/rooms.js';
+import { ROOMS } from './world.mjs';
 import { solve, solveAny } from './solver.mjs';
 const [from, to, ...kv] = process.argv.slice(2);
 const world = buildWorld(ROOMS);

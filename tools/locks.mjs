@@ -1,7 +1,7 @@
 // For a room and goal, list which values of a counter allow passing WITHOUT dying.
 // usage: node tools/locks.mjs <room> <goalRoom> <counter: deaths|jumps|...> [mod=10] [k=v ...]
 import { buildWorld, createGame, updateDisplays } from '../src/sim.js';
-import { ROOMS } from '../src/rooms.js';
+import { ROOMS } from './world.mjs';
 import { solveAny } from './solver.mjs';
 const [room, goal, ctr, mod = '10', ...kv] = process.argv.slice(2);
 const world = buildWorld(ROOMS);

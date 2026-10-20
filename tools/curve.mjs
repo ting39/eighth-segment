@@ -1,7 +1,7 @@
 // Difficulty proxy: solver time (s) and deaths spent per room along the canonical route.
 import fs from 'node:fs';
 import { buildWorld, createGame } from '../src/sim.js';
-import { ROOMS, START_ROOM } from '../src/rooms.js';
+import { ROOMS, START_ROOM } from './world.mjs';
 import { replay } from './solver.mjs';
 const data = JSON.parse(fs.readFileSync(new URL('../replays/route.json', import.meta.url), 'utf8'));
 const g = createGame(buildWorld(ROOMS), START_ROOM);

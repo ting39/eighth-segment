@@ -5,7 +5,16 @@ import { step, snapshot, restore, restartRoom, IN, RW, RH, TS, SUB, K, HZ, neigh
 
 const ACTIONS = [0, IN.LEFT, IN.RIGHT, IN.JUMP, IN.LEFT | IN.JUMP, IN.RIGHT | IN.JUMP];
 export const RESTART = 8;
-export const VOL = 16; // VOL + v : set music volume to v (menu action)
+export const VOL = 16;    // VOL + v: set music volume to v (menu action)
+export const BRIGHT = 32; // BRIGHT + v: set brightness to v
+export const HUDTOP = 48, HUDBOT = 49;
+export function applySetting(g, a) {
+  if (a >= HUDTOP) g.hudpos = a === HUDTOP ? 'top' : 'bottom';
+  else if (a >= BRIGHT) g.bright = a - BRIGHT;
+  else g.volume = a - VOL;
+}
+
+function ctrVal(g, name) { const [kind, k] = name.split('.'); return (kind === 'reg' ? g.c.reg[k] : g.c.sw[k]) || 0; }
 
 class Heap {
   constructor() { this.a = []; }
@@ -22,7 +31,7 @@ function lcm(a, b) { const g = (x, y) => (y ? g(y, x % y) : x); return (a / g(a,
 
 // What parts of the counters matter in this room
 function roomProfile(room) {
-  const prof = { deathMod: 1, jumpMod: 1, timePeriod: 0, idle: false, visits: false, volume: false };
+  const prof = { deathMod: 1, jumpMod: 1, timePeriod: 0, idle: false, visits: false, volume: false, bright: false, hud: !!room.hudSolid };
   for (const d of room.displays) {
     const period = d.t === 'bits' ? 2 ** d.n * d.div : d.base ** (d.place + 1) * d.div;
     if (d.src === 'deaths') prof.deathMod = lcm(prof.deathMod, period);
@@ -30,7 +39,8 @@ function roomProfile(room) {
     if (d.src === 'time') prof.timePeriod = Math.max(prof.timePeriod, period * HZ);
     if (d.src === 'idle') prof.idle = true;
     if (d.src === 'visits') prof.visits = true;
-    if (d.src === 'volume') prof.volume = true;
+    if (d.src === 'volume' || d.src2 === 'volume') prof.volume = true;
+    if (d.src === 'bright' || d.burn || d.dim) prof.bright = true;
   }
   return prof;
 }
@@ -44,6 +54,9 @@ function key(g, prof, macro, cs = 0) {
   if (prof.idle) k += `|i${Math.min(c.idle >> 2, 300)}`;
   if (prof.visits) k += `|v${(c.visits[g.room.id] || 0) % 10}`;
   if (prof.volume) k += `|o${g.volume}`;
+  if (prof.bright) k += `|b${g.bright}`;
+  if (prof.hud) k += `|h${g.hudpos}`;
+  k += `|${JSON.stringify(c.reg)}${JSON.stringify(c.sw)}${JSON.stringify(c.sock)}${g.carry || ''}${g.pending ? 'p' : ''}${g.knobCol ?? ''}`;
   return k;
 }
 
@@ -82,6 +95,7 @@ export function solve(g, goal, opts = {}) {
   const h = (gg) => {
     if (goal.ctr === 'idle') return Math.max(0, goal.val * 120 - gg.c.idle);
     if (goal.ctr === 'time') { const P = goal.mod * 120; return (((goal.val * 120 - gg.c.steps) % P) + P) % P; }
+    if (goal.ctr && goal.ctr.includes('.')) { const m = goal.mod || 10; return ((((goal.val - ctrVal(gg, goal.ctr)) % m) + m) % m) * 20; }
     if (goal.ctr) { const m = goal.mod || 10; return ((((goal.val - gg.c[goal.ctr]) % m) + m) % m) * (goal.ctr === 'deaths' ? 60 : 30); }
     const tx = Math.min(RW - 1, Math.max(0, Math.floor((gg.p.x + 768) / TS)));
     const ty = Math.min(RH - 1, Math.max(0, Math.floor((gg.p.y + 768) / TS)));
@@ -95,6 +109,7 @@ export function solve(g, goal, opts = {}) {
     if (goal.at) return !gg.p.dead && Math.floor((gg.p.x + 768) / TS) === goal.at[0] && Math.floor((gg.p.y + 768) / TS) === goal.at[1];
     if (goal.ctr === 'idle') return !gg.p.dead && gg.p.ground && gg.c.deaths === startDeaths && Math.floor(gg.c.idle / 120) === goal.val;
     if (goal.ctr === 'time') return !gg.p.dead && gg.p.ground && Math.floor(gg.c.steps / 120) % goal.mod === goal.val && gg.c.steps % 120 < 8;
+    if (goal.ctr && goal.ctr.includes('.')) return !gg.p.dead && gg.p.ground && ctrVal(gg, goal.ctr) % (goal.mod || 10) === goal.val;
     if (goal.ctr) return !gg.p.dead && gg.p.ground && ((gg.c[goal.ctr] % (goal.mod || 10)) + (goal.mod || 10)) % (goal.mod || 10) === goal.val;
     if (goal.event) return gg.events.some((e) => e.type === goal.event && (!goal.id || e.id === goal.id));
     return false;
@@ -102,7 +117,13 @@ export function solve(g, goal, opts = {}) {
 
   const actions = [...ACTIONS];
   if (allowRestart) actions.push(RESTART);
-  if (prof.volume) for (let v = 0; v <= 9; v++) actions.push(VOL + v);
+  // settings (volume, brightness, HUD position) are deliberate menu actions: the route sets them
+  // explicitly with goals like 'vol:7', 'bright:9', 'hud:bottom'; the search never flips them itself
+  if (opts.settings) {
+    if (prof.volume) for (let v = 0; v <= 9; v++) actions.push(VOL + v);
+    if (prof.bright) for (let v = 0; v <= 9; v++) actions.push(BRIGHT + v);
+    if (prof.hud) actions.push(HUDTOP, HUDBOT);
+  }
 
   const seen = new Set();
   const heap = new Heap();
@@ -114,7 +135,9 @@ export function solve(g, goal, opts = {}) {
     const node = heap.pop();
     if (++expanded > maxNodes) break;
     for (const a of actions) {
-      if (a >= VOL && node.s.volume === a - VOL) continue;
+      if (a >= VOL && a < BRIGHT && node.s.volume === a - VOL) continue;
+      if (a >= BRIGHT && a < HUDTOP && node.s.bright === a - BRIGHT) continue;
+      if (a >= HUDTOP && node.s.hudpos === (a === HUDTOP ? 'top' : 'bottom')) continue;
       restore(g, node.s);
       g.events.length = 0;
       let n = macro, ok = false, left = false, cost = macro;
@@ -123,7 +146,7 @@ export function solve(g, goal, opts = {}) {
         restartRoom(g); n = 1; cost = 60; // discourage, but allow
         step(g, 0);
       } else if (a >= VOL) {
-        g.volume = a - VOL; cost = 30; n = 0;
+        applySetting(g, a); cost = 30; n = 0;
         step(g, 0); n = 1;
       } else {
         for (let i = 0; i < n; i++) {
@@ -165,7 +188,7 @@ function unwind(n) {
 export function replay(g, rle, onStep) {
   for (const [a, k] of rle) {
     if (a === RESTART) { restartRoom(g); step(g, 0); if (onStep) onStep(g); continue; }
-    if (a >= VOL) { g.volume = a - VOL; step(g, 0); if (onStep) onStep(g); continue; }
+    if (a >= VOL) { applySetting(g, a); step(g, 0); if (onStep) onStep(g); continue; }
     for (let i = 0; i < k; i++) { step(g, a); if (onStep) onStep(g); }
   }
 }

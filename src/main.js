@@ -1,15 +1,17 @@
 // Game shell: loop, states (title / play / pause / map / settings / ending), save, fx.
-import { buildWorld, createGame, step, restartRoom, snapshot, restore, updateDisplays, HZ, SUB, RW, RH, TILE, T, newCounters } from './sim.js';
-import { ROOMS, START_ROOM, ENDINGS } from './rooms.js';
+import { buildWorld, createGame, step, restartRoom, respawn, snapshot, restore, updateDisplays, HZ, SUB, RW, RH, TILE, T, newCounters } from './sim.js';
 import { createRenderer, W, H, PALETTES } from './render.js';
 import { createInput, DEFAULT_KEYS, keyName } from './input.js';
 import { digitMask } from './segments.js';
 import { initAudio, sfx, playSong, setVolumes } from './audio.js';
 
 const params = new URLSearchParams(location.search);
+// ?v2 plays the redesign (Display Hall world); without it the original world stays live
+const V2 = params.has('v2');
+const { ROOMS, START_ROOM, ENDINGS } = await import(V2 ? './rooms_v2.js' : './rooms.js');
 const DEV = params.has('dev');
 const SHOT = params.has('shot');
-const SAVE_KEY = 'eighth-segment/v1';
+const SAVE_KEY = V2 ? 'eighth-segment/v2' : 'eighth-segment/v1';
 
 const world = buildWorld(ROOMS);
 const TOTAL_POINTS = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
@@ -24,18 +26,19 @@ const store = {
 };
 const saved = store.load() || {};
 const settings = Object.assign({
-  music: 6, sfx: 7, speed: 100, glow: true, shake: true, flashes: true, hud: true, hints: true, touch: 'auto',
+  music: 6, sfx: 7, bright: 5, hudpos: 'top', speed: 100, glow: true, shake: true, flashes: true, hud: true, hints: true, touch: 'auto',
   keys: structuredClone(DEFAULT_KEYS),
 }, saved.settings || {});
 // older saves predate some actions (e.g. restart): fill in defaults for any missing key lists
 for (const [act, codes] of Object.entries(DEFAULT_KEYS)) if (!settings.keys[act]) settings.keys[act] = [...codes];
 input.keys = settings.keys;
-const meta = Object.assign({ endings: [], bestTime: null, bestDeaths: null, clears: 0 }, saved.meta || {});
+const meta = Object.assign({ endings: [], bestTime: null, bestDeaths: null, clears: 0, revealed: [], hintsSeen: [] }, saved.meta || {});
+const gopts = () => ({ ...gopts(), bright: settings.bright, hudpos: settings.hudpos });
 
 function applySettings() {
   setVolumes(settings.music, settings.sfx);
   R.opts.glow = settings.glow; R.opts.shake = settings.shake; R.opts.flashes = settings.flashes;
-  if (game) game.volume = settings.music;
+  if (game) { game.volume = settings.music; game.bright = settings.bright; game.hudpos = settings.hudpos; }
   updateTouchVisibility();
 }
 
@@ -51,7 +54,7 @@ let endingInfo = null;
 let lastSave = 0;
 
 function newGame() {
-  game = createGame(world, START_ROOM, { volume: settings.music });
+  game = createGame(world, START_ROOM, gopts());
   visited = new Set([START_ROOM]);
   run = { visited: [...visited], assisted: settings.speed < 100, snap: null };
   saveRun();
@@ -60,7 +63,7 @@ function newGame() {
 }
 
 function continueGame() {
-  game = createGame(world, run.snap.room, { volume: settings.music, counters: run.snap.c, spawn: run.snap.spawn, points: run.snap.points, flags: run.snap.flags });
+  game = createGame(world, run.snap.room, { ...gopts(), counters: run.snap.c, spawn: run.snap.spawn, points: run.snap.points, flags: run.snap.flags });
   // createGame counted a visit for re-entering; undo it so loading is not a "visit"
   game.c.visits = { ...run.snap.c.visits };
   updateDisplays(game);
@@ -105,6 +108,9 @@ function handleEvents() {
       }
       case 'respawn': sfx.respawn(); R.burst(game.p.x / SUB + 3, game.p.y / SUB + 3, R.hexA(pal.lit, 0.8), 8, 0.6, 20); break;
       case 'room': {
+        for (const k of hintsShown) if (!meta.hintsSeen.includes(k)) meta.hintsSeen.push(k);
+        hintsShown.clear();
+        for (const r of world.rooms.get(e.id).reveals || []) reveal(r);
         sfx.room();
         const room = world.rooms.get(e.id);
         showBanner(room);
@@ -115,6 +121,12 @@ function handleEvents() {
       }
       case 'point': sfx.point(); R.burst(e.x * TILE + 4, e.y * TILE + 4, '#ffffff', 24, 1.4); saveRun(); break;
       case 'bonk': sfx.bonk(); break;
+      case 'button': sfx.move(); R.dust(e.x * TILE, e.y * TILE, R.hexA(pal.lit, 0.8)); break;
+      case 'knob': sfx.seg(); if (e.reg === 'bright') { settings.bright = game.bright; reveal('bright'); } break;
+      case 'switch': sfx.ok(); R.burst(e.x * TILE + 4, e.y * TILE + 4, R.hexA(pal.lit, 0.8), 6, 0.6, 16); break;
+      case 'pickup': sfx.point(); break;
+      case 'socket': sfx.slot(); R.flash = 0.6; R.burst(e.x * TILE + 4, e.y * TILE + 4, '#ffffff', 16, 1.2); saveRun(); break;
+      case 'drop': break;
       case 'slot': startEnding(e.id); break;
       case 'note': break;
     }
@@ -123,6 +135,12 @@ function handleEvents() {
 }
 
 function startEnding(id) {
+  if (V2 && id !== 3) {   // 1% / 10%: the machine shrugs, the point pops back out, the run goes on
+    sfx.slot();
+    endingInfo = { id, time: game.c.steps / HZ, deaths: game.c.deaths, jumps: game.c.jumps, points: game.points.size, assisted: run.assisted, t: 0, nudge: true };
+    if (!meta.endings.includes(id)) meta.endings.push(id);
+    saveAll(); mode = 'ending'; return;
+  }
   sfx.slot();
   const time = game.c.steps / HZ;
   endingInfo = { id, time, deaths: game.c.deaths, jumps: game.c.jumps, points: game.points.size, assisted: run.assisted, t: 0 };
@@ -137,6 +155,14 @@ function startEnding(id) {
   playSong('master');
 }
 
+// one-time hints: the first display of each kind shows its glyph at the wire's far end, for one visit
+const hintsShown = new Set();
+function showHint(d) {
+  if (meta.hintsSeen.includes(d.hint)) return false;
+  hintsShown.add(d.hint); return true;
+}
+function reveal(k) { if (!meta.revealed.includes(k)) { meta.revealed.push(k); saveAll(); } }
+
 // --------------------------------------------------------------- menus ---
 function fmtTime(sec) {
   const m = Math.floor(sec / 60), s = Math.floor(sec % 60), cs = Math.floor((sec * 100) % 100);
@@ -148,6 +174,8 @@ function settingsMenu(back) {
   const items = [
     { label: 'MUSIC VOLUME', value: () => settings.music, digit: true, adj: (d) => { settings.music = (settings.music + d + 10) % 10; } },
     { label: 'SOUND VOLUME', value: () => settings.sfx, digit: true, adj: (d) => { settings.sfx = (settings.sfx + d + 10) % 10; sfx.jump(); } },
+    ...(meta.revealed.includes('bright') ? [{ label: 'BRIGHTNESS', value: () => settings.bright, digit: true, adj: (d) => { settings.bright = Math.max(0, Math.min(9, settings.bright + d)); } }] : []),
+    ...(meta.revealed.includes('hudpos') ? [{ label: 'HUD POSITION', value: () => settings.hudpos.toUpperCase(), adj: () => { settings.hudpos = settings.hudpos === 'top' ? 'bottom' : 'top'; } }] : []),
     { label: 'GAME SPEED', value: () => settings.speed + '%', adj: (d) => { const i = SPEEDS.indexOf(settings.speed); settings.speed = SPEEDS[Math.max(0, Math.min(SPEEDS.length - 1, i - d))]; if (settings.speed < 100 && run) run.assisted = true; } },
     { label: 'GLOW', value: () => (settings.glow ? 'ON' : 'OFF'), adj: () => { settings.glow = !settings.glow; } },
     { label: 'SCREEN SHAKE', value: () => (settings.shake ? 'ON' : 'OFF'), adj: () => { settings.shake = !settings.shake; } },
@@ -251,7 +279,10 @@ function frame(now) {
     if (mode === 'map') { if (edges.some((e) => e === 'pause' || e === 'back' || e === 'map' || e === 'confirm')) { mode = menu ? 'pause' : 'play'; sfx.move(); } }
     else if (mode === 'ending') {
       endingInfo.t += dt;
-      if (endingInfo.t > 4.5 && edges.some((e) => e === 'confirm' || e === 'pause')) { mode = 'title'; menu = titleMenu(); playSong('title'); }
+      if (endingInfo.t > 4.5 && edges.some((e) => e === 'confirm' || e === 'pause')) {
+        if (endingInfo.nudge) { respawn(game); mode = 'play'; input.clearHeld(); playSong(game.room.music || game.room.region); }
+        else { mode = 'title'; menu = titleMenu(); playSong('title'); }
+      }
     } else menuInput(edges);
   }
   squash *= 0.8;
@@ -263,9 +294,9 @@ function clockValue() { const d = new Date(); return d.getHours() * 100 + d.getM
 
 // ------------------------------------------------------------- drawing ---
 function draw(dt) {
-  if (!game) { game = createGame(world, START_ROOM, { volume: settings.music }); }
+  if (!game) { game = createGame(world, START_ROOM, gopts()); }
   R.draw(game, {
-    squash,
+    squash, showHint,
     onSegOn: () => { if (mode === 'play') sfx.seg(); },
     overlay: (x, pal) => {
       if (mode === 'play' || mode === 'pause') { drawHints(x, pal); drawHud(x, pal, dt); }
@@ -311,13 +342,13 @@ function drawHints(x, pal) {
 }
 
 function drawHud(x, pal, dt) {
-  if ((settings.hud || game.room.hud) && !game.room.nohud) {
-    const t = game.c.steps / HZ;
-    x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillRect(2, 2, 70, 11);
-    R.segNum(x, fmtTime(t).replace(/\.\d\d$/, '') , 4, 4, R.hexA(pal.lit, 0.85), R.hexA(pal.lit, 0.08));
+  if ((settings.hud || game.room.hud) && !game.room.nohud && !game.room.hudSolid) {
+    const t = game.c.steps / HZ, oy = settings.hudpos === 'bottom' ? H - 15 : 0;
+    x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillRect(2, 2 + oy, 70, 11);
+    R.segNum(x, fmtTime(t).replace(/\.\d\d$/, '') , 4, 4 + oy, R.hexA(pal.lit, 0.85), R.hexA(pal.lit, 0.08));
     x.fillStyle = R.hexA(pal.hazard, 0.9);
-    x.fillRect(42, 6, 1, 1); x.fillRect(44, 6, 1, 1); x.fillRect(43, 7, 1, 1); x.fillRect(42, 8, 1, 1); x.fillRect(44, 8, 1, 1);
-    R.segNum(x, String(game.c.deaths % 10000), 47, 4, R.hexA(pal.lit, 0.85), R.hexA(pal.lit, 0.08));
+    x.fillRect(42, 6 + oy, 1, 1); x.fillRect(44, 6 + oy, 1, 1); x.fillRect(43, 7 + oy, 1, 1); x.fillRect(42, 8 + oy, 1, 1); x.fillRect(44, 8 + oy, 1, 1);
+    R.segNum(x, String(game.c.deaths % 10000), 47, 4 + oy, R.hexA(pal.lit, 0.85), R.hexA(pal.lit, 0.08));
   }
   if (game.room.id === START_ROOM && game.c.jumps < 3) {
     const hint = input.lastDevice === 'touch' ? '' : input.lastDevice === 'pad' ? 'STICK MOVE   A JUMP' : 'ARROWS MOVE   Z / SPACE JUMP';
@@ -423,7 +454,7 @@ function drawMap(x, pal) {
 
 // The Master Readout, drawn big: digits light one by one, then the point (you) arcs into the slot
 // you chose. Ending 3 reads 3.14159; the wrong slots read ten times too much / too little.
-const READOUTS = { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
+const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
 function bigDigit(x, mask, px, py, on, ghost) {
   const L = 8;
   const segs = [[2, 0, L, 2], [L + 2, 2, 2, L], [L + 2, L + 4, 2, L], [2, 2 * L + 4, L, 2], [0, L + 4, 2, L], [0, 2, 2, L], [2, L + 2, L, 2]];
@@ -443,6 +474,12 @@ function drawReadout(x, pal, e) {
   const onCol = e.id === 3 && landed ? R.hexA('#ffffff', 0.55 + 0.45 * settle) : R.hexA(pal.lit, wrong ? 0.35 : 0.95);
   for (let i = 0; i < digits.length; i++) {
     bigDigit(x, i < lit ? digitMask(+digits[i]) : 0, x0 + i * pitch, y0, onCol, R.hexA(pal.lit, 0.07));
+  }
+  if (V2) { // the percent sign
+    const px = x0 + digits.length * pitch + 1;
+    x.fillStyle = lit >= digits.length ? onCol : R.hexA(pal.lit, 0.07);
+    x.fillRect(px, y0 + 1, 3, 3); x.fillRect(px + 8, y0 + 17, 3, 3);
+    for (let k = 0; k < 18; k++) x.fillRect(px + 10 - Math.round(k * 10 / 18), y0 + 1 + k, 2, 1);
   }
   const sx = x0 + slot * pitch + 13, sy = y0 + 20;                 // the decimal-point slot
   x.fillStyle = R.hexA(pal.lit, 0.12); x.fillRect(sx, sy, 2, 2);
@@ -466,7 +503,7 @@ function drawEnding(x, pal) {
   R.text(end.title, (W - R.textWidth(end.title)) / 2, y, R.hexA(pal.lit, a)); y += 14;
   for (const line of end.lines.filter((l) => !/^[\d.]+$/.test(l))) { R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA('#ffffff', a * 0.85)); y += 9; }
   y += 6;
-  const stats = [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/${TOTAL_POINTS}`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
+  const stats = e.nudge ? ['THE POINT POPS BACK OUT.'] : [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/${TOTAL_POINTS}`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
   const b = Math.max(0, Math.min(1, (e.t - 3.6) / 1.2));
   for (const st of stats) { R.text(st, (W - R.textWidth(st)) / 2, y, R.hexA(pal.edge, b)); y += 9; }
   if (e.t > 4.5) R.text('PRESS JUMP', (W - R.textWidth('PRESS JUMP')) / 2, H - 12, R.hexA(pal.edge, 0.5 + 0.5 * Math.sin(e.t * 4)));
@@ -491,7 +528,7 @@ if (DEV) {
 }
 function warp(id) {
   const c = game.c;
-  game = createGame(world, id, { volume: settings.music, counters: c, points: [...game.points], flags: [...game.flags] });
+  game = createGame(world, id, { ...gopts(), counters: c, points: [...game.points], flags: [...game.flags] });
   visited.add(id); mode = 'play'; playSong(game.room.music || game.room.region);
 }
 function drawDev(x) {
@@ -557,7 +594,7 @@ if (SHOT) {
   const id = params.get('room') || START_ROOM;
   const c = newCounters();
   c.deaths = +params.get('deaths') || 0; c.jumps = +params.get('jumps') || 0; c.steps = (+params.get('time') || 0) * HZ;
-  game = createGame(world, id, { volume: settings.music, counters: c });
+  game = createGame(world, id, { ...gopts(), counters: c });
   mode = params.has('title') ? 'title' : 'play';
   if (mode === 'title') menu = titleMenu();
   devOverlay = params.has('grid');
@@ -567,6 +604,6 @@ if (SHOT) {
 } else {
   menu = titleMenu();
   playSong('title');
-  if (DEV && params.get('room')) { game = createGame(world, params.get('room'), { volume: settings.music }); enterPlay(); visited.add(game.room.id); run = run || { visited: [], assisted: false }; }
+  if (DEV && params.get('room')) { game = createGame(world, params.get('room'), gopts()); enterPlay(); visited.add(game.room.id); run = run || { visited: [], assisted: false }; }
   requestAnimationFrame(frame);
 }

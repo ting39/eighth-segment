@@ -104,9 +104,22 @@ export function createRenderer(canvas) {
       const px = sp.tx * TILE, py = sp.ty * TILE + TILE - 1;
       x.fillRect(px + 1, py, 1, 1); x.fillRect(px + 6, py, 1, 1); x.fillRect(px + 1, py - 1, 1, 1); x.fillRect(px + 6, py - 1, 1, 1);
     }
-    // ghost segments
+    // wires (PCB traces) from displays to whatever they count: thin, dim, with solder pads
     for (const d of room.displays) {
-      d.cells.forEach((cell) => drawCell(x, d, cell, hexA(pal.lit, 0.075)));
+      if (!d.wire) continue;
+      x.strokeStyle = hexA(pal.edge, 0.32); x.lineWidth = 1; x.beginPath();
+      d.wire.forEach(([wx, wy], i) => { const px = wx * TILE + 3.5, py = wy * TILE + 3.5; if (i) x.lineTo(px, py); else x.moveTo(px, py); });
+      x.stroke();
+      x.fillStyle = hexA(pal.edge, 0.55);
+      for (const [wx, wy] of [d.wire[0], d.wire[d.wire.length - 1]]) x.fillRect(wx * TILE + 2, wy * TILE + 2, 3, 3);
+    }
+    // ghost segments (HUD digits are drawn per frame: their position is a setting); empty sockets are outlines
+    for (const d of room.displays) {
+      if (d.hudAt) continue;
+      d.cells.forEach((cell, i) => {
+        if (d.missing & (1 << i)) drawSocket(x, cell, hexA(pal.lit, 0.3));
+        else drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.075));
+      });
       if (d.icon) drawIcon(x, d, pal);
     }
     // decorative room text is drawn crisp on top each frame (see R.draw / drawTextQueue)
@@ -128,6 +141,28 @@ export function createRenderer(canvas) {
     x.closePath(); x.fill();
   }
 
+  function drawSocket(x, [cx, cy, cw, ch], color) {
+    x.fillStyle = color;
+    const px = cx * TILE, py = cy * TILE, w = cw * TILE, h = ch * TILE;
+    for (let i = 0; i < w; i += 2) { x.fillRect(px + i, py, 1, 1); x.fillRect(px + i, py + h - 1, 1, 1); }
+    for (let i = 0; i < h; i += 2) { x.fillRect(px, py + i, 1, 1); x.fillRect(px + w - 1, py + i, 1, 1); }
+  }
+
+  // 5x5 hint glyphs shown once at the far end of a wire
+  const GLYPH = {
+    deaths: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'], jumps: ['..#..', '.###.', '#.#.#', '..#..', '..#..'],
+    time: ['.###.', '#.#.#', '#.###', '#...#', '.###.'], idle: ['####.', '..#..', '.#...', '####.', '.....'],
+    pos: ['..#..', '.#...', '#####', '.#...', '..#..'], visits: ['.###.', '.#.#.', '##.##', '#...#', '#####'],
+    button: ['.###.', '#####', '.....', '#####', '#####'], knob: ['.###.', '#...#', '#.#.#', '#...#', '.###.'],
+    switch: ['#....', '.#...', '..###', '..#.#', '..###'], bright: ['#.#.#', '.###.', '##.##', '.###.', '#.#.#'],
+    volume: ['..#..', '.##.#', '###.#', '.##.#', '..#..'], seg: ['.....', '.....', '#####', '.....', '.....'],
+  };
+  R.glyph = function (x, name, px, py, color) {
+    const gph = GLYPH[name]; if (!gph) return;
+    x.fillStyle = color;
+    gph.forEach((row, yy) => { for (let xx = 0; xx < 5; xx++) if (row[xx] === '#') x.fillRect(px + xx, py + yy, 1, 1); });
+  };
+
   function drawIcon(x, d, pal) {
     const [cx, cy] = d.cells[0];
     const px = d.x * TILE - 10, py = d.y * TILE;
@@ -144,7 +179,10 @@ export function createRenderer(canvas) {
   R.draw = function (g, ui) {
     const room = g.room, pal = PALETTES[room.region] || PALETTES.boot;
     R.textQueue.length = 0;
-    for (const tx of room.text || []) R.text(tx.s, tx.x * TILE + (tx.ox || 0), tx.y * TILE + (tx.oy || 0), hexA(pal.edge, tx.a ?? 0.6));
+    for (const tx of room.text || []) {
+      if (tx.burn && g.bright !== 9) continue;   // burn-in text only shows at full brightness
+      R.text(tx.s, tx.x * TILE + (tx.ox || 0), tx.y * TILE + (tx.oy || 0), hexA(tx.burn ? pal.lit : pal.edge, tx.a ?? (tx.burn ? 0.5 : 0.6)));
+    }
     if (staticRoom !== room) {
       staticLayer = buildStatic(room, pal); staticRoom = room;
       R.particles.length = 0; R.trail.length = 0;
@@ -153,6 +191,16 @@ export function createRenderer(canvas) {
     const x = lc;
     x.drawImage(staticLayer, 0, 0);
 
+    const bf = 0.45 + 0.55 * (g.bright ?? 5) / 9;   // global brightness scales every lit bar
+    // HUD digits: ghost wherever the HUD currently sits
+    for (const d of room.displays) if (d.hudAt === (g.hudpos || 'top')) d.cells.forEach((cell) => drawCell(x, d, cell, hexA(pal.lit, 0.075)));
+    // burn-in: at brightness 9 the ghosts of burn displays glow (and are solid)
+    if (g.bright === 9) for (const d of room.displays) if (d.burn) d.cells.forEach((cell, i) => { if (!(d.lit & (1 << i)) && !(d.missing & ~(g.c.sock[d.sockKey] || 0) & (1 << i))) drawCell(x, d, cell, hexA(pal.lit, 0.3)); });
+    // wire hints, once
+    for (const d of room.displays) if (d.hint && d.wire && ui.showHint && ui.showHint(d)) {
+      const [wx, wy] = d.wire[d.wire.length - 1], a = 0.5 + 0.5 * Math.sin(performance.now() / 250);
+      R.glyph(x, d.hint, wx * TILE + 1, wy * TILE - 7, hexA('#ffffff', a));
+    }
     // displays (lit segments with phosphor afterglow + light-up flash)
     for (let di = 0; di < room.displays.length; di++) {
       const d = room.displays[di];
@@ -166,7 +214,7 @@ export function createRenderer(canvas) {
         } else st[i] = Math.max(0, st[i] - 0.12);
         const b = Math.min(st[i], 1);
         if (b <= 0) continue;
-        drawCell(x, d, d.cells[i], hexA(pal.lit, 0.25 + 0.75 * b));
+        drawCell(x, d, d.cells[i], hexA(pal.lit, (0.25 + 0.75 * b) * bf));
         if (st[i] > 1 && R.opts.flashes) drawCell(x, d, d.cells[i], `rgba(255,255,255,${(st[i] - 1) * 0.8})`);
         if (on && d.t !== 'bits') { // inner highlight line
           const [cx, cy, cw, ch] = d.cells[i];
@@ -177,8 +225,29 @@ export function createRenderer(canvas) {
       }
     }
 
-    // items
+    // parts
     const t = performance.now() / 1000;
+    for (const pt of room.parts || []) {
+      const px0 = pt.x * TILE, py0 = pt.y * TILE;
+      if (pt.kind === 'button') {
+        const pressed = g.p.ground && !g.p.dead && Math.floor((g.p.y + 1536) / 2048) === pt.y && g.p.x + 1536 > px0 * SUB && g.p.x < (px0 + pt.w * TILE) * SUB;
+        x.fillStyle = hexA(pal.lit, 0.9); x.fillRect(px0 + 2, py0 + (pressed ? 1 : -1), pt.w * TILE - 4, pressed ? 1 : 2);
+        x.fillStyle = hexA(pal.lit, 0.35); x.fillRect(px0 + 1, py0 + 1, pt.w * TILE - 2, 1);
+      } else if (pt.kind === 'knob') {
+        const v = pt.reg === 'bright' ? g.bright : (g.c.reg[pt.reg] || 0);
+        x.fillStyle = hexA(pal.lit, 0.25); x.fillRect(px0, py0, pt.w * TILE, 2);
+        for (let k = 0; k < pt.w * 2; k++) if ((k + v) % 3 === 0) { x.fillStyle = hexA(pal.lit, 0.9); x.fillRect(px0 + k * 4 + 1, py0, 2, 2); }
+      } else if (pt.kind === 'switch') {
+        const on = !!g.c.sw[pt.sw];
+        x.fillStyle = hexA(pal.edge, 0.6); x.fillRect(px0 + 1, py0 + 5, 6, 3);
+        x.fillStyle = hexA(pal.lit, 0.95); x.fillRect(px0 + (on ? 4 : 1), py0 + 1, 3, 4);
+      } else if (pt.kind === 'seg' && !g.flags.has('used:' + pt.key) && g.carry !== pt.key) {
+        const bob = Math.round(Math.sin(t * 2.5 + pt.x) * 1.5);
+        drawCell(x, { t: 'digit' }, pt.o === 'v' ? [pt.x, pt.y, 1, 1] : [pt.x, pt.y, 1, 1], hexA(pal.lit, 0.85));
+        x.fillStyle = 'rgba(255,255,255,0.6)'; x.fillRect(px0 + 2, py0 + 3 + bob, 4, 1);
+      }
+    }
+    // items
     for (const it of room.items) {
       if (it.kind === 'point' && !g.points.has(it.key)) {
         const bob = Math.round(Math.sin(t * 3 + it.x) * 1.5);
@@ -211,6 +280,10 @@ export function createRenderer(canvas) {
       // eye-ish glint facing direction
       x.fillStyle = pal.bg0;
       x.fillRect(dx + (p.face > 0 ? w - 2 : 1), dy + 1, 1, 2);
+      if (g.carry) { // the carried bar floats above your head
+        x.fillStyle = hexA(pal.lit, 0.95);
+        if (g.carryO === 'v') x.fillRect(dx + 2, dy - 9, 2, 6); else x.fillRect(dx - 1, dy - 4, 8, 2);
+      }
     } else R.trail.length = 0;
 
     // particles

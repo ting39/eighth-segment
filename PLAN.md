@@ -237,3 +237,25 @@ on a branch `v2` or behind `?v2`, then switch main when the redesign is better t
 - [ ] Phase 2 Display Hall + TALLY + CLOCKWORK + shortcuts back to the hall → playable, route-proven
 - [ ] Phase 3 COORDINATES + PANEL + long way home + 100.000% ending
 - [ ] Phase 4 full route proof to every ending, polish, publish, MORNING_REPORT entry
+
+### v2 world design (interest loop applied before building)
+Grid: `t3(-2,-1) t4(-1,-1) p1(0,-1) c4(1,-1) c3(2,-1)` / `t2(-2,0) t1(-1,0) HALL(0,0) c1(1,0) c2(2,0)` /
+`o2(-1,1) o1(0,1) o3(1,1)` / `p2(0,-2) p3(1,-2)`. Readout `1 0 0 0 0 0 %` across the hall's ceiling from frame 1.
+Slots under it: after the 1 = `1.00000 %` (reachable in minute one by the left steps), after the next 0 =
+`10.0000 %` (behind the hall socket: a static 1 missing its top bar), after the next = `100.000 %` (C-ledge).
+
+| Idea | Taught (no words) | Reused far away | Reframes |
+|---|---|---|---|
+| deaths move digits | t1: spike wired to a hanging gate | t4 carry run (dying drops your bar) | the HUD death counter |
+| landing pushes a number | t1: tact button wired to a gate | t2 button inside a cup (4 → land → 5 opens) | — |
+| a bar can be carried into a socket | t3: 1 + bar = 7 bridge | hall: the dashed socket seen from frame 1 | the start room |
+| time moves digits | c1: clock-wired gate | c1 balcony trapdoors (a, g, d open at 1 / 4→7) on the way home | the HUD timer |
+| standing still is an input | c2: idle drop | — (Panel return passes c2? no) | — |
+| walking turns a knob, direction matters | c3: knob on the path, crossing adds w-1 | p1 brightness knob | — |
+| a switch rewires a number's source | o2: static 4 → position bridge | hall support beams (static 1s → position) | the beams seen from frame 1 |
+| position moves digits | o1 | hall beams | — |
+| brightness 0 kills dim bars, 9 makes burn ghosts solid | p1, p2 (+ settings item appears) | hall: the last ghost ledge to the 100% slot | every ghost segment in the game |
+| the HUD is real; its position is a setting | p3 (+ setting appears) | — | the HUD you've watched all game |
+Interest notes: every room has something to touch (button/knob/switch/bar/setting); each wing returns to
+the hall by a one-way shortcut from a new side (t4→t1 balcony→hall corridor, c4→c1 trapdoors→hall upper
+right, o3→c1→hall, p3→c4→c1→hall); the 1% ending is a nudge, not a fail.

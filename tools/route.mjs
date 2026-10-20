@@ -4,22 +4,25 @@
 import fs from 'node:fs';
 const log = (s) => fs.writeSync(1, s + '\n');
 import { buildWorld, createGame, snapshot } from '../src/sim.js';
-import { ROOMS, START_ROOM } from '../src/rooms.js';
+import { ROOMS, START_ROOM } from './world.mjs';
 import { solveAny, replay } from './solver.mjs';
-import { ROUTE } from './route-goals.mjs';
+const { ROUTE } = await import(process.env.V2 ? './route-goals-v2.mjs' : './route-goals.mjs');
 
 export function parseGoal(s) {
   if (s.startsWith('at:')) return { at: s.slice(3).split(',').map(Number) };
-  if (s.startsWith('vol:')) return { vol: +s.slice(4) };
-  const m = s.match(/^(deaths|jumps|idle|visits|time):(\d+)(?:\/(\d+))?(?:@(\d+),(\d+))?$/);
-  if (m) return { ctr: m[1], val: +m[2], mod: m[3] ? +m[3] : 10, ...(m[4] ? { stay: [+m[4], +m[5]] } : {}) };
+  if (s.startsWith('vol:')) return { set: 16 + +s.slice(4) };
+  if (s.startsWith('bright:')) return { set: 32 + +s.slice(7) };
+  if (s === 'hud:top') return { set: 48 };
+  if (s === 'hud:bottom') return { set: 49 };
+  const m = s.match(/^(deaths|jumps|idle|visits|time|reg\.\w+|sw\.\w+):(\d+)(?:\/(\d+))?(?:@(\d+),(\d+))?$/);
+  if (m) return { ctr: m[1], val: +m[2], mod: m[3] ? +m[3] : (m[1].startsWith('sw.') ? 2 : 10), ...(m[4] ? { stay: [+m[4], +m[5]] } : {}) };
   if (s.startsWith('event:')) { const [ev, id] = s.slice(6).split('/'); return { event: ev, id: id ? +id : undefined }; }
   return { room: s };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const fromIdx = process.argv.includes('--from') ? +process.argv[process.argv.indexOf('--from') + 1] : 0;
-  const file = new URL('../replays/route.json', import.meta.url);
+  const file = new URL(process.env.V2 ? '../replays/route-v2.json' : '../replays/route.json', import.meta.url);
   const old = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : { segments: [] };
   const world = buildWorld(ROOMS);
   const g = createGame(world, START_ROOM);
@@ -31,7 +34,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     }
     const goal = parseGoal(goalStr);
     const t0 = Date.now();
-    if (goal.vol !== undefined) { segments.push({ goal: goalStr, inputs: [[16 + goal.vol, 1]] }); replay(g, [[16 + goal.vol, 1]]); continue; }
+    if (goal.set !== undefined) { segments.push({ goal: goalStr, inputs: [[goal.set, 1]] }); replay(g, [[goal.set, 1]]); continue; }
     const r = solveAny(g, goal);
     if (!r.ok) {
       log(`#${i} ${goalStr} FAILED from room ${g.room.id} (${(g.p.x / 256).toFixed(0)},${(g.p.y / 256).toFixed(0)}) after ${Date.now() - t0} ms`);

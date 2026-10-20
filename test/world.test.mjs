@@ -2,11 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildWorld, createGame, updateDisplays, collides, RW, RH, T, SUB, TS } from '../src/sim.js';
 import { ROOMS } from '../src/rooms.js';
+import { ROOMS as ROOMS_V2 } from '../src/rooms_v2.js';
 
-const world = buildWorld(ROOMS);
+for (const [label, defs] of [['v1', ROOMS], ['v2', ROOMS_V2]]) {
+const world = buildWorld(defs);
 const solidTile = (r, x, y) => r.tiles[y * RW + x] === T.WALL;
 
-test('room edges line up with their neighbours', () => {
+test(label + ': room edges line up with their neighbours', () => {
   for (const r of world.rooms.values()) {
     const right = world.rooms.get(world.grid.get(`${r.gx + 1},${r.gy}`));
     if (right) for (let y = 0; y < RH; y++) assert.equal(solidTile(r, RW - 1, y), solidTile(right, 0, y), `${r.id}|${right.id} row ${y}`);
@@ -18,13 +20,13 @@ test('room edges line up with their neighbours', () => {
   }
 });
 
-test('display cells never overlap static tiles', () => {
+test(label + ': display cells never overlap static tiles', () => {
   for (const r of world.rooms.values()) for (const d of r.displays) for (const [x, y, w, h] of d.cells)
     for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++)
       assert.equal(r.tiles[yy * RW + xx], T.EMPTY, `${r.id}: display cell at ${xx},${yy} overlaps a tile`);
 });
 
-test('every respawn point stands on static ground and never overlaps a display', () => {
+test(label + ': every respawn point stands on static ground and never overlaps a display', () => {
   for (const r of world.rooms.values()) for (const s of r.spawns) {
     assert.ok(solidTile(r, s.tx, s.ty + 1), `${r.id}: spawn ${s.tx},${s.ty} not on ground`);
     for (const d of r.displays) for (const [x, y, w, h] of d.cells)
@@ -32,7 +34,7 @@ test('every respawn point stands on static ground and never overlaps a display',
   }
 });
 
-test('spawns are safe for every counter value', () => {
+test(label + ': spawns are safe for every counter value', () => {
   for (const r of world.rooms.values()) {
     const g = createGame(world, r.id);
     for (const s of r.spawns) for (let v = 0; v < 16; v++) {
@@ -43,3 +45,4 @@ test('spawns are safe for every counter value', () => {
     }
   }
 });
+}
