@@ -1,4 +1,4 @@
-Status: in-progress
+Status: blocked (v2 complete behind ?v2; waiting for the user to playtest and approve making it the default)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
