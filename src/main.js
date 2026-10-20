@@ -179,6 +179,7 @@ function titleMenu() {
     if (run && run.snap) { menu = confirmMenu('ERASE THE CURRENT RUN?', () => newGame(), () => { menu = titleMenu(); }); } else newGame();
   } });
   items.push({ label: 'SETTINGS', act: () => { menu = settingsMenu(() => { menu = titleMenu(); }); } });
+  items.push({ label: 'MORE BY TING39', act: () => { saveAll(); location.href = 'https://ting39.github.io/'; } });
   return { title: null, items, i: 0 };
 }
 
@@ -267,7 +268,7 @@ function draw(dt) {
       if (mode === 'play' || mode === 'pause') { drawHints(x, pal); drawHud(x, pal, dt); }
       if (mode === 'title') drawTitle(x, pal);
       if (mode === 'pause' || (mode === 'title' && menu && menu.title)) drawMenu(x, pal);
-      if (mode === 'title' && menu && !menu.title) drawMenu(x, pal, 112);
+      if (mode === 'title' && menu && !menu.title) drawMenu(x, pal, 104);
       if (mode === 'map') drawMap(x, pal);
       if (mode === 'ending') drawEnding(x, pal);
       if (DEV && devOverlay) drawDev(x);
