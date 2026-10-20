@@ -1,4 +1,4 @@
-Status: done
+Status: in-progress
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -226,3 +226,14 @@ Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear*
 - [x] Font: replace the crisp DejaVu text with a pixel font that fits the VFD/pixel theme but stays readable (e.g. 5x7 bitmap drawn at screen resolution, keep outline/glow, keep layout widths).
 - [x] Shortcut R (default; remappable if remap exists) = restart room (counts as a death, same as the pause-menu Restart).
 - [x] Tests + route pass, screenshots, push, short note in MORNING_REPORT.
+
+## REDESIGN v2 (user approved 2026-10-20 ~19:30) — CURRENT WORK
+Read and follow `REDESIGN.md` (the design) and `~/.claude/skills-authored/metroidbrainia-design/SKILL.md`
+(the method; run its interest loop §7 for every room, milestone and playtest; use its
+references/playtest-metrics.md for fall-in, jump-success and luck tests). Build in the 4 phases listed
+at the end of REDESIGN.md; keep the old game playable on the live site until phase 2 is solid (develop
+on a branch `v2` or behind `?v2`, then switch main when the redesign is better than v1).
+- [ ] Phase 1 engine (buttons, knobs, slide switches, loose segments+sockets, wires, brightness, solid HUD, HUD position, one-time hints) + tests + solver actions
+- [ ] Phase 2 Display Hall + TALLY + CLOCKWORK + shortcuts back to the hall → playable, route-proven
+- [ ] Phase 3 COORDINATES + PANEL + long way home + 100.000% ending
+- [ ] Phase 4 full route proof to every ending, polish, publish, MORNING_REPORT entry
