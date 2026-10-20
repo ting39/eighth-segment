@@ -23,7 +23,7 @@ export const ROUTE = [
   'deaths:1', 'coord8', 'event:point', 'gate',
   // The gate (stand still), overflow (hex), volume, past nine, mixing desk, everything at once, master readout
   'at:9,1', 'at:10,1', 'idle:1', 'at:12,19', 'over1', 'at:29,1', 'jumps:12/16', 'at:20,19', 'sidechannel', 'vol:4', 'event:point', 'over1', 'at:20,19', 'over2',
-  'vol:7', 'at:36,7', 'over3', 'deaths:12/16', 'at:30,20', 'over4',
+  'vol:7', 'at:5,10', 'at:13,7', 'at:36,7', 'over3', 'deaths:12/16', 'at:30,20', 'over4',
   'at:11,8', 'vol:4', 'at:18,11', 'vol:5', 'at:23,11', 'at:36,2', 'over5', 'deaths:5', 'at:38,7', 'jumps:4',
   'at:10,7', 'master', 'event:slot/3',
 ];
