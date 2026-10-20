@@ -351,8 +351,9 @@ function drawTitle(x, pal) {
 }
 
 function drawBig(x, s, px, py, k, color) {
+  // the big logo keeps the chunky pixel font (it's large enough to read and is part of the look)
   x.save(); x.translate(px, py); x.scale(k, k);
-  R.text(s, 0, 0, color);
+  R.pixelText(s, 0, 0, color);
   x.restore();
 }
 

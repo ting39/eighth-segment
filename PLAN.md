@@ -213,3 +213,6 @@ Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear*
 - 2026-10-20 (afternoon) — Screenshot QA after the browser-lock fix: new rooms (coord5, clock5, over5, notch) look
   right at 960×528; phone portrait 375×812 and tablet 768×1024 fit the width with no page scroll. Render polish:
   deep wall interiors (all 8 neighbours solid) are drawn at 40% so large slabs stop overpowering the rooms.
+- 2026-10-20 11:50 lane A (QA sweep) editing: og:url/type + twitter:card, ← ting39 link.
+- 2026-10-20 11:54 lane A: added 'MORE BY TING39' to the title menu (saves, then goes home; menu y 112→104 so 4 items clear the ledge/hint) + og:type/og:url/twitter:card. 19 tests pass. Live. Released.
+- 2026-10-20 (user request) text readability: all UI/room text now drawn crisp at screen resolution after bloom/mesh/vignette (render.js drawTextQueue), brighter (alpha x1.6, colour lifted 35% toward white), dark outline + soft glow; logo keeps the pixel font (R.pixelText). 19 tests pass; checked title/hub/ending/phone screenshots.

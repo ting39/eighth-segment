@@ -108,8 +108,7 @@ export function createRenderer(canvas) {
       d.cells.forEach((cell) => drawCell(x, d, cell, hexA(pal.lit, 0.075)));
       if (d.icon) drawIcon(x, d, pal);
     }
-    // decorative text
-    for (const tx of room.text || []) drawText(x, tx.s, tx.x * TILE + (tx.ox || 0), tx.y * TILE + (tx.oy || 0), hexA(pal.edge, tx.a ?? 0.6));
+    // decorative room text is drawn crisp on top each frame (see R.draw / drawTextQueue)
     return c;
   }
 
@@ -143,6 +142,8 @@ export function createRenderer(canvas) {
 
   R.draw = function (g, ui) {
     const room = g.room, pal = PALETTES[room.region] || PALETTES.boot;
+    R.textQueue.length = 0;
+    for (const tx of room.text || []) R.text(tx.s, tx.x * TILE + (tx.ox || 0), tx.y * TILE + (tx.oy || 0), hexA(pal.edge, tx.a ?? 0.6));
     if (staticRoom !== room) {
       staticLayer = buildStatic(room, pal); staticRoom = room;
       R.particles.length = 0; R.trail.length = 0;
@@ -258,7 +259,50 @@ export function createRenderer(canvas) {
     sc.fillStyle = vg; sc.fillRect(ox, oy, W * s, H * s);
     if (R.flash > 0.01 && R.opts.flashes) { sc.fillStyle = `rgba(255,255,255,${R.flash * 0.25})`; sc.fillRect(ox, oy, W * s, H * s); }
     R.flash *= 0.8;
+    drawTextQueue(ox, oy, s);
   };
+
+  // ---- text: queued in low-res coordinates, drawn crisp at screen resolution AFTER bloom,
+  // mesh and vignette so it stays sharp and readable (the 3x5 pixel font was too small/dim).
+  const FONT_STACK = '"DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", ui-monospace, monospace';
+  function parseColor(c) {
+    if (c[0] === '#') {
+      let h = c.slice(1);
+      if (h.length === 3) h = h.replace(/./g, (d) => d + d);
+      const n = parseInt(h, 16);
+      return [n >> 16, (n >> 8) & 255, n & 255, 1];
+    }
+    const m = c.match(/[\d.]+/g) || [255, 255, 255, 1];
+    return [+m[0], +m[1], +m[2], m[3] === undefined ? 1 : +m[3]];
+  }
+  function drawTextQueue(ox, oy, s) {
+    if (!R.textQueue.length) return;
+    sc.save();
+    sc.textBaseline = 'alphabetic';
+    sc.lineJoin = 'round';
+    for (const t of R.textQueue) {
+      const [r, gg, b, a0] = parseColor(t.color);
+      const a = Math.min(1, a0 * 1.6);           // dim UI alphas (0.45–0.7) become clearly visible
+      if (a < 0.02) continue;
+      const k = s * t.k;                          // screen pixels per font pixel
+      const str = String(t.s).toUpperCase();
+      sc.font = `700 ${Math.max(8, Math.round(6.6 * k))}px ${FONT_STACK}`;
+      const want = textWidth(str) * k, have = sc.measureText(str).width || 1;
+      const fx = Math.min(1.2, want / have);    // keep the original layout widths
+      // lift the colour toward white for contrast against the dark glass
+      const lr = Math.round(r + (255 - r) * 0.35), lg = Math.round(gg + (255 - gg) * 0.35), lb = Math.round(b + (255 - b) * 0.35);
+      sc.setTransform(fx, 0, 0, 1, ox + t.x * s, oy + (t.y + 5 * t.k) * s);
+      sc.shadowColor = 'transparent';
+      sc.lineWidth = Math.max(2, k * 0.9);
+      sc.strokeStyle = `rgba(0,0,0,${0.8 * a})`;
+      sc.strokeText(str, 0, 0);
+      sc.shadowColor = `rgba(${r},${gg},${b},${0.6 * a})`;
+      sc.shadowBlur = k * 1.5;
+      sc.fillStyle = `rgba(${lr},${lg},${lb},${a})`;
+      sc.fillText(str, 0, 0);
+    }
+    sc.restore();
+  }
 
   R.burst = function (x, y, color, n, speed = 1.2, life = 40) {
     for (let i = 0; i < n; i++) {
@@ -285,7 +329,14 @@ export function createRenderer(canvas) {
       });
     }
   };
-  R.text = (s, px, py, color) => drawText(lc, s, px, py, color);
+  // R.text queues text for the crisp pass; it honours the current transform of `lc` (e.g. scaled
+  // titles). R.pixelText draws with the original 3x5 pixel font straight into the low-res layer.
+  R.textQueue = [];
+  R.text = (s, px, py, color) => {
+    const m = lc.getTransform();
+    R.textQueue.push({ s, x: m.a * px + m.e, y: m.d * py + m.f, k: m.a, color });
+  };
+  R.pixelText = (s, px, py, color) => drawText(lc, s, px, py, color);
   R.textWidth = textWidth;
   R.hexA = hexA;
   return R;
