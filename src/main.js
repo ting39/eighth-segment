@@ -33,7 +33,7 @@ const settings = Object.assign({
 for (const [act, codes] of Object.entries(DEFAULT_KEYS)) if (!settings.keys[act]) settings.keys[act] = [...codes];
 input.keys = settings.keys;
 const meta = Object.assign({ endings: [], bestTime: null, bestDeaths: null, clears: 0, revealed: [], hintsSeen: [] }, saved.meta || {});
-const gopts = () => ({ ...gopts(), bright: settings.bright, hudpos: settings.hudpos });
+const gopts = () => ({ volume: settings.music, bright: settings.bright, hudpos: settings.hudpos });
 
 function applySettings() {
   setVolumes(settings.music, settings.sfx);
@@ -209,6 +209,7 @@ function titleMenu() {
     if (run && run.snap) { menu = confirmMenu('ERASE THE CURRENT RUN?', () => newGame(), () => { menu = titleMenu(); }); } else newGame();
   } });
   items.push({ label: 'SETTINGS', act: () => { menu = settingsMenu(() => { menu = titleMenu(); }); } });
+  items.push({ label: V2 ? 'PLAY THE ORIGINAL (V1)' : 'PLAY THE REDESIGN (V2)', act: () => { location.search = V2 ? '' : '?v2'; } });
   items.push({ label: 'MORE BY TING39', act: () => { saveAll(); location.href = 'https://ting39.github.io/'; } });
   return { title: null, items, i: 0 };
 }
@@ -343,7 +344,7 @@ function drawHints(x, pal) {
 
 function drawHud(x, pal, dt) {
   if ((settings.hud || game.room.hud) && !game.room.nohud && !game.room.hudSolid) {
-    const t = game.c.steps / HZ, oy = settings.hudpos === 'bottom' ? H - 15 : 0;
+    const t = game.c.steps / HZ, oy = (settings.hudpos === 'bottom' || game.room.hudBottom) ? H - 15 : 0;
     x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillRect(2, 2 + oy, 70, 11);
     R.segNum(x, fmtTime(t).replace(/\.\d\d$/, '') , 4, 4 + oy, R.hexA(pal.lit, 0.85), R.hexA(pal.lit, 0.08));
     x.fillStyle = R.hexA(pal.hazard, 0.9);
@@ -352,7 +353,7 @@ function drawHud(x, pal, dt) {
   }
   if (game.room.id === START_ROOM && game.c.jumps < 3) {
     const hint = input.lastDevice === 'touch' ? '' : input.lastDevice === 'pad' ? 'STICK MOVE   A JUMP' : 'ARROWS MOVE   Z / SPACE JUMP';
-    if (hint) R.text(hint, (W - R.textWidth(hint)) / 2, 40, R.hexA(pal.edge, 0.55));
+    if (hint) R.text(hint, (W - R.textWidth(hint)) / 2, V2 ? 96 : 40, R.hexA(pal.edge, 0.55));
   }
   if (banner) {
     banner.t += dt;

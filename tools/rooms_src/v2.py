@@ -68,7 +68,7 @@ for k in list(disp):
 emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, displays=disp,
      parts=[dict(kind='switch', x=37, y=10, sw='beams')],
      triggers=dict(a=dict(kind='slot', id=1), b=dict(kind='slot', id=2), c=dict(kind='slot', id=3)),
-     always=True)
+     always=True, hudBottom=True)
 
 # ============================================================== TALLY
 # t1 (-1,0): a button and a spike, each wired to a gate. Above: the balcony home (from t4).
@@ -120,9 +120,10 @@ emit('t3', -2, -1, 'tally', 'LOOSE', r,
 # t4 (-1,-1): CARRY HOME -- take the second bar down to the hall without dying
 r = Room('#')
 r.rect(0, 1, 21, 1, '.'); r.rect(14, 2, 25, 18, '.')
-r.rect(14, 20, 12, 1, '.'); r.rect(14, 20, 12, 1, '^')
-for (x, y, w) in [(17,6,3),(22,10,3),(17,14,3),(21,17,3)]: r.rect(x, y, w, 1)
-r.rect(26, 20, 8, 1, '.'); r.rect(27, 19, 7, 1); r.rect(30, 21, 4, 1, '.')
+r.rect(14, 20, 12, 1, '.'); r.rect(14, 20, 8, 1, '^')
+for (x, y, w) in [(17,6,3),(22,10,3),(17,14,3),(22,17,3)]: r.rect(x, y, w, 1)
+r.rect(27, 2, 12, 18)                                             # the gate is housed in rock
+r.rect(26, 20, 8, 1, '.'); r.rect(30, 21, 4, 1, '.')
 gC = hang(r, 27, 20)
 r.put(2, 1, 'P'); r.put(26, 20, 'P')
 emit('t4', -1, -1, 'tally', 'CARRY HOME', r,

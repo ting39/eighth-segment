@@ -196,6 +196,13 @@ export function createRenderer(canvas) {
     for (const d of room.displays) if (d.hudAt === (g.hudpos || 'top')) d.cells.forEach((cell) => drawCell(x, d, cell, hexA(pal.lit, 0.075)));
     // burn-in: at brightness 9 the ghosts of burn displays glow (and are solid)
     if (g.bright === 9) for (const d of room.displays) if (d.burn) d.cells.forEach((cell, i) => { if (!(d.lit & (1 << i)) && !(d.missing & ~(g.c.sock[d.sockKey] || 0) & (1 << i))) drawCell(x, d, cell, hexA(pal.lit, 0.3)); });
+    // empty sockets breathe, brighter while you carry a bar that would fit
+    for (const d of room.displays) {
+      const holes = d.missing & ~(g.c.sock[d.sockKey] || 0);
+      if (!holes) continue;
+      const k = 0.18 + (g.carry ? 0.45 : 0.14) * (0.5 + 0.5 * Math.sin(performance.now() / (g.carry ? 160 : 600)));
+      d.cells.forEach((cell, i) => { if (holes & (1 << i)) drawCell(x, d, cell, hexA(pal.lit, k)); });
+    }
     // wire hints, once
     for (const d of room.displays) if (d.hint && d.wire && ui.showHint && ui.showHint(d)) {
       const [wx, wy] = d.wire[d.wire.length - 1], a = 0.5 + 0.5 * Math.sin(performance.now() / 250);
