@@ -63,7 +63,10 @@ export function createRenderer(canvas) {
       const v = t[ty * RW + tx];
       const px = tx * TILE, py = ty * TILE;
       if (v === T.WALL || v === T.FAKE) {
-        x.fillStyle = pal.wall; x.fillRect(px, py, TILE, TILE);
+        // deep interior (all 8 neighbours solid) is drawn dim so big slabs don't overpower the room
+        let deep = true;
+        for (let dy = -1; dy <= 1 && deep; dy++) for (let dx = -1; dx <= 1; dx++) if (isW(tx + dx, ty + dy) === false) { deep = false; break; }
+        x.fillStyle = pal.wall; x.globalAlpha = deep ? 0.4 : 1; x.fillRect(px, py, TILE, TILE); x.globalAlpha = 1;
         // inner hatch for texture
         x.fillStyle = hexA(pal.edge, 0.12);
         if ((tx + ty) % 2 === 0) x.fillRect(px + 3, py + 3, 2, 2);

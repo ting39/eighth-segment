@@ -210,3 +210,6 @@ Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear*
   pane). Headless screenshots are blocked by a stuck snap Firefox holding browser.lock (see shared notes).
   Human first-clear estimate: the solver needs 4.4 min with perfect knowledge; with discovery, deliberate deaths and
   learning, 45–90 min is plausible (unmeasured; needs a real playtest). **Status → done.**
+- 2026-10-20 (afternoon) — Screenshot QA after the browser-lock fix: new rooms (coord5, clock5, over5, notch) look
+  right at 960×528; phone portrait 375×812 and tablet 768×1024 fit the width with no page scroll. Render polish:
+  deep wall interiors (all 8 neighbours solid) are drawn at 40% so large slabs stop overpowering the rooms.
