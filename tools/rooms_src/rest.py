@@ -120,7 +120,7 @@ r.put(22,1,'A')                                     # box x22..27 rows 1..11
 r.rect(27,1,1,11,'.'); r.rect(23,1,4,1,'.'); r.rect(22,1,1,11,'.')
 r.rect(23,6,4,1,'.'); r.rect(23,11,4,1,'.')
 r.put(21,6,'^'); r.put(28,6,'^')
-r.rect(1,12,27,8,'.')                               # chamber below
+r.rect(1,12,27,8,'.'); r.rect(0,17,1,3,'.')        # chamber below (+ side channel)
 r.rect(1,1,9,11,'.'); r.rect(6,0,4,1,'.')           # left climb to the top exit x6..9
 for (x,y) in [(5,17),(1,14),(5,11),(1,8),(5,5),(8,3)]: r.rect(x,y,2,1)
 r.put(31,19,'P'); r.put(20,19,'P')

@@ -1,6 +1,6 @@
 # Eighth Segment
 
-A hard, minimal precision platformer for the browser. **Play: https://ting39.github.io/eighth-segment/**
+A hard, minimal precision platformer for the browser — 35 rooms, 12 stray points, 3 endings. **Play: https://ting39.github.io/eighth-segment/**
 
 A seven-segment display has eight parts: seven bars and the decimal point. You are the decimal
 point. You fell out of the Master Readout, and you have to climb back.

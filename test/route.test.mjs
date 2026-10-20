@@ -35,7 +35,7 @@ test('replaying the full route from a new game reaches every goal and the true e
     if (goal.event) assert.ok(hit, `segment ${seg.goal}`);
   }
   assert.equal(ended, 3, 'true ending reached');
-  assert.equal(g.points.size, 6, 'stray points collected');
+  assert.equal(g.points.size, 10, 'stray points collected');
   const playable = [...world.rooms.keys()].filter((id) => id !== 'title');
   for (const id of playable) assert.ok(visited.has(id), `room ${id} visited by the route`);
 });

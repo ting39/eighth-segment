@@ -175,12 +175,12 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
 
 ## DAYTIME EXPANSION (user approved 2026-10-20 ~10:05) — work this next
 Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear**, without diluting quality.
-- [ ] Add rooms to the thinnest regions (Clockwork, Coordinates, Overflow); every new room teaches or
+- [x] Add rooms to the thinnest regions (Clockwork, Coordinates, Overflow); every new room teaches or
       tests one idea, combos deepen late game. Keep every room solver-verified; full-game chain replay must
       still reach the true ending.
 - [ ] Difficulty curve pass: order rooms easy→hard within each region; measure solver path length/deaths
       as a proxy; add optional harder side rooms rather than walls of difficulty on the main path.
-- [ ] Distinct music per region (WebAudio), plus a quiet ambient for secret rooms.
+- [x] Distinct music per region (WebAudio), plus a quiet ambient for secret rooms.
 - [ ] Mobile/touch QA at 375×812 and 768×1024 (headless shots + in-app pane): buttons, scaling, no
       page scroll, readable HUD.
 - [ ] Update MORNING_REPORT.md entry + README; Status: done when complete.
@@ -197,3 +197,8 @@ Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear*
   the right. New-room maps: tools/rooms_src/expand.py. **Design fact fixed: hanging-d gates open only on
   {1,4,7} (9 lights d).** Route: 118 goals, 218 s solver time, D35, 6 points; 19 tests pass. Distinct lead
   voice per region + quiet 'secret' song (title, fineprint via room.music).
+- 2026-10-20 (daytime, cont.) — +4 optional side rooms with stray points → **35 rooms**: notch NOTCHES (4,6: off
+  climb's right wall, climb a pillar of static 1s via their corner notches), clock6 OVERTIME (6,2: off STILLER's
+  bottom corridor, 2 points), sidechannel SIDE CHANNEL (0,1: off over1's chamber, walk the volume digit's top bar
+  → volume 1/4), coord9 EVERY OTHER (-4,3: off coord4, pos bridges with div 2). Route: 133 goals, 265 s solver time,
+  D35, 10 of 12 points (title + hub clock excluded). 19 tests pass.

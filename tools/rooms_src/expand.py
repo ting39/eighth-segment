@@ -48,7 +48,7 @@ r.rect(0,7,7,1,'.'); r.rect(1,1,6,7,'.'); r.rect(7,1,1,2,'.')
 r.rect(4,5,2,1)
 r.rect(8,1,31,1,'.')
 carve_digit(r,8,2,4); carve_digit(r,8,13,2)
-r.rect(8,19,31,2,'.')
+r.rect(8,19,31,2,'.'); r.rect(39,19,1,2,'.')
 r.rect(36,2,3,18,'.')
 for y in (18,15,12,9,6,3): r.rect(36,y,3,1,'-')
 r.put(30,20,'o')
@@ -68,7 +68,7 @@ emit('coord3','-2','3','coord','WHERE TO FALL', r,
      "{ A: { s: 2, src: 'pos', at: [24, 7] }, B: { s: 2, src: 'pos', at: [17, 7] }, C: { s: 2, src: 'pos', at: [12, 7] }, D: { s: 2, src: 'pos', at: [6, 7] } }")
 
 # coord4 (-3,3): binary stairs counted in jumps
-r = Room().border(r=range(17,20), u=range(2,6))
+r = Room().border(l=range(17,20), r=range(17,20), u=range(2,6))
 r.rect(0,20,40,2)
 r.rect(8,8,3,1); r.rect(3,5,3,1); r.rect(6,3,2,1)
 r.put(37,19,'P'); r.put(9,7,'P')
@@ -150,6 +150,52 @@ r.put(32,19,'P'); r.put(38,7,'P')
 emit('over5','3','-1','over','EVERYTHING AT ONCE', r,
      "{ A: { s: 4, src: 'deaths', at: [12, 8] }, B: { s: 2, src: 'jumps', at: [22, 1] }, C: { s: 2, src: 'time', at: [4, 1] } }",
      "\n    hud: true,")
+
+# ================================================================ SIDE ROOMS (dead ends with stray points)
+# notch (4,6): climb a pillar of 1s through their corner notches
+r = Room().border(l=range(13,17))
+r.rect(0,17,40,5)
+r.put(17,10,'A'); r.put(17,4,'B')
+r.rect(24,3,3,1); r.put(25,2,'o')
+r.put(2,16,'P')
+emit('notch','4','6','boot','NOTCHES', r, "{ A: { s: 2, val: 1 }, B: { s: 2, val: 1 } }")
+
+# clock6 (6,2): overtime -- precision off STILLER's bottom corridor
+r = Room('#')
+r.rect(1,1,38,20,'.'); r.rect(0,19,1,2,'.')
+r.rect(33,20,6,1)
+r.rect(9,20,24,1,'^')
+for (x,y,w) in [(11,18,2),(16,16,2),(21,18,2),(26,15,2)]: r.rect(x,y,w,1)
+r.rect(18,11,6,1,'v'); r.put(20,13,'o'); r.put(36,17,'o')
+r.rect(35,18,4,1,'v')
+r.put(3,20,'P'); r.put(35,19,'P')
+emit('clock6','6','2','clock','OVERTIME', r)
+
+# sidechannel (0,1): walk the top bar of the volume -- it must be off (1 or 4)
+r = Room('#')
+r.rect(39,17,1,3,'.'); r.rect(30,8,9,12,'.')
+for (x,y) in [(30,17),(35,14),(30,11)]: r.rect(x,y,3,1)
+r.rect(4,7,35,1,'.')
+carve_digit(r,10,7,4)
+r.put(9,17,'^'); r.put(16,17,'^')
+r.put(5,7,'o')
+r.put(36,19,'P'); r.put(28,7,'P')
+emit('sidechannel','0','1','over','SIDE CHANNEL', r, "{ A: { s: 4, src: 'volume', icon: 'speaker', at: [10, 7] } }")
+
+# coord9 (-4,3): every other -- the bridges count in twos
+r = Room('#')
+r.rect(32,1,7,19,'.'); r.rect(39,17,1,3,'.')
+for (x,y) in [(32,17),(36,14),(32,11),(36,8)]: r.rect(x,y,2,1)
+r.rect(1,1,31,5,'.')
+for x in (8,16,24):
+    carve_digit(r,x,6,6,corners=False,esc=False)
+    r.rect(x+1,7,6,6,'.'); r.rect(x+1,14,6,6,'.')
+    r.rect(x+1,12,6,1,'^'); r.rect(x+1,19,6,1,'^')
+r.rect(24,1,8,1,'v')
+r.put(3,5,'o')
+r.put(36,19,'P'); r.put(5,5,'P')
+emit('coord9','-4','3','coord','EVERY OTHER', r,
+     "{ A: { s: 6, src: 'pos', div: 2, off: 1, at: [8, 6] }, B: { s: 6, src: 'pos', div: 2, off: 1, at: [16, 6] }, C: { s: 6, src: 'pos', div: 2, off: 1, at: [24, 6] } }")
 
 path = os.path.join(ROOT, 'src/rooms.js')
 s = open(path).read()
