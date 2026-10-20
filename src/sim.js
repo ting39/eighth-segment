@@ -239,6 +239,7 @@ export function displayLit(g, d) {
   if (d.missing) m &= ~(d.missing & ~(g.c.sock[d.sockKey] || 0));
   if (d.hudAt && d.hudAt !== g.hudpos) m = 0;
   if (d.dim && g.bright === 0) m = 0;
+  if (d.needPoints && g.points.size < d.needPoints) m = 0;   // the readout fills in as stray points are found
   return m;
 }
 

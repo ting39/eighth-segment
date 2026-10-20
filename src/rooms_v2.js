@@ -21,7 +21,6 @@ export const ENDINGS = [
   "id": 3,
   "title": "ONE HUNDRED PERCENT",
   "lines": [
-   "100.000 %",
    "EVERY NUMBER IN THE MACHINE READS TRUE."
   ]
  }
@@ -88,7 +87,8 @@ export const ROOMS = [
     "at": [
      18,
      1
-    ]
+    ],
+    "needPoints": 1
    },
    "R4": {
     "s": 2,
@@ -96,7 +96,8 @@ export const ROOMS = [
     "at": [
      23,
      1
-    ]
+    ],
+    "needPoints": 2
    },
    "R5": {
     "s": 2,
@@ -104,7 +105,28 @@ export const ROOMS = [
     "at": [
      28,
      1
-    ]
+    ],
+    "needPoints": 3
+   },
+   "PCT0": {
+    "t": "bits",
+    "n": 1,
+    "val": 1,
+    "at": [
+     32,
+     2
+    ],
+    "needPoints": 4
+   },
+   "PCT1": {
+    "t": "bits",
+    "n": 1,
+    "val": 1,
+    "at": [
+     34,
+     6
+    ],
+    "needPoints": 4
    },
    "SOCK": {
     "s": 4,
@@ -164,24 +186,6 @@ export const ROOMS = [
     "at": [
      29,
      12
-    ]
-   },
-   "PCT0": {
-    "t": "bits",
-    "n": 1,
-    "val": 1,
-    "at": [
-     32,
-     2
-    ]
-   },
-   "PCT1": {
-    "t": "bits",
-    "n": 1,
-    "val": 1,
-    "at": [
-     34,
-     6
     ]
    },
    "DIM": {

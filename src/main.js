@@ -474,11 +474,12 @@ function drawReadout(x, pal, e) {
   const settle = landed ? Math.min(1, (e.t - T1) * 2) : 0;
   const onCol = e.id === 3 && landed ? R.hexA('#ffffff', 0.55 + 0.45 * settle) : R.hexA(pal.lit, wrong ? 0.35 : 0.95);
   for (let i = 0; i < digits.length; i++) {
-    bigDigit(x, i < lit ? digitMask(+digits[i]) : 0, x0 + i * pitch, y0, onCol, R.hexA(pal.lit, 0.07));
+    const earned = !V2 || e.id !== 3 || i < 3 || e.points >= i - 2;   // v2: the last three digits are your stray points
+    bigDigit(x, i < lit && earned ? digitMask(+digits[i]) : 0, x0 + i * pitch, y0, onCol, R.hexA(pal.lit, 0.07));
   }
   if (V2) { // the percent sign
     const px = x0 + digits.length * pitch + 1;
-    x.fillStyle = lit >= digits.length ? onCol : R.hexA(pal.lit, 0.07);
+    x.fillStyle = lit >= digits.length && (e.id !== 3 || e.points >= 4) ? onCol : R.hexA(pal.lit, 0.07);
     x.fillRect(px, y0 + 1, 3, 3); x.fillRect(px + 8, y0 + 17, 3, 3);
     for (let k = 0; k < 18; k++) x.fillRect(px + 10 - Math.round(k * 10 / 18), y0 + 1 + k, 2, 1);
   }
@@ -502,7 +503,9 @@ function drawEnding(x, pal) {
   const a = Math.max(0, Math.min(1, (e.t - 2.9) / 1.2));
   let y = 54;
   R.text(end.title, (W - R.textWidth(end.title)) / 2, y, R.hexA(pal.lit, a)); y += 14;
-  for (const line of end.lines.filter((l) => !/^[\d.]+$/.test(l))) { R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA('#ffffff', a * 0.85)); y += 9; }
+  const lines = [...end.lines];
+  if (V2 && e.id === 3 && e.points < TOTAL_POINTS) lines.push(`${TOTAL_POINTS - e.points} DIGIT${TOTAL_POINTS - e.points > 1 ? 'S' : ''} STILL DARK. STRAY POINTS LIGHT THEM.`);
+  for (const line of lines.filter((l) => !/^[\d.]+$/.test(l))) { R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA('#ffffff', a * 0.85)); y += 9; }
   y += 6;
   const stats = e.nudge ? ['THE POINT POPS BACK OUT.'] : [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/${TOTAL_POINTS}`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
   const b = Math.max(0, Math.min(1, (e.t - 3.6) / 1.2));
