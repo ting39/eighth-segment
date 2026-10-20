@@ -85,13 +85,14 @@ const NOTE = (n) => 440 * 2 ** ((n - 69) / 12);
 // chord = root midi note + quality
 const MIN = [0, 3, 7, 10], MAJ = [0, 4, 7, 11], SUS = [0, 5, 7, 10];
 export const SONGS = {
-  title:  { bpm: 92,  chords: [[57, MIN], [53, MAJ], [48, MAJ], [55, SUS]], drums: 0, arp: 'slow', pad: 1 },
-  boot:   { bpm: 104, chords: [[57, MIN], [53, MAJ], [48, MAJ], [55, MAJ]], drums: 1, arp: 'up', pad: 1 },
-  tally:  { bpm: 126, chords: [[50, MIN], [58, MAJ], [53, MAJ], [48, MAJ]], drums: 2, arp: 'updown', pad: 0.7 },
-  clock:  { bpm: 120, chords: [[52, MIN], [48, MAJ], [55, MAJ], [50, MAJ]], drums: 3, arp: 'tick', pad: 0.8 },
-  coord:  { bpm: 136, chords: [[54, MIN], [50, MAJ], [57, MAJ], [52, SUS]], drums: 2, arp: 'skip', pad: 0.6 },
-  over:   { bpm: 150, chords: [[48, MIN], [56, MAJ], [51, MAJ], [58, MAJ]], drums: 4, arp: 'updown', pad: 0.7 },
-  master: { bpm: 80,  chords: [[53, MAJ], [57, MIN], [50, MIN], [55, SUS]], drums: 0, arp: 'slow', pad: 1.2 },
+  title:  { bpm: 92,  chords: [[57, MIN], [53, MAJ], [48, MAJ], [55, SUS]], drums: 0, arp: 'slow', pad: 1, lead: 'square' },
+  secret: { bpm: 66,  chords: [[49, SUS], [54, MIN], [47, SUS], [52, MAJ]], drums: 0, arp: 'slow', pad: 1.5, lead: 'sine' },
+  boot:   { bpm: 104, chords: [[57, MIN], [53, MAJ], [48, MAJ], [55, MAJ]], drums: 1, arp: 'up', pad: 1, lead: 'square' },
+  tally:  { bpm: 126, chords: [[50, MIN], [58, MAJ], [53, MAJ], [48, MAJ]], drums: 2, arp: 'updown', pad: 0.7, lead: 'triangle' },
+  clock:  { bpm: 120, chords: [[52, MIN], [48, MAJ], [55, MAJ], [50, MAJ]], drums: 3, arp: 'tick', pad: 0.8, lead: 'sine' },
+  coord:  { bpm: 136, chords: [[54, MIN], [50, MAJ], [57, MAJ], [52, SUS]], drums: 2, arp: 'skip', pad: 0.6, lead: 'sawtooth' },
+  over:   { bpm: 150, chords: [[48, MIN], [56, MAJ], [51, MAJ], [58, MAJ]], drums: 4, arp: 'updown', pad: 0.7, lead: 'square' },
+  master: { bpm: 80,  chords: [[53, MAJ], [57, MIN], [50, MIN], [55, SUS]], drums: 0, arp: 'slow', pad: 1.2, lead: 'triangle' },
 };
 
 export function playSong(name) {
@@ -138,8 +139,9 @@ function playStep(song, i, t, sp16) {
     case 'skip': if ([0, 3, 6, 8, 10, 13].includes(s)) n = tones[(s * 3) % tones.length] + 12; break;
   }
   if (n !== null) {
-    tone('square', NOTE(n), NOTE(n), sp16 * 0.9, 0.035, musicBus, t);
-    tone('square', NOTE(n), NOTE(n), sp16 * 0.9, 0.015, musicBus, t + sp16 * 3); // echo
+    const lead = song.lead || 'square', lv = lead === 'sine' ? 0.07 : lead === 'triangle' ? 0.06 : lead === 'sawtooth' ? 0.022 : 0.035;
+    tone(lead, NOTE(n), NOTE(n), sp16 * 0.9, lv, musicBus, t);
+    tone(lead, NOTE(n), NOTE(n), sp16 * 0.9, lv * 0.4, musicBus, t + sp16 * 3); // echo
   }
   // drums
   const d = song.drums;

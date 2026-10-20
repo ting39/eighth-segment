@@ -79,7 +79,7 @@ const saveAll = () => store.save({ settings, meta, run });
 function enterPlay() {
   mode = 'play'; menu = null;
   input.clearHeld();
-  playSong(game.room.region);
+  playSong(game.room.music || game.room.region);
 }
 
 function showBanner(room, force) {
@@ -107,7 +107,7 @@ function handleEvents() {
         const room = world.rooms.get(e.id);
         showBanner(room);
         visited.add(e.id);
-        playSong(room.region);
+        playSong(room.music || room.region);
         saveRun();
         break;
       }
@@ -480,7 +480,7 @@ if (DEV) {
 function warp(id) {
   const c = game.c;
   game = createGame(world, id, { volume: settings.music, counters: c, points: [...game.points], flags: [...game.flags] });
-  visited.add(id); mode = 'play'; playSong(game.room.region);
+  visited.add(id); mode = 'play'; playSong(game.room.music || game.room.region);
 }
 function drawDev(x) {
   x.fillStyle = 'rgba(255,255,255,0.06)';

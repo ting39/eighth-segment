@@ -94,7 +94,7 @@ export function solve(g, goal, opts = {}) {
     if (goal.room) return gg.room.id === goal.room && !gg.p.dead;
     if (goal.at) return !gg.p.dead && Math.floor((gg.p.x + 768) / TS) === goal.at[0] && Math.floor((gg.p.y + 768) / TS) === goal.at[1];
     if (goal.ctr === 'idle') return !gg.p.dead && gg.p.ground && gg.c.deaths === startDeaths && Math.floor(gg.c.idle / 120) === goal.val;
-    if (goal.ctr === 'time') return !gg.p.dead && gg.p.ground && Math.floor(gg.c.steps / 120) % goal.mod === goal.val;
+    if (goal.ctr === 'time') return !gg.p.dead && gg.p.ground && Math.floor(gg.c.steps / 120) % goal.mod === goal.val && gg.c.steps % 120 < 8;
     if (goal.ctr) return !gg.p.dead && gg.p.ground && ((gg.c[goal.ctr] % (goal.mod || 10)) + (goal.mod || 10)) % (goal.mod || 10) === goal.val;
     if (goal.event) return gg.events.some((e) => e.type === goal.event && (!goal.id || e.id === goal.id));
     return false;

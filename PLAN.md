@@ -1,4 +1,4 @@
-Status: done
+Status: in-progress
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -172,3 +172,28 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
   FUTURE (only with the user's playtest feedback): more main-path rooms in Overflow (✦12 combos, e.g. a detour
   gate→(2,2)→(2,1)→over1; needs gate/over1 re-maps + `route.mjs --from <gate idx>`), difficulty tuning, music
   variety, 2 more stray points to reach the design's 8.
+
+## DAYTIME EXPANSION (user approved 2026-10-20 ~10:05) — work this next
+Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear**, without diluting quality.
+- [ ] Add rooms to the thinnest regions (Clockwork, Coordinates, Overflow); every new room teaches or
+      tests one idea, combos deepen late game. Keep every room solver-verified; full-game chain replay must
+      still reach the true ending.
+- [ ] Difficulty curve pass: order rooms easy→hard within each region; measure solver path length/deaths
+      as a proxy; add optional harder side rooms rather than walls of difficulty on the main path.
+- [ ] Distinct music per region (WebAudio), plus a quiet ambient for secret rooms.
+- [ ] Mobile/touch QA at 375×812 and 768×1024 (headless shots + in-app pane): buttons, scaling, no
+      page scroll, readable HUD.
+- [ ] Update MORNING_REPORT.md entry + README; Status: done when complete.
+- 2026-10-20 10:37 QA sweep (lane A) findings for Eighth Segment: no way back to ting39.github.io (no links at all on the page;
+  add a small "← ting39" link outside the canvas or on the title screen). og:image present; add og:url and
+  <meta name="twitter:card" content="summary_large_image">. No console errors, no overflow at 375/1280, 28 KB load.
+- 2026-10-20 (daytime expansion) — +9 rooms (31 incl. title): clock4 TWO CLOCKS (4,2, above encore: time gates
+  {1,4,7} at off 0/3 + jumps bridge, two-way), clock5 STILLER (5,2: two idle drops, D2 off 4, point, one-way
+  '-' ladder back), coord3 WHERE TO FALL (-2,3: pos chooses which corner drops), coord4 COUNTING IN TWOS
+  (-3,3: jump-binary stairs, jumps≡4 mod 8), coord5 MIND THE GAPS (-3,2: pos bridges vanish at cols 11/14/21),
+  coord6 DESCENT, coord7 LOW CEILING (two deaths gates, off 0/6 → deaths≡1), coord8 BACK DOOR (point) → gate's
+  left area; over3 PAST NINE (2,0: hex deaths C/E/F right-column drop), over4 MIXING DESK (3,0: volume cup 4→5),
+  over5 EVERYTHING AT ONCE (3,-1: deaths bridge + jumps gate + time gate); master moved to (2,-1), entered from
+  the right. New-room maps: tools/rooms_src/expand.py. **Design fact fixed: hanging-d gates open only on
+  {1,4,7} (9 lights d).** Route: 118 goals, 218 s solver time, D35, 6 points; 19 tests pass. Distinct lead
+  voice per region + quiet 'secret' song (title, fineprint via room.music).

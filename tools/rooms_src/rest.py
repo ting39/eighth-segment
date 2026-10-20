@@ -83,7 +83,7 @@ emit('coord1','0','3','coord','WHERE YOU ARE', r,
      "{ A: { s: 2, src: 'pos' }, B: { s: 2, src: 'pos' }, C: { s: 2, src: 'pos' }, D: { s: 2, src: 'pos' } }")
 
 # ---------------- coord2 (-1,3): binary stairs of deaths, stray point + hint
-r = Room().border(r=range(9,12))
+r = Room().border(l=range(11,14), r=range(9,12))
 r.rect(0,14,40,8); r.rect(32,12,7,2)
 r.rect(30,11,0,0)
 r.put(28,11,'K'); r.put(23,8,'L'); r.put(18,5,'M')
@@ -108,7 +108,7 @@ r.rect(10,12,6,8,'.'); r.rect(16,1,23,19,'.')      # region R
 r.rect(16,1,1,11,'#'); r.put(16,6,'^')
 for (x,y,w) in [(20,17,3),(25,14,3),(30,11,3),(35,8,3),(30,5,3),(35,3,2)]: r.rect(x,y,w,1)
 r.rect(34,0,4,1,'.')
-r.put(12,19,'P'); r.put(7,19,'P')
+r.put(12,19,'P'); r.put(7,19,'P'); r.rect(0,17,1,3,'.')
 emit('gate','1','2','clock','STAND STILL', r, "{ A: { s: 4, src: 'idle', at: [10, 1] } }")
 
 # ---------------- over1 (1,1): hex jumps, right-column drop at C/E/F
@@ -141,8 +141,8 @@ emit('over2','1','0','over','TURN IT UP', r,
      "{ A: { s: 4, src: 'volume', at: [22, 8], icon: 'speaker' }, B: { s: 2, src: 'volume', icon: 'speaker' } }")
 
 # ---------------- master (2,0): the Master Readout, 3 1 4 1 5 9 with decimal-point slots
-r = Room().border(l=range(7,8))
-r.rect(0,0,40,3); r.rect(0,8,3,14); r.rect(0,18,40,4)
+r = Room().border(r=range(7,8))
+r.rect(0,0,40,3); r.put(38,8,'#'); r.rect(0,8,3,14); r.rect(0,18,40,4)
 digits = [(3,3),(9,1),(15,4),(21,1),(27,5),(33,9)]
 disp = []
 for i,(x,v) in enumerate(digits):
@@ -152,8 +152,8 @@ for i,(x,v) in enumerate(digits):
 for gx in (20,26,32,38): r.rect(gx,9,1,9)
 r.rect(2,8,1,10,'.'); r.put(21,17,'^')
 r.put(2,17,'a'); r.put(8,17,'b'); r.put(14,17,'c')
-r.put(1,7,'P')
-emit('master','2','0','master','MASTER READOUT', r, '{ ' + ', '.join(disp) + ' }',
+r.put(38,7,'P')
+emit('master','2','-1','master','MASTER READOUT', r, '{ ' + ', '.join(disp) + ' }',
      "\n    triggers: { a: { kind: 'slot', id: 2 }, b: { kind: 'slot', id: 3 }, c: { kind: 'slot', id: 1 } },\n    text: [{ s: 'PUT THE POINT WHERE IT BELONGS', x: 8, y: 4 }],")
 
 # ---------------- fineprint (2,4): secret. The HUD, giant and solid: seconds digit, hazard x, deaths digit.
@@ -162,12 +162,12 @@ r.rect(1,1,38,10); r.rect(1,20,38,1)            # corridor rows 11-19 = exactly 
 r.put(12,11,'J'); r.put(27,11,'K')
 for (x,y) in [(20,14),(22,14),(21,15),(20,16),(22,16)]: r.put(x,y,'%')
 r.put(2,19,'P'); r.put(24,19,'P'); r.put(36,19,'o')
-emit('fineprint','2','4','tally','FINE PRINT', r, "{ J: { s: 3, src: 'time' }, K: { s: 3, src: 'deaths' } }",
+emit('fineprint','2','4','tally','FINE PRINT\', music: \'secret', r, "{ J: { s: 3, src: 'time' }, K: { s: 3, src: 'deaths' } }",
      "\n    nohud: true,")
 
 # ---------------- encore (4,3): secret-ish side room off clock2. A digit counting VISITS to this room,
 # walled in so the only way in is its upper-left bar f; the point sits on its middle bar g.
-r = Room().border(l=range(17,20))
+r = Room().border(l=range(17,20), u=range(2,6))
 r.rect(0,20,40,2)
 r.rect(30,1,9,19)                              # solid right of the digit (b, c sides closed)
 r.rect(19,1,11,3)                              # ceiling over the digit's a bar
@@ -175,6 +175,7 @@ r.rect(23,1,1,4)                               # no way into the top-left corner
 r.rect(23,10,1,10); r.rect(24,15,6,5)          # e side and below d closed
 r.rect(19,9,5,1)                               # ledge: stand on row 8, level with f's bottom
 for (x,y,w) in [(14,17,3),(9,14,3),(14,11,3)]: r.rect(x,y,w,1)
+r.rect(8,8,3,1); r.rect(3,5,3,1); r.rect(7,3,2,1)   # climb to the top exit (clock4)
 r.rect(26,5,1,3)                               # divider: reach the point only by walking on g
 r.put(24,4,'A'); r.put(28,8,'o')
 r.put(2,19,'P')
