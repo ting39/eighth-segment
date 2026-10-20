@@ -21,12 +21,13 @@ test(label + ': replaying the full route from a new game reaches every goal and 
   const g = createGame(world, W.START_ROOM);
   const visited = new Set([W.START_ROOM]);
   let ended = null;
+  const slots = new Set();
   for (const seg of data.segments) {
     const goal = parseGoal(seg.goal);
     let hit = false;
     replay(g, seg.inputs, (gg) => {
       visited.add(gg.room.id);
-      for (const e of gg.events) if (e.type === 'slot') ended = e.id;
+      for (const e of gg.events) if (e.type === 'slot') { ended = e.id; slots.add(e.id); }
       if (goal.event && gg.events.some((e) => e.type === goal.event && (!goal.id || e.id === goal.id))) hit = true;
       gg.events.length = 0;
     });
@@ -39,6 +40,7 @@ test(label + ': replaying the full route from a new game reaches every goal and 
     if (goal.event) assert.ok(hit, `segment ${seg.goal}`);
   }
   assert.equal(ended, 3, 'true ending reached');
+  if (label === 'v2') assert.deepEqual([...slots].sort(), [1, 2, 3], 'every slot (1%, 10%, 100%) reached from a new game');
   assert.equal(g.points.size, points, 'stray points collected');
   const playable = [...world.rooms.keys()].filter((id) => id !== 'title');
   for (const id of playable) assert.ok(visited.has(id), `room ${id} visited by the route`);
