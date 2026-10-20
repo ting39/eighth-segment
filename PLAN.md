@@ -1,4 +1,4 @@
-Status: in-progress
+Status: done
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -103,7 +103,7 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
 - [x] Solver + replay harness proves completability (test/route.test.mjs); world validators
 - [x] Menus, save, settings (volume digits, speed, remap), touch/gamepad, title & ending
 - [x] Publish ting39/eighth-segment + Pages + CARD.json + MORNING_REPORT entry
-- [ ] Polish passes (juice, difficulty curve, hints that don't spoil) — hints ✓, ending anim ✓, clock secret ✓, mobile checked ✓
+- [x] Polish passes (juice, difficulty curve, hints that don't spoil) — hints ✓, ending anim ✓, 3 secrets ✓, mobile checked ✓
 
 ## Progress log
 - 2026-10-20 01:50 — Design doc written. Name: Eighth Segment. Folder kept as `platformer`.
@@ -167,3 +167,8 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
   point (on bar g) needs g lit → open exactly on visits 2/3 (`locks.mjs encore at:28,8 visits`): the first visit
   is always sealed. In the route after clock2's point (re-solved `--from 33`). Route: 4 points, 131 s, D15.
   Stray points now 6 (title, clock2, coord2, hub clock, fineprint, encore). 19 tests pass.
+- 2026-10-20 09:00 — **Status → done.** 22 rooms (+title), 6 stray points, 3 endings, hints, animated ending.
+  Marked done so the daytime-only training projects get the watchdog's slot (it picks platformer first).
+  FUTURE (only with the user's playtest feedback): more main-path rooms in Overflow (✦12 combos, e.g. a detour
+  gate→(2,2)→(2,1)→over1; needs gate/over1 re-maps + `route.mjs --from <gate idx>`), difficulty tuning, music
+  variety, 2 more stray points to reach the design's 8.
