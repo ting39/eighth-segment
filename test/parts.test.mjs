@@ -79,3 +79,11 @@ test('the HUD is solid in HUD rooms and follows the HUD position setting', () =>
   g.hudpos = 'bottom'; updateDisplays(g);
   assert.ok(!solidAt(16, 1) && solidAt(16, 16), 'moved to the bottom');
 });
+
+test('the brightness knob: crossing it fully reaches 0 one way and 9 the other', () => {
+  const g = game({ map: emptyMap([[2, 18, 'S'], [0, 19, '#'.repeat(40)]]), parts: [{ kind: 'knob', x: 4, y: 19, w: 16, reg: 'bright' }] }, { bright: 5 });
+  settle(g, IN.RIGHT, 260);
+  assert.equal(g.bright, 9);
+  settle(g, IN.LEFT, 300);
+  assert.equal(g.bright, 0);
+});

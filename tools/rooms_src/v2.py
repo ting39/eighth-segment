@@ -53,9 +53,12 @@ r.rect(21, 9, 18, 3, '.'); r.rect(33, 12, 6, 1); r.rect(39, 9, 1, 3, '.')
 r.rect(36, 0, 3, 9, '.')
 for y in (9, 6, 3): r.rect(36, y, 3, 1, '-')
 r.put(37, 10, 'w')
+# the hatch: a one-way gap in the upper right's floor, reached from below only by a burn-in rung (brightness 9,
+# which you only own after going up there): the lower hall's own way back up instead of CLOCKWORK again
+r.rect(34, 12, 2, 1, '-')
 # a burn-in ledge with a stray point (lower right): only solid at brightness 9
 r.put(36, 15, 'o')
-r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(35, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
+r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
 for i in (3, 4, 5): disp[f'R{i}']['needPoints'] = i - 2          # 100.### lights one digit per stray point
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2], needPoints=4); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6], needPoints=4)
@@ -63,13 +66,14 @@ disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
     disp[f'BEAM{i}'] = dict(s=2, val=1, src='static', src2='pos', sw='beams', at=[x, 12], wire=[[x+1, 19], [x+1, 20], [36, 20], [36, 12]] if i == 0 else None)
 disp['DIM'] = dict(t='bits', n=1, w=1, h=1, val=1, src='static', dim=True, at=[20, 9])
-disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 17])
+disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 18])
+disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
 for k in list(disp):
     if disp[k].get('wire') is None: disp[k].pop('wire', None)
 emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, displays=disp,
      parts=[dict(kind='switch', x=37, y=10, sw='beams')],
      triggers=dict(a=dict(kind='slot', id=1), b=dict(kind='slot', id=2), c=dict(kind='slot', id=3)),
-     always=True, hudBottom=True)
+     always=True, hudBottom=True, burnMarks=[[30, 16]])
 
 # ============================================================== TALLY
 # t1 (-1,0): a button and a spike, each wired to a gate. Above: the balcony home (from t4).
@@ -257,7 +261,7 @@ burn = [(31, 18), (25, 15), (19, 12), (13, 9), (19, 6), (8, 6)]
 emit('p2', 0, -2, 'over', 'BURN-IN', r,
      displays={f'B{i}': dict(t='bits', n=1, w=3, val=0, burn=True, at=[x, y]) for i, (x, y) in enumerate(burn)},
      text=[dict(s='HUD POSITION: BOTTOM', x=3, y=17, burn=True), dict(s='THE HALL WANTS IT DARK', x=3, y=19, burn=True)],
-     reveals=['hudpos'])
+     burnMarks=[[27, 17]], reveals=['hudpos'])
 
 # p3 (1,-2): STATUS BAR -- your own HUD blocks the way in; at the bottom it bridges the pit
 r = Room('#')

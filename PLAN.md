@@ -276,3 +276,14 @@ right, o3→c1→hall, p3→c4→c1→hall); the 1% ending is a nudge, not a fai
   zeros + `%` as ghosts; each stray point found lights one (needPoints on displays), and the true ending's big readout
   does the same ("N DIGITS STILL DARK. STRAY POINTS LIGHT THEM."). Pushed to main (v1 default, `?v2` for the redesign).
   Waiting on the user's playtest of v2 before making it the default.
+- 2026-10-20 ~21:00 USER PLAYTEST FEEDBACK on ?v2 (in progress when the 5h limit hit; uncommitted edits exist):
+  [ ] BURN-IN room unclear: grey ghost bars read as background. Add in-room cue (bars flicker/glow when brightness changes; faint burned-in "9"/brightness glyph). Same for hall BURN bar + RUNG.
+  [ ] DIMMER knob: crossing it should visibly retune brightness live (screen/lit bars dim/brighten step by step) with a small 7-seg readout of the value; full crossing reaches 0 and 9.
+  [ ] Hall bottom-right stray point: reachable (sim 48/120 at bright 9) but check it reads clearly (rung visible, point position clear).
+- 2026-10-20 (evening) — Playtest fixes: (1) burn-in ghosts now answer to brightness everywhere (brighter each step,
+  a flash on every change, solid + glowing at 9) and rooms with burn-ins carry a faint burned-in "☼9" on the glass
+  (`burnMarks`; p2, hall); (2) every knob shows a live 7-seg readout, and below 5 the whole glass dims step by step
+  (brightness 5 looks exactly as before); test: crossing the dimmer fully reaches 0 and 9; (3) hall stray point:
+  the hatch + burn-in rung (from another session) kept, verified visible at 9. Route re-solved from 0 (91 goals,
+  123 s); 33 tests pass. Interest note: brightness is now felt as a physical dimmer, so the p2 aha becomes
+  "the ghosts reacted when I turned the knob" rather than a guess.

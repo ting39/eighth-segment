@@ -115,7 +115,7 @@ export function createRenderer(canvas) {
     }
     // ghost segments (HUD digits are drawn per frame: their position is a setting); empty sockets are outlines
     for (const d of room.displays) {
-      if (d.hudAt) continue;
+      if (d.hudAt || d.burn) continue;   // burn-in ghosts are drawn live: they answer to brightness
       d.cells.forEach((cell, i) => {
         if (d.missing & (1 << i)) drawSocket(x, cell, hexA(pal.lit, 0.3));
         else drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.075));
@@ -191,11 +191,27 @@ export function createRenderer(canvas) {
     const x = lc;
     x.drawImage(staticLayer, 0, 0);
 
-    const bf = 0.45 + 0.55 * (g.bright ?? 5) / 9;   // global brightness scales every lit bar
+    const bf = (g.bright ?? 5) >= 5 ? 1 : 0.45 + 0.11 * (g.bright ?? 5);   // below 5 every lit bar dims
     // HUD digits: ghost wherever the HUD currently sits
     for (const d of room.displays) if (d.hudAt === (g.hudpos || 'top')) d.cells.forEach((cell) => drawCell(x, d, cell, hexA(pal.lit, 0.075)));
     // burn-in: at brightness 9 the ghosts of burn displays glow (and are solid)
-    if (g.bright === 9) for (const d of room.displays) if (d.burn) d.cells.forEach((cell, i) => { if (!(d.lit & (1 << i)) && !(d.missing & ~(g.c.sock[d.sockKey] || 0) & (1 << i))) drawCell(x, d, cell, hexA(pal.lit, 0.3)); });
+    // burn-in ghosts answer to brightness: brighter with every step, a flash whenever it changes, solid at 9
+    const bright = g.bright ?? 5;
+    if (R.lastBright !== undefined && R.lastBright !== bright) R.brightFlash = 1;
+    R.lastBright = bright;
+    R.brightFlash = (R.brightFlash || 0) * 0.94;
+    for (const d of room.displays) if (d.burn) d.cells.forEach((cell, i) => {
+      if ((d.lit & (1 << i)) || (d.missing & ~(g.c.sock[d.sockKey] || 0) & (1 << i))) return;
+      const a = bright === 9 ? 0.55 + 0.1 * Math.sin(performance.now() / 300) : 0.05 + 0.03 * bright;
+      drawCell(x, d, cell, hexA(pal.lit, Math.min(0.9, a + R.brightFlash * 0.45)));
+      if (bright === 9) { const [cx, cy, cw] = cell; x.fillStyle = 'rgba(255,255,255,0.5)'; x.fillRect(cx * TILE + 1, cy * TILE + 1, cw * TILE - 2, 1); }
+    });
+    // a burned-in mark on the glass: the brightness glyph and a 9, as faint as the brightness is low
+    for (const m of room.burnMarks || []) {
+      const a = 0.03 + 0.045 * bright + R.brightFlash * 0.3;
+      R.glyph(x, 'bright', m[0] * TILE, m[1] * TILE, hexA(pal.lit, a));
+      R.segNum(x, '9', m[0] * TILE + 8, m[1] * TILE - 1, hexA(pal.lit, a), null);
+    }
     // empty sockets breathe, brighter while you carry a bar that would fit
     for (const d of room.displays) {
       const holes = d.missing & ~(g.c.sock[d.sockKey] || 0);
@@ -242,6 +258,9 @@ export function createRenderer(canvas) {
         x.fillStyle = hexA(pal.lit, 0.35); x.fillRect(px0 + 1, py0 + 1, pt.w * TILE - 2, 1);
       } else if (pt.kind === 'knob') {
         const v = pt.reg === 'bright' ? g.bright : (g.c.reg[pt.reg] || 0);
+        // a small readout by the knob: you feel the dial turning
+        x.fillStyle = 'rgba(0,0,0,0.45)'; x.fillRect(px0 - 1, py0 - 10, 8, 9);
+        R.segNum(x, String(v % 10), px0 + 1, py0 - 9, hexA(pal.lit, 0.95), hexA(pal.lit, 0.12));
         x.fillStyle = hexA(pal.lit, 0.25); x.fillRect(px0, py0, pt.w * TILE, 2);
         for (let k = 0; k < pt.w * 2; k++) if ((k + v) % 3 === 0) { x.fillStyle = hexA(pal.lit, 0.9); x.fillRect(px0 + k * 4 + 1, py0, 2, 2); }
       } else if (pt.kind === 'switch') {
@@ -303,6 +322,8 @@ export function createRenderer(canvas) {
     }
     x.globalAlpha = 1;
 
+    const dimA = (5 - (g.bright ?? 5)) / 5 * 0.5;   // a dimmer: the whole glass darkens step by step below 5
+    if (dimA > 0) { x.fillStyle = `rgba(0,0,0,${dimA})`; x.fillRect(0, 0, W, H); }
     if (ui.overlay) ui.overlay(x, pal);
 
     // ---- composite to screen

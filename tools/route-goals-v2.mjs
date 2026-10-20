@@ -16,9 +16,8 @@ export const ROUTE = [
   // the support beams, PANEL, burn-in (point), the status bar, the long way home
   'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'at:34,11', 'p2', 'bright:9', 'event:point', 'hud:bottom',
   'at:35,5', 'p3', 'at:20,15', 'c4', 'c1', 'hall',
-  // the hall's burn-in ghost (point: brightness 9), then once more around CLOCKWORK to the upper right
-  'at:37,20', 'bright:9', 'event:point', 'c1', 'at:37,20', 'c2', 'at:12,3', 'at:14,3', 'idle:1', 'at:32,19', 'c3',
-  'at:30,9', 'c4', 'at:37,9', 'at:9,9', 'c1', 'hall',
+  // the hall's burn-in ghost (point: brightness 9), and the burn-in rung up through the hatch to the upper right
+  'at:37,20', 'bright:9', 'event:point', 'at:36,11',
   // the dim bar wants it dark, then the 100% slot
-  'bright:0', 'at:36,11', 'at:22,11', 'at:18,9', 'event:slot/3',
+  'bright:0', 'at:22,11', 'at:18,9', 'event:slot/3',
 ];

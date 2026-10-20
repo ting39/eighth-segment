@@ -597,6 +597,7 @@ if (SHOT) {
   // synchronous render for headless screenshots: ?shot&room=ID[&deaths=n&jumps=n]
   const id = params.get('room') || START_ROOM;
   const c = newCounters();
+  if (params.has('bright')) settings.bright = +params.get('bright');
   c.deaths = +params.get('deaths') || 0; c.jumps = +params.get('jumps') || 0; c.steps = (+params.get('time') || 0) * HZ;
   game = createGame(world, id, { ...gopts(), counters: c });
   mode = params.has('title') ? 'title' : 'play';
