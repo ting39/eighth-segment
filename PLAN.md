@@ -272,3 +272,7 @@ right, o3→c1→hall, p3→c4→c1→hall); the 1% ending is a nudge, not a fai
   instead); t4's floating gate housed in rock (it was a trap); STATUS BAR hops measured at ~20% (tight, fair).
   NEXT: real playtest feedback; more interactables per room in o/c wings; music for v2 hall; maybe light the
   last digits of 100.000 per stray point; make v2 the default once the user approves.
+- 2026-10-20 (late afternoon) — Stray points are now diegetic: the hall's readout shows `1 0 0` lit and its last three
+  zeros + `%` as ghosts; each stray point found lights one (needPoints on displays), and the true ending's big readout
+  does the same ("N DIGITS STILL DARK. STRAY POINTS LIGHT THEM."). Pushed to main (v1 default, `?v2` for the redesign).
+  Waiting on the user's playtest of v2 before making it the default.
