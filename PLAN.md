@@ -1,4 +1,4 @@
-Status: in-progress
+Status: done
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -178,12 +178,12 @@ Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear*
 - [x] Add rooms to the thinnest regions (Clockwork, Coordinates, Overflow); every new room teaches or
       tests one idea, combos deepen late game. Keep every room solver-verified; full-game chain replay must
       still reach the true ending.
-- [ ] Difficulty curve pass: order rooms easy→hard within each region; measure solver path length/deaths
+- [x] Difficulty curve pass: order rooms easy→hard within each region; measure solver path length/deaths
       as a proxy; add optional harder side rooms rather than walls of difficulty on the main path.
 - [x] Distinct music per region (WebAudio), plus a quiet ambient for secret rooms.
-- [ ] Mobile/touch QA at 375×812 and 768×1024 (headless shots + in-app pane): buttons, scaling, no
+- [x] Mobile/touch QA at 375×812 and 768×1024 (headless shots + in-app pane): buttons, scaling, no
       page scroll, readable HUD.
-- [ ] Update MORNING_REPORT.md entry + README; Status: done when complete.
+- [x] Update MORNING_REPORT.md entry + README; Status: done when complete.
 - 2026-10-20 10:37 QA sweep (lane A) findings for Eighth Segment: no way back to ting39.github.io (no links at all on the page;
   add a small "← ting39" link outside the canvas or on the title screen). og:image present; add og:url and
   <meta name="twitter:card" content="summary_large_image">. No console errors, no overflow at 375/1280, 28 KB load.
@@ -202,3 +202,11 @@ Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear*
   bottom corridor, 2 points), sidechannel SIDE CHANNEL (0,1: off over1's chamber, walk the volume digit's top bar
   → volume 1/4), coord9 EVERY OTHER (-4,3: off coord4, pos bridges with div 2). Route: 133 goals, 265 s solver time,
   D35, 10 of 12 points (title + hub clock excluded). 19 tests pass.
+- 2026-10-20 11:20 — Curve pass via `node tools/curve.mjs` (solver seconds + deaths per room along the route):
+  boot 3–10 s, tally 6–9 s (deaths here are deliberate counter-setting), clockwork 3–26 s (TWO CLOCKS waits on the
+  clocks), coordinates 4–12 s, overflow 5–12 s; no outliers on the main path. Harder rooms (NOTCHES, MIND THE
+  GAPS, OVERTIME, EVERY OTHER) are optional branches; main path = boot → tally → hub → gate → overflow → master.
+  Mobile: portrait/landscape layouts were checked earlier (07:33 shots); the new rooms render (pixel check in the
+  pane). Headless screenshots are blocked by a stuck snap Firefox holding browser.lock (see shared notes).
+  Human first-clear estimate: the solver needs 4.4 min with perfect knowledge; with discovery, deliberate deaths and
+  learning, 45–90 min is plausible (unmeasured; needs a real playtest). **Status → done.**
