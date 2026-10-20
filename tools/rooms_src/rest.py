@@ -57,7 +57,7 @@ r.put(2,19,'P'); r.put(36,19,'P')
 emit('clock1','2','3','clock','TICK', r, "{ A: { s: 4, src: 'time' } }", "\n    hud: true,")
 
 # ---------------- clock2 (3,3): patience drop (idle) with a stray point in the column
-r = Room().border(l=range(18,20))
+r = Room().border(l=range(18,20), r=range(17,20))
 r.rect(0,20,40,2)
 for (x,y) in [(12,17),(8,14),(12,11),(8,8),(12,5)]: r.rect(x,y,3,1)
 r.rect(15,2,5,1)                       # ledge (stand row 1) next to the digit's top-left corner
@@ -164,6 +164,21 @@ for (x,y) in [(20,14),(22,14),(21,15),(20,16),(22,16)]: r.put(x,y,'%')
 r.put(2,19,'P'); r.put(24,19,'P'); r.put(36,19,'o')
 emit('fineprint','2','4','tally','FINE PRINT', r, "{ J: { s: 3, src: 'time' }, K: { s: 3, src: 'deaths' } }",
      "\n    nohud: true,")
+
+# ---------------- encore (4,3): secret-ish side room off clock2. A digit counting VISITS to this room,
+# walled in so the only way in is its upper-left bar f; the point sits on its middle bar g.
+r = Room().border(l=range(17,20))
+r.rect(0,20,40,2)
+r.rect(30,1,9,19)                              # solid right of the digit (b, c sides closed)
+r.rect(19,1,11,3)                              # ceiling over the digit's a bar
+r.rect(23,1,1,4)                               # no way into the top-left corner
+r.rect(23,10,1,10); r.rect(24,15,6,5)          # e side and below d closed
+r.rect(19,9,5,1)                               # ledge: stand on row 8, level with f's bottom
+for (x,y,w) in [(14,17,3),(9,14,3),(14,11,3)]: r.rect(x,y,w,1)
+r.rect(26,5,1,3)                               # divider: reach the point only by walking on g
+r.put(24,4,'A'); r.put(28,8,'o')
+r.put(2,19,'P')
+emit('encore','4','3','clock','ENCORE', r, "{ A: { s: 4, src: 'visits' } }")
 
 path = os.path.join(ROOT, 'src/rooms.js')
 s = open(path).read()

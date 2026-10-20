@@ -52,7 +52,7 @@ Consequences, all strict and consistent (they are the knowledge locks):
 | ✦5 | **TIME** (game-timer seconds) | the HUD timer *is* this digit; wait for the right second | ticking digit; HUD timer toggled on in that zone |
 | ✦6 | **POSITION** (your column) | the digit shows *where you are*; walk to reshape it | the floor below you morphs every few steps |
 | ✦7 | **IDLE** (seconds since any input) | stand completely still | a digit that only ever reads 0 while you play... |
-| ✦8 | **VISITS** (times you entered this room) | leave and come back | a door "1 of 3" style counter by the entrance |
+| ✦8 | **VISITS** (times you entered this room) | leave and come back | ENCORE (4,3), optional point; open on visits 2/3 (built 10-20) |
 | ✦9 | **BINARY** row of bits = deaths | it's binary | row of 4 lamps, 1 lamp per bit, LSB right |
 | ✦10 | **HEX** jumps mod 16 | numbers past 9 (A b C d E F) have shapes 0–9 never make | the digit occasionally shows letters |
 | ✦11 | **MUSIC VOLUME** (settings) | the menu is part of the world | a speaker glyph next to the digit; menu draws volume as the same 7-seg digit |
@@ -162,3 +162,8 @@ respawn < 0.45 s. Same sim module runs in browser and Node.
   route after tally4 (`route.mjs --from 15` re-solved; full route now 3 points, 129.8 s, D15). Total points 5
   (hub clock point is never in the route: real time). hub/tally4/fineprint are now authored in
   tools/rooms_src/rest.py (hub edits ported there) — edit there and re-run, don't hand-edit those maps.
+- 2026-10-20 08:50 — **✦8 ENCORE** (4,3, clockwork, optional): clock2's right wall opened at rows 17-19. A digit
+  counting visits to this room, walled so the only way in is bar f; a static divider in its upper cell means the
+  point (on bar g) needs g lit → open exactly on visits 2/3 (`locks.mjs encore at:28,8 visits`): the first visit
+  is always sealed. In the route after clock2's point (re-solved `--from 33`). Route: 4 points, 131 s, D15.
+  Stray points now 6 (title, clock2, coord2, hub clock, fineprint, encore). 19 tests pass.
