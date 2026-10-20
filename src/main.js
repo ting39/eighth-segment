@@ -27,6 +27,8 @@ const settings = Object.assign({
   music: 6, sfx: 7, speed: 100, glow: true, shake: true, flashes: true, hud: true, hints: true, touch: 'auto',
   keys: structuredClone(DEFAULT_KEYS),
 }, saved.settings || {});
+// older saves predate some actions (e.g. restart): fill in defaults for any missing key lists
+for (const [act, codes] of Object.entries(DEFAULT_KEYS)) if (!settings.keys[act]) settings.keys[act] = [...codes];
 input.keys = settings.keys;
 const meta = Object.assign({ endings: [], bestTime: null, bestDeaths: null, clears: 0 }, saved.meta || {});
 
@@ -153,7 +155,7 @@ function settingsMenu(back) {
     { label: 'HUD (TIME/DEATHS)', value: () => (settings.hud ? 'ON' : 'OFF'), adj: () => { settings.hud = !settings.hud; } },
     { label: 'HINTS WHEN STUCK', value: () => (settings.hints ? 'ON' : 'OFF'), adj: () => { settings.hints = !settings.hints; } },
     { label: 'TOUCH BUTTONS', value: () => settings.touch.toUpperCase(), adj: (d) => { const o = ['auto', 'on', 'off']; settings.touch = o[(o.indexOf(settings.touch) + (d || 1) + 3) % 3]; } },
-    ...['left', 'right', 'jump'].map((act) => ({
+    ...['left', 'right', 'jump', 'restart'].map((act) => ({
       label: 'KEY ' + act.toUpperCase(), value: () => (settings.keys[act][0] ? keyName(settings.keys[act][0]) : '-'),
       act: (it) => {
         it.waiting = true;
@@ -230,6 +232,7 @@ function frame(now) {
   if (mode === 'play') {
     if (edges.includes('pause')) { mode = 'pause'; menu = pauseMenu(); sfx.move(); }
     else if (edges.includes('map')) { mode = 'map'; }
+    else if (edges.includes('restart')) { restartRoom(game); sfx.move(); }
     else {
       game.clockMinutes = clockValue();
       acc += dt * (settings.speed / 100);
@@ -376,7 +379,14 @@ function drawMenu(x, pal, y0) {
       else R.text(it.waiting ? 'PRESS A KEY' : val, 236, y, sel ? '#fff' : pal.lit);
       if (sel && it.adj) { R.text('<', 228, y, R.hexA(pal.lit, 0.6)); R.text('>', 246 + (it.digit ? 0 : R.textWidth(val)), y, R.hexA(pal.lit, 0.6)); }
     } else R.text(label, (W - R.textWidth(label)) / 2, y, col);
-    if (sel) { x.fillStyle = '#fff'; x.fillRect(val !== null ? 62 : (W - R.textWidth(label)) / 2 - 8, y + 1, 3, 3); }
+    if (sel) {
+      // soft highlight band behind the selected row, then the marker
+      const bx = val !== null ? 58 : (W - R.textWidth(label)) / 2 - 12;
+      const bw = val !== null ? W - 2 * 58 : R.textWidth(label) + 24;
+      x.fillStyle = R.hexA(pal.lit, 0.16); x.fillRect(bx, y - 3, bw, rowH - 1);
+      x.fillStyle = R.hexA(pal.lit, 0.5); x.fillRect(bx, y - 3, 1, rowH - 1); x.fillRect(bx + bw - 1, y - 3, 1, rowH - 1);
+      x.fillStyle = '#fff'; x.fillRect(val !== null ? 62 : (W - R.textWidth(label)) / 2 - 8, y + 1, 3, 3);
+    }
     menuHits.push({ i, y0: y - 3, y1: y + rowH - 3 });
     y += rowH;
   });
@@ -521,6 +531,17 @@ canvas.addEventListener('pointerdown', (e) => {
   if (it.adj && !it.act) { it.adj(xx < 230 ? -1 : 1); sfx.move(); menu.onChange && menu.onChange(); }
   else if (it.act) { sfx.ok(); it.act(it); }
 });
+
+// mouse hover: highlight (select) the menu item under the pointer, pointer cursor over items
+canvas.addEventListener('pointermove', (e) => {
+  if (e.pointerType !== 'mouse') return;
+  const onMenu = menu && (mode === 'title' || mode === 'pause');
+  const y = ((e.clientY * R.dpr) - R.oy) / R.scale;
+  const hit = onMenu ? menuHits.find((h) => y >= h.y0 && y < h.y1) : null;
+  canvas.style.cursor = hit ? 'pointer' : '';
+  if (hit && menu.i !== hit.i && !menu.items[hit.i].waiting) { menu.i = hit.i; sfx.move(); }
+});
+canvas.addEventListener('pointerleave', () => { canvas.style.cursor = ''; });
 
 addEventListener('resize', () => R.resize());
 document.addEventListener('visibilitychange', () => {

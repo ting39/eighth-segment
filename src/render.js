@@ -2,6 +2,7 @@
 // composited to the screen with integer scaling, bloom and a mesh overlay.
 import { RW, RH, TILE, SUB, PW, PH, T } from './sim.js';
 import { drawText, textWidth } from './font.js';
+import { FONT57 } from './font57.js';
 
 export const W = RW * TILE, H = RH * TILE;
 
@@ -262,9 +263,9 @@ export function createRenderer(canvas) {
     drawTextQueue(ox, oy, s);
   };
 
-  // ---- text: queued in low-res coordinates, drawn crisp at screen resolution AFTER bloom,
-  // mesh and vignette so it stays sharp and readable (the 3x5 pixel font was too small/dim).
-  const FONT_STACK = '"DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", ui-monospace, monospace';
+  // ---- text: queued in low-res coordinates, drawn AFTER bloom/mesh/vignette at screen resolution
+  // with a 5x7 pixel font (fits the pixel look, much more legible than the 3x5 font), a dark
+  // outline and a soft glow. Rendered strings are cached as small canvases.
   function parseColor(c) {
     if (c[0] === '#') {
       let h = c.slice(1);
@@ -275,31 +276,45 @@ export function createRenderer(canvas) {
     const m = c.match(/[\d.]+/g) || [255, 255, 255, 1];
     return [+m[0], +m[1], +m[2], m[3] === undefined ? 1 : +m[3]];
   }
+  const textCache = new Map();
+  function renderString(str, p, adv, rgb, a) {
+    const key = `${str}|${p}|${adv}|${rgb}|${a.toFixed(2)}`;
+    let c = textCache.get(key);
+    if (c) return c;
+    if (textCache.size > 300) textCache.clear();
+    const o = Math.max(1, Math.round(p / 2));           // outline thickness
+    const pad = o + Math.ceil(p * 1.5);                  // room for outline + glow
+    c = document.createElement('canvas');
+    c.width = Math.ceil(adv * str.length + 5 * p + pad * 2); c.height = 7 * p + pad * 2;
+    const x = c.getContext('2d');
+    const glyphs = [...str].map((ch, i) => [FONT57[ch] || FONT57['?'], pad + Math.round(i * adv)]);
+    x.fillStyle = `rgba(0,0,0,${0.85 * a})`;
+    for (const [g, gx] of glyphs) for (const [px, py] of g) x.fillRect(gx + px * p - o, pad + py * p - o, p + 2 * o, p + 2 * o);
+    const [r, gg, b] = rgb.split(',').map(Number);
+    const lr = Math.round(r + (255 - r) * 0.35), lg = Math.round(gg + (255 - gg) * 0.35), lb = Math.round(b + (255 - b) * 0.35);
+    x.shadowColor = `rgba(${r},${gg},${b},${0.7 * a})`; x.shadowBlur = p * 1.5;
+    x.fillStyle = `rgba(${lr},${lg},${lb},${a})`;
+    for (const [g, gx] of glyphs) for (const [px, py] of g) x.fillRect(gx + px * p, pad + py * p, p, p);
+    c.pad = pad;
+    textCache.set(key, c);
+    return c;
+  }
   function drawTextQueue(ox, oy, s) {
     if (!R.textQueue.length) return;
     sc.save();
-    sc.textBaseline = 'alphabetic';
-    sc.lineJoin = 'round';
+    sc.imageSmoothingEnabled = false;
     for (const t of R.textQueue) {
       const [r, gg, b, a0] = parseColor(t.color);
-      const a = Math.min(1, a0 * 1.6);           // dim UI alphas (0.45–0.7) become clearly visible
+      const a = Math.min(1, a0 * 1.6);                   // dim UI alphas become clearly visible
       if (a < 0.02) continue;
-      const k = s * t.k;                          // screen pixels per font pixel
+      const k = s * t.k;                                 // screen px per low-res px
+      const p = Math.max(1, Math.round((4 * k) / 5.6));   // font pixel size: ~5px glyph + ~1px gap per 4 low-res px
+      const adv = 4 * k;                                 // keep the original layout advance
       const str = String(t.s).toUpperCase();
-      sc.font = `700 ${Math.max(8, Math.round(6.6 * k))}px ${FONT_STACK}`;
-      const want = textWidth(str) * k, have = sc.measureText(str).width || 1;
-      const fx = Math.min(1.2, want / have);    // keep the original layout widths
-      // lift the colour toward white for contrast against the dark glass
-      const lr = Math.round(r + (255 - r) * 0.35), lg = Math.round(gg + (255 - gg) * 0.35), lb = Math.round(b + (255 - b) * 0.35);
-      sc.setTransform(fx, 0, 0, 1, ox + t.x * s, oy + (t.y + 5 * t.k) * s);
-      sc.shadowColor = 'transparent';
-      sc.lineWidth = Math.max(2, k * 0.9);
-      sc.strokeStyle = `rgba(0,0,0,${0.8 * a})`;
-      sc.strokeText(str, 0, 0);
-      sc.shadowColor = `rgba(${r},${gg},${b},${0.6 * a})`;
-      sc.shadowBlur = k * 1.5;
-      sc.fillStyle = `rgba(${lr},${lg},${lb},${a})`;
-      sc.fillText(str, 0, 0);
+      const c = renderString(str, p, Math.round(adv * 100) / 100, `${r},${gg},${b}`, Math.round(a * 20) / 20);
+      const gx = Math.round(ox + t.x * s - c.pad + (3 * k - 5 * p) / 2);
+      const gy = Math.round(oy + t.y * s - c.pad + (5 * k - 7 * p) / 2);
+      sc.drawImage(c, gx, gy);
     }
     sc.restore();
   }

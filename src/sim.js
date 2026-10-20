@@ -269,9 +269,12 @@ function moveX(g, dx) {
   if (!dx) return;
   let nx = p.x + dx;
   if (collides(g, nx, p.y)) {
-    // squeeze: a gap that is 1-2 px off vertically still lets you in
+    // squeeze: a gap that is 1-2 px off vertically still lets you in.
+    // No upward squeeze while walking (on the ground or just walked off a ledge): otherwise running
+    // across a 1-tile hole bumps you up onto the far ledge and the hole can't be fallen into.
+    const walking = p.ground || (p.coyote > 0 && !p.jumping);
     for (let d = 1; d <= K.SQUEEZE; d++) {
-      for (const s of [-1, 1]) {
+      for (const s of walking ? [1] : [-1, 1]) {
         const ny = p.y + s * d * SUB;
         if (!collides(g, nx, ny) && !collides(g, p.x, ny)) { p.y = ny; p.x = nx; if (s > 0 && p.vy < 0) p.vy = 0; return; }
       }

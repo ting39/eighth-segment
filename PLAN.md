@@ -1,4 +1,4 @@
-Status: done
+Status: in-progress
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -216,3 +216,13 @@ Goal: grow from 22 rooms (~20–40 min) to **35+ rooms, 45–90 min first clear*
 - 2026-10-20 11:50 lane A (QA sweep) editing: og:url/type + twitter:card, ← ting39 link.
 - 2026-10-20 11:54 lane A: added 'MORE BY TING39' to the title menu (saves, then goes home; menu y 112→104 so 4 items clear the ledge/hint) + og:type/og:url/twitter:card. 19 tests pass. Live. Released.
 - 2026-10-20 (user request) text readability: all UI/room text now drawn crisp at screen resolution after bloom/mesh/vignette (render.js drawTextQueue), brighter (alpha x1.6, colour lifted 35% toward white), dark outline + soft glow; logo keeps the pixel font (R.pixelText). 19 tests pass; checked title/hub/ending/phone screenshots.
+
+## USER FEEDBACK 2026-10-20 afternoon (from playing) — do these, in order
+- [x] Spike pits too easy to run over: tally2/over3/coord7 pits widened to 2 tiles; route re-solved (waypoints at:5,10 + at:13,7 added in over2). Commit e686eec.
+- [ ] 1-tile-wide holes/shafts in floors are generally hard to fall into while running (e.g. tally2 shafts at cols 18 and 23 under the corridor). Fix generally: either physics (SQUEEZE (2px) lets you slide past a 1-wide hole? check) or widen key holes; make sure intended drops are easy. Re-run tests + route.
+- [ ] A climb "to the upper layer" is too hard (user screenshot, tally region: player on a right-side ledge ~row 9 near x 37, small platform ~(31,12), upper corridor ~row 6 reached through a ceiling gap ~cols 31-33). Find the room, make that jump a little easier.
+- [ ] Secret room found only by luck (screenshot: room with an '8' display embedded in the ceiling ~cols 17-20, corridor ~row 11, open area on the right x 31-38): currently found by jumping up-right from the room below. Make the hole from below narrower and hide the secret behind a thin tunnel that is hinted (secrets must be hinted, not luck).
+- [ ] Menu: highlight the item under the mouse (hover), click to select.
+- [ ] Font: replace the crisp DejaVu text with a pixel font that fits the VFD/pixel theme but stays readable (e.g. 5x7 bitmap drawn at screen resolution, keep outline/glow, keep layout widths).
+- [ ] Shortcut R (default; remappable if remap exists) = restart room (counts as a death, same as the pause-menu Restart).
+- [ ] Tests + route pass, screenshots, push, short note in MORNING_REPORT.

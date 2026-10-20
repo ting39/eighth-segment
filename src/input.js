@@ -5,6 +5,7 @@ export const DEFAULT_KEYS = {
   left: ['ArrowLeft', 'KeyA'],
   right: ['ArrowRight', 'KeyD'],
   jump: ['KeyZ', 'Space', 'ArrowUp', 'KeyW', 'KeyC', 'KeyK'],
+  restart: ['KeyR'],
 };
 
 export function createInput() {
@@ -24,6 +25,7 @@ export function createInput() {
     if (code === 'Enter' || code === 'NumpadEnter') return 'confirm';
     if (code === 'Backspace') return 'back';
     if (code === 'KeyM') return 'map';
+    if ((I.keys.restart || []).includes(code)) return 'restart';
     if (I.keys.left.includes(code)) return 'left';
     if (I.keys.right.includes(code)) return 'right';
     if (code === 'ArrowUp' || code === 'KeyW') return 'up';
