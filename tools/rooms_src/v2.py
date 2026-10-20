@@ -70,7 +70,7 @@ disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
 for k in list(disp):
     if disp[k].get('wire') is None: disp[k].pop('wire', None)
-emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, music='hall', displays=disp,
+emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, music='hall', wing='START', displays=disp,
      parts=[dict(kind='switch', x=37, y=10, sw='beams')],
      triggers=dict(a=dict(kind='slot', id=1), b=dict(kind='slot', id=2), c=dict(kind='slot', id=3)),
      always=True, hudBottom=True, burnMarks=[[30, 16]])
@@ -245,7 +245,7 @@ r.rect(31, 1, 8, 11, '.'); r.rect(32, 12, 7, 1); r.rect(31, 12, 1, 1)
 r.rect(34, 0, 4, 1, '.')
 for (x, y, w) in [(36,9,3),(32,6,3),(36,3,2)]: r.rect(x, y, w, 1)
 r.put(35, 20, 'P'); r.put(3, 20, 'P'); r.put(34, 11, 'P')
-emit('p1', 0, -1, 'over', 'DIMMER', r,
+emit('p1', 0, -1, 'over', 'DIMMER', r, wing='PANEL',
      parts=[dict(kind='knob', x=12, y=20, w=16, reg='bright')],
      displays=dict(DOOR=dict(t='bits', n=1, w=1, h=3, val=1, src='static', dim=True, at=[31, 9],
                              wire=[[20, 19], [20, 14], [31, 14], [31, 12]], hint='bright')),
@@ -258,7 +258,7 @@ r.rect(27, 6, 12, 1)
 r.put(9, 4, 'o')
 r.put(32, 20, 'P'); r.put(35, 5, 'P')
 burn = [(31, 18), (25, 15), (19, 12), (13, 9), (19, 6), (8, 6)]
-emit('p2', 0, -2, 'over', 'BURN-IN', r,
+emit('p2', 0, -2, 'over', 'BURN-IN', r, wing='PANEL',
      displays={f'B{i}': dict(t='bits', n=1, w=3, val=0, burn=True, at=[x, y]) for i, (x, y) in enumerate(burn)},
      text=[dict(s='HUD POSITION: BOTTOM', x=3, y=17, burn=True), dict(s='THE HALL WANTS IT DARK', x=3, y=19, burn=True)],
      burnMarks=[[27, 17]], reveals=['hudpos'])
@@ -270,7 +270,7 @@ r.rect(19, 6, 3, 9, '.'); r.rect(1, 15, 22, 6, '.'); r.rect(18, 16, 5, 5)
 r.rect(8, 21, 3, 1, '.')
 r.put(4, 20, '^'); r.put(14, 20, '^')
 r.put(18, 5, 'P'); r.put(20, 15, 'P')
-emit('p3', 1, -2, 'over', 'STATUS BAR', r, hudSolid=True)
+emit('p3', 1, -2, 'over', 'STATUS BAR', r, wing='PANEL', hudSolid=True)
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

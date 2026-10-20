@@ -291,3 +291,4 @@ right, o3→c1→hall, p3→c4→c1→hall); the 1% ending is a nudge, not a fai
   (`SONGS.hall`, room.music='hall'): it gains one layer (bass → drums → hats → fills, arp speeds up at 2) for each
   wing the run has reached, so every return to the hall sounds different. Maps unchanged; 33 tests pass; smoke-tested
   in the browser pane. Phase 4 remaining: making v2 the default needs the user's go-ahead (v1 stays default).
+  Banner sub-labels now follow the v2 wings (`room.wing`): the hall reads START (not BOOT), p1–p3 read PANEL (not OVERFLOW).

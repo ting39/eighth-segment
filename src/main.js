@@ -100,7 +100,7 @@ function enterPlay() {
 function showBanner(room, force) {
   const first = !visited.has(room.id) || force;
   if (!first && !room.always) return;
-  banner = { text: room.name || '', sub: (PALETTES[room.region] || {}).name || '', t: 0 };
+  banner = { text: room.name || '', sub: room.wing || (PALETTES[room.region] || {}).name || '', t: 0 };
 }
 
 // -------------------------------------------------------------- events ---
