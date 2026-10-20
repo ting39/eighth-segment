@@ -3,7 +3,7 @@ import { buildWorld, createGame, step, restartRoom, respawn, snapshot, restore, 
 import { createRenderer, W, H, PALETTES } from './render.js';
 import { createInput, DEFAULT_KEYS, keyName } from './input.js';
 import { digitMask } from './segments.js';
-import { initAudio, sfx, playSong, setVolumes } from './audio.js';
+import { initAudio, sfx, playSong, setLayers, setVolumes } from './audio.js';
 
 const params = new URLSearchParams(location.search);
 // ?v2 plays the redesign (Display Hall world); without it the original world stays live
@@ -81,10 +81,20 @@ function saveRun() {
 }
 const saveAll = () => store.save({ settings, meta, run });
 
+// the hall's theme gains a layer for every wing the run has reached
+function roomMusic(room) {
+  if (room.music === 'hall') {
+    const wings = new Set();
+    for (const id of visited) { const r = world.rooms.get(id); if (r && r.region !== room.region) wings.add(r.region); }
+    setLayers(wings.size);
+  }
+  playSong(room.music || room.region);
+}
+
 function enterPlay() {
   mode = 'play'; menu = null;
   input.clearHeld();
-  playSong(game.room.music || game.room.region);
+  roomMusic(game.room);
 }
 
 function showBanner(room, force) {
@@ -115,7 +125,7 @@ function handleEvents() {
         const room = world.rooms.get(e.id);
         showBanner(room);
         visited.add(e.id);
-        playSong(room.music || room.region);
+        roomMusic(room);
         saveRun();
         break;
       }
@@ -281,7 +291,7 @@ function frame(now) {
     else if (mode === 'ending') {
       endingInfo.t += dt;
       if (endingInfo.t > 4.5 && edges.some((e) => e === 'confirm' || e === 'pause')) {
-        if (endingInfo.nudge) { respawn(game); mode = 'play'; input.clearHeld(); playSong(game.room.music || game.room.region); }
+        if (endingInfo.nudge) { respawn(game); mode = 'play'; input.clearHeld(); roomMusic(game.room); }
         else { mode = 'title'; menu = titleMenu(); playSong('title'); }
       }
     } else menuInput(edges);
@@ -533,7 +543,7 @@ if (DEV) {
 function warp(id) {
   const c = game.c;
   game = createGame(world, id, { ...gopts(), counters: c, points: [...game.points], flags: [...game.flags] });
-  visited.add(id); mode = 'play'; playSong(game.room.music || game.room.region);
+  visited.add(id); mode = 'play'; roomMusic(game.room);
 }
 function drawDev(x) {
   x.fillStyle = 'rgba(255,255,255,0.06)';

@@ -1,7 +1,7 @@
 // WebAudio: synthesized sfx and a small procedural chiptune sequencer.
 let ac = null, master, musicBus, sfxBus, noiseBuf, comp;
 let musicVol = 7, sfxVol = 7;
-const S = { song: null, nextT: 0, stepI: 0, timer: 0 };
+const S = { song: null, nextT: 0, stepI: 0, timer: 0, layers: 0 };
 
 const gainFor = (v) => (v / 9) ** 2;
 
@@ -92,8 +92,12 @@ export const SONGS = {
   clock:  { bpm: 120, chords: [[52, MIN], [48, MAJ], [55, MAJ], [50, MAJ]], drums: 3, arp: 'tick', pad: 0.8, lead: 'sine' },
   coord:  { bpm: 136, chords: [[54, MIN], [50, MAJ], [57, MAJ], [52, SUS]], drums: 2, arp: 'skip', pad: 0.6, lead: 'sawtooth' },
   over:   { bpm: 150, chords: [[48, MIN], [56, MAJ], [51, MAJ], [58, MAJ]], drums: 4, arp: 'updown', pad: 0.7, lead: 'square' },
+  // v2 Display Hall: grows one layer (bass, drums, hats, fills) per wing the player has been to
+  hall:   { bpm: 100, chords: [[53, MAJ], [50, MIN], [58, MAJ], [48, SUS]], grow: true, arp: 'slow', pad: 1.1, lead: 'triangle' },
   master: { bpm: 80,  chords: [[53, MAJ], [57, MIN], [50, MIN], [55, SUS]], drums: 0, arp: 'slow', pad: 1.2, lead: 'triangle' },
 };
+
+export function setLayers(n) { S.layers = Math.max(0, Math.min(4, n | 0)); }
 
 export function playSong(name) {
   if (S.song === SONGS[name]) return;
@@ -111,6 +115,7 @@ function schedule() {
 function playStep(song, i, t, sp16) {
   const bar = Math.floor(i / 16) % song.chords.length, s = i % 16;
   const [root, q] = song.chords[bar];
+  const d = song.grow ? S.layers : song.drums, arp = song.grow && d >= 2 ? 'up' : song.arp;
   const tones = [...q.map((x) => root + x), ...q.map((x) => root + 12 + x)];
   // pad on bar start
   if (s === 0 && song.pad) {
@@ -127,11 +132,11 @@ function playStep(song, i, t, sp16) {
     }
   }
   // bass
-  if (song.drums >= 1 && (s % 4 === 2 || (song.drums >= 3 && s % 4 === 0))) tone('triangle', NOTE(root - 12), NOTE(root - 12), sp16 * 1.6, 0.16, musicBus, t);
-  else if (song.drums === 0 && s === 0) tone('triangle', NOTE(root - 12), NOTE(root - 12), sp16 * 12, 0.12, musicBus, t, 0.05);
+  if (d >= 1 && (s % 4 === 2 || (d >= 3 && s % 4 === 0))) tone('triangle', NOTE(root - 12), NOTE(root - 12), sp16 * 1.6, 0.16, musicBus, t);
+  else if (d === 0 && s === 0) tone('triangle', NOTE(root - 12), NOTE(root - 12), sp16 * 12, 0.12, musicBus, t, 0.05);
   // arp
   let n = null;
-  switch (song.arp) {
+  switch (arp) {
     case 'slow': if (s % 4 === 0) n = tones[(s / 4 + bar) % tones.length] + 12; break;
     case 'up': if (s % 2 === 0) n = tones[(s / 2) % tones.length] + 12; break;
     case 'updown': { const seq = [0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3]; n = tones[seq[s] % tones.length] + 12; break; }
@@ -144,7 +149,6 @@ function playStep(song, i, t, sp16) {
     tone(lead, NOTE(n), NOTE(n), sp16 * 0.9, lv * 0.4, musicBus, t + sp16 * 3); // echo
   }
   // drums
-  const d = song.drums;
   if (d >= 2 && s % 4 === 0) { tone('sine', 150, 40, 0.14, 0.32, musicBus, t, 0.002); }
   if (d >= 1 && s % 4 === 2) noise(0.03, 0.05, 'highpass', 7000, musicBus, t);
   if (d >= 3 && s % 2 === 1) noise(0.015, 0.025, 'highpass', 9000, musicBus, t);

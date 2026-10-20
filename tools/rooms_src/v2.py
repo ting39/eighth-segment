@@ -70,7 +70,7 @@ disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
 for k in list(disp):
     if disp[k].get('wire') is None: disp[k].pop('wire', None)
-emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, displays=disp,
+emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, music='hall', displays=disp,
      parts=[dict(kind='switch', x=37, y=10, sw='beams')],
      triggers=dict(a=dict(kind='slot', id=1), b=dict(kind='slot', id=2), c=dict(kind='slot', id=3)),
      always=True, hudBottom=True, burnMarks=[[30, 16]])
