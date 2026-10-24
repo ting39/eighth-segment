@@ -3,6 +3,32 @@
 import { RW, RH, TILE, SUB, PW, PH, T } from './sim.js';
 import { drawText, textWidth } from './font.js';
 import { FONT57 } from './font57.js';
+import { tr } from './i18n-game.js';
+
+// Wide (CJK) characters: drawn from a 12x12 bitmap rendered once with the system font, so Chinese
+// and Japanese text keeps the pixel look. Layout advance: Latin 4 low-res px, wide 7.
+const isWide = (ch) => ch.charCodeAt(0) > 0x2e7f;
+const WIDE_ADV = 7, WIDE_N = 12;
+const wideCache = new Map();
+function wideGlyph(ch) {
+  let g = wideCache.get(ch);
+  if (g) return g;
+  const c = document.createElement('canvas'); c.width = c.height = WIDE_N;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.textBaseline = 'middle'; x.textAlign = 'center';
+  x.font = `${WIDE_N}px "Noto Sans CJK TC", "Noto Sans CJK JP", "PingFang TC", "Hiragino Sans", "Microsoft JhengHei", "Yu Gothic", sans-serif`;
+  x.fillText(ch, WIDE_N / 2, WIDE_N / 2 + 0.5);
+  const d = x.getImageData(0, 0, WIDE_N, WIDE_N).data;
+  g = [];
+  for (let i = 0; i < WIDE_N * WIDE_N; i++) if (d[i * 4 + 3] > 110) g.push([i % WIDE_N, Math.floor(i / WIDE_N)]);
+  wideCache.set(ch, g);
+  return g;
+}
+export function measureText(str) {
+  let w = 0;
+  for (const ch of String(str)) w += isWide(ch) ? WIDE_ADV : 4;
+  return Math.max(0, w - 1);
+}
 
 export const W = RW * TILE, H = RH * TILE;
 
@@ -378,7 +404,7 @@ export function createRenderer(canvas) {
     return [+m[0], +m[1], +m[2], m[3] === undefined ? 1 : +m[3]];
   }
   const textCache = new Map();
-  function renderString(str, p, adv, rgb, a) {
+  function renderString(str, p, adv, rgb, a, k) {
     const key = `${str}|${p}|${adv}|${rgb}|${a.toFixed(2)}`;
     let c = textCache.get(key);
     if (c) return c;
@@ -386,16 +412,22 @@ export function createRenderer(canvas) {
     const o = Math.max(1, Math.round(p / 2));           // outline thickness
     const pad = o + Math.ceil(p * 1.5);                  // room for outline + glow
     c = document.createElement('canvas');
-    c.width = Math.ceil(adv * str.length + 5 * p + pad * 2); c.height = 7 * p + pad * 2;
+    const q = Math.max(1, Math.round((WIDE_ADV * k) / (WIDE_N + 1)));   // pixel size for wide glyphs
+    const glyphs = [];
+    let cx = 0;
+    for (const ch of str) {
+      if (isWide(ch)) { glyphs.push([wideGlyph(ch), pad + Math.round(cx * k), q, Math.round((7 * p - WIDE_N * q) / 2)]); cx += WIDE_ADV; }
+      else { glyphs.push([FONT57[ch] || FONT57['?'], pad + Math.round(cx * k), p, 0]); cx += 4; }
+    }
+    c.width = Math.ceil(cx * k + 5 * p + pad * 2); c.height = Math.max(7 * p, WIDE_N * q) + pad * 2;
     const x = c.getContext('2d');
-    const glyphs = [...str].map((ch, i) => [FONT57[ch] || FONT57['?'], pad + Math.round(i * adv)]);
     x.fillStyle = `rgba(0,0,0,${0.85 * a})`;
-    for (const [g, gx] of glyphs) for (const [px, py] of g) x.fillRect(gx + px * p - o, pad + py * p - o, p + 2 * o, p + 2 * o);
+    for (const [g, gx, z, dy] of glyphs) { const oo = Math.max(1, Math.round(z / 2)); for (const [px, py] of g) x.fillRect(gx + px * z - oo, pad + dy + py * z - oo, z + 2 * oo, z + 2 * oo); }
     const [r, gg, b] = rgb.split(',').map(Number);
     const lr = Math.round(r + (255 - r) * 0.35), lg = Math.round(gg + (255 - gg) * 0.35), lb = Math.round(b + (255 - b) * 0.35);
     x.shadowColor = `rgba(${r},${gg},${b},${0.7 * a})`; x.shadowBlur = p * 1.5;
     x.fillStyle = `rgba(${lr},${lg},${lb},${a})`;
-    for (const [g, gx] of glyphs) for (const [px, py] of g) x.fillRect(gx + px * p, pad + py * p, p, p);
+    for (const [g, gx, z, dy] of glyphs) for (const [px, py] of g) x.fillRect(gx + px * z, pad + dy + py * z, z, z);
     c.pad = pad;
     textCache.set(key, c);
     return c;
@@ -412,7 +444,7 @@ export function createRenderer(canvas) {
       const p = Math.max(1, Math.round((4 * k) / 5.6));   // font pixel size: ~5px glyph + ~1px gap per 4 low-res px
       const adv = 4 * k;                                 // keep the original layout advance
       const str = String(t.s).toUpperCase();
-      const c = renderString(str, p, Math.round(adv * 100) / 100, `${r},${gg},${b}`, Math.round(a * 20) / 20);
+      const c = renderString(str, p, Math.round(adv * 100) / 100, `${r},${gg},${b}`, Math.round(a * 20) / 20, k);
       const gx = Math.round(ox + t.x * s - c.pad + (3 * k - 5 * p) / 2);
       const gy = Math.round(oy + t.y * s - c.pad + (5 * k - 7 * p) / 2);
       sc.drawImage(c, gx, gy);
@@ -450,10 +482,10 @@ export function createRenderer(canvas) {
   R.textQueue = [];
   R.text = (s, px, py, color) => {
     const m = lc.getTransform();
-    R.textQueue.push({ s, x: m.a * px + m.e, y: m.d * py + m.f, k: m.a, color });
+    R.textQueue.push({ s: tr(s), x: m.a * px + m.e, y: m.d * py + m.f, k: m.a, color });
   };
   R.pixelText = (s, px, py, color) => drawText(lc, s, px, py, color);
-  R.textWidth = textWidth;
+  R.textWidth = (s) => measureText(tr(s));
   R.hexA = hexA;
   return R;
 }

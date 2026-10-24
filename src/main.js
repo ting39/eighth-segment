@@ -1,5 +1,6 @@
 // Game shell: loop, states (title / play / pause / map / settings / ending), save, fx.
 import { buildWorld, createGame, step, restartRoom, respawn, snapshot, restore, updateDisplays, HZ, SUB, RW, RH, TILE, T, newCounters } from './sim.js';
+import { LANG_LABEL } from './i18n-game.js';
 import { createRenderer, W, H, PALETTES } from './render.js';
 import { createInput, DEFAULT_KEYS, keyName } from './input.js';
 import { digitMask } from './segments.js';
@@ -182,6 +183,7 @@ function fmtTime(sec) {
 const SPEEDS = [100, 90, 80, 70, 60, 50];
 function settingsMenu(back) {
   const items = [
+    ...(globalThis.I18N ? [{ label: 'LANGUAGE', value: () => LANG_LABEL[I18N.lang] || 'ENGLISH', adj: (d) => { const L = I18N.LANGS; I18N.set(L[(L.indexOf(I18N.lang) + (d || 1) + L.length) % L.length]); } }] : []),
     { label: 'MUSIC VOLUME', value: () => settings.music, digit: true, adj: (d) => { settings.music = (settings.music + d + 10) % 10; } },
     { label: 'SOUND VOLUME', value: () => settings.sfx, digit: true, adj: (d) => { settings.sfx = (settings.sfx + d + 10) % 10; sfx.jump(); } },
     ...(meta.revealed.includes('bright') ? [{ label: 'BRIGHTNESS', value: () => settings.bright, digit: true, adj: (d) => { settings.bright = Math.max(0, Math.min(9, settings.bright + d)); } }] : []),
