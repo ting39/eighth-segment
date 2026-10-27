@@ -1,4 +1,4 @@
-Status: done (v3 round 5 live 2026-10-28; 31 rooms, 4 endings, route proven, 45 tests; waiting on the user's playtest)
+Status: in-progress (v3 round 6 queued 2026-10-28 06:55 CST — resume after the 5-hour reset; see "Round 6 — queued" at the end; hard stop weekly 92% or 18:00 CST)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -603,3 +603,12 @@ burst (and flash/shake for the true and deep endings), drawn over the ending scr
 endings; route + deep ending proven; 45 tests. **Stopped here** because the 5-hour window (85%) would cut the next
 idea off half-proven; ~5 weekly points remain. **Next, if resumed:** a knowledge idea built on the game's fiction
 (you are the decimal point — e.g. a display that reads your body as its DP), with route proof.
+
+### Round 6 — queued (2026-10-28 06:55 CST, by the coordinating session)
+Round 5 stopped at weekly 86% only because the 5-hour window was at 85%. The user asked to use weekly usage up to 92%,
+so continue after the 5-hour reset (~07:40 CST). Read the round 1–5 end reports above first. Your call on what is most
+surprising/interesting; candidates: a second room for INTERMISSION or LOOP (each is still used once), a knowledge
+idea from the game's own fiction (decimal point, segments, counters) that recurs far away, a tighter hub route, and
+ending/feel juice. Same rules: route proof + tests at every milestone, push only when proven, check usage at every
+milestone, aim to finish near 91%, hard stop at 92% weekly or 18:00 CST. End with a short "Round 6 — end report" and
+set line 1 to done.
