@@ -63,7 +63,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 11)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 12)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -409,6 +409,7 @@ r.rect(8, 4, 31, 17, '.')                                         # the map room
 r.rect(1, 6, 5, 15, '.'); r.rect(6, 12, 2, 9, '.')                # the corner: walled off from the map above the dark block
 r.rect(8, 4, 28, 1); r.rect(24, 0, 2, 1, '.'); r.rect(24, 4, 2, 1, '.')   # the corridor's floor; STILL (c2) drops in through it
 for y in (6, 9, 12, 15, 18): r.rect(36, y, 3, 1, '-')             # a ladder back up to the corridor (the map is no way up)
+r.rect(39, 19, 1, 2, '.')                                          # round 2: east, under the ladder, to TURN IT DOWN (y1)
 r.put(3, 8, 'o')
 r.put(2, 3, 'P'); r.put(37, 20, 'P'); r.put(10, 20, 'P')
 emit('o4', 2, 1, 'coord', 'ATLAS', r,
@@ -468,6 +469,21 @@ disp = {f'C{i}': dict(s=3, src='clock', place=3 - i, at=[x, 5]) for i, x in enum
 disp['C0']['hint'] = 'clock'
 disp['COL0'] = dict(t='bits', n=1, val=1, at=[17, 7]); disp['COL1'] = dict(t='bits', n=1, val=1, at=[17, 11])
 emit('x2', 3, -1, 'clock', 'WALL CLOCK', r, wing='CLOCKWORK', secret=True, music='secret', displays=disp)
+
+# y1 (3,1): TURN IT DOWN -- east of ATLAS. The music volume (Settings, since the first frame) is wired to two bars:
+# a wall across the doorway (as tall as the volume: jump it at 3 or less) and a pillar on the far side (stand on it
+# at 9 to reach the stray point). The default volume, 6, is too loud for the door and too quiet for the pillar.
+r = Room('#')
+r.rect(0, 19, 1, 2, '.'); r.rect(1, 12, 15, 9, '.')               # from ATLAS (o4)
+r.rect(16, 12, 2, 9, '.')                                         # the doorway: a wall of sound fills it
+r.rect(18, 3, 21, 18, '.')                                        # the far side
+r.rect(30, 9, 9, 1)                                               # a high ledge
+r.rect(20, 18, 3, 1); r.rect(22, 15, 2, 1)                         # steps up beside the pillar
+r.put(34, 8, 'o')
+r.put(2, 20, 'P'); r.put(22, 20, 'P'); r.put(36, 8, 'P')
+emit('y1', 3, 1, 'coord', 'TURN IT DOWN', r, wing='COORDINATES',
+     displays=dict(WALL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[16, 12], hint='volume', wire=[[15, 11], [12, 11], [12, 13]]),
+                   PIL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[26, 12])))
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

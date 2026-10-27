@@ -25,7 +25,10 @@ export const ROUTE = [
   // round 2: BABEL CLOCK (the language sign speaks every language in turn: letter one, wait between, letter two);
   // then down STILL's floor hole into ATLAS: the map of where you have been, and CROSSTALK's block is the last step
   'c5', 'at:9,9', 'at:19,9', 'at:28,9', 'event:point', 'at:3,20', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
-  'event:point', 'at:37,7', 'at:2,3', 'o3', 'at:20,7', 'at:37,7', 'c1', 'at:37,20', 'c2',
+  'event:point',
+  // round 2: TURN IT DOWN, east of ATLAS: the music volume is a wall (jump it at <=3) and a pillar (stand on it at 9)
+  'at:37,20', 'vol:2', 'y1', 'at:22,20', 'vol:9', 'event:point', 'vol:2', 'at:2,20', 'o4', 'vol:6',
+  'at:37,7', 'at:2,3', 'o3', 'at:20,7', 'at:37,7', 'c1', 'at:37,20', 'c2',
   // back across STILL the only way there is: over the top and stand still on the digit (ATLAS's drop is one way)
   'at:12,3', 'at:14,3', 'idle:1', 'at:32,19', 'c3',
   // round 2: WALL CLOCK, east of DIAL: the route's clock reads 00:00 (all middles dark), so the tunnel is open

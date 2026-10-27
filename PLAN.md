@@ -464,3 +464,9 @@ Progress log:
 Map: PANEL↔TALLY loop (BURN-IN → DOWN → CARRY HOME), COORDINATES↔CLOCKWORK (STILL ↓ ATLAS → o3), CLOCKWORK
 side loop (DIAL → WALL CLOCK → DIAL), secrets: CROSSTALK (false wall in LOOSE, hinted by ATLAS), WALL CLOCK.
 Known gaps: the map display and the title card each appear in one room; `langSrc:'idle'` still unused.
+- ~07:00 — **TURN IT DOWN (y1, 3,1)**, east of ATLAS (door under its ladder): the music volume (Settings, since
+  frame 1) is wired to a wall in the doorway (as tall as the volume: jump it at ≤3) and a pillar on the far side
+  (stand on it at 9 to reach the point); the default 6 is too loud for one and too quiet for the other
+  (`tools/vollocks.mjs`: doorway 0-3, point 9 only). Readout needs 3/7/12; WALL CLOCK still the 13th, beyond
+  100%. Also fixed: DIAL's corridor ended over its climb shaft, so WALL CLOCK's door hung in the air → a ledge.
+  Route: 25 rooms, 13/13 points, 258 s, D3; 39 tests pass.
