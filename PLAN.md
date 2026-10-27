@@ -1,4 +1,4 @@
-Status: in-progress (v3 round 2 — resumed 2026-10-28 after the 5h reset; route from #101, then tests, push, more rooms; hard stop weekly 92% or 18:00 CST)
+Status: done (v3 round 2 live 2026-10-28; 28 rooms, route proven; waiting on the user's playtest — see 'V3 ROUND 2' end report)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -489,3 +489,25 @@ Known gaps: the map display and the title card each appear in one room; `langSrc
   bus again (dial+4 dark middle: 3/6/7 — 7 still works everywhere), STILL's trapdoor; then a stray point and a
   one-way drop into CROSSTALK (home through LOOSE's false wall). Locks checked (vol 6 / DE / dial 2 each fail).
   ATLAS lock still holds with the new map block. Route: 28 rooms, 16/16, 306 s, D2; 41 tests pass.
+
+### Round 2 — end report (2026-10-28 ~10:30 CST; weekly usage 80%, stopped by choice: the 7×4 grid is full)
+**New (10 rooms, 9 mechanisms, all solver-proven in one route from a new save: 28 rooms, 16/16 points, 306 s):**
+BABEL CLOCK (a sign that speaks every language on a beat) · DOWN (the room's name is the floor for 7 s; leave and
+come back to say it again) · ATLAS (the map of where you've been is the climbing frame) · CROSSTALK (secret: a
+button on CLOCKWORK's dial bus) · NO SIGNAL (the solid HUD blocks you wherever it sits: Settings → HUD OFF) ·
+WALL CLOCK (secret beyond 100%: your real clock; open at 11:11, 10:07, 00:00…) · TURN IT DOWN (music volume is a
+wall and a pillar) · ATTRACT MODE (a shop-window sign that only shows off while you keep still: fall through it a
+language late) · NEGATIVE (the map of rooms you have NOT been to; WALL CLOCK's block is a lid) · ENCORE (volume,
+language, dial and stillness at once — the return trip that uses everything).
+**Why it is more interesting:** the round-1 rooms taught "every number counts something"; round 2 makes the
+things the player has looked at since the first frame — the room banner, the HUD switch, the volume slider, the
+map, their own clock — into level geometry, and its last rooms ask for several of them together, so earlier
+lessons come back combined rather than repeated. Every gap in the round-1 recurrence map (buttons, time, HUD,
+starburst) now recurs far away *and* combined (table above). Map: PANEL↔TALLY, COORDINATES↔CLOCKWORK and
+PANEL→CLOCKWORK loops; two secrets with visible hints (ATLAS/NEGATIVE show the rooms you haven't found).
+**Polish:** CRT retune on room change, title-card flicker + fast tick in its last second, beat tick for cycling
+signs, language-cycle legends with a beat bar, map "you are here", secret theme in secret rooms, one-way floors
+in sign tunnels (players fell into dark strokes), 7 s title card (solver 4.2 s → human slack).
+**Known gaps:** no human playtest yet (all fairness checks are solver/simulation); WALL CLOCK depends on real time
+(by design, beyond 100%); title card and real clock each appear in one room; the 7×4 grid is full — more rooms
+need ATLAS/NEGATIVE re-laid out for an 8th column.
