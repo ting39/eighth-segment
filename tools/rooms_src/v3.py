@@ -63,7 +63,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 2), (4, 4), (5, 6)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 6), (5, 10)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -125,7 +125,9 @@ r.rect(1, 4, 2, 1)
 r.rect(1, 1, 38, 1, '.'); r.rect(39, 1, 1, 1, '.')               # the high corridor back over the room
 r.rect(4, 2, 35, 1); r.rect(1, 2, 3, 1, '.')
 r.put(30, 20, '.')
-r.put(32, 20, 'P'); r.put(27, 5, 'P'); r.put(12, 5, 'P')
+r.rect(0, 18, 1, 3, 'X')                                           # round 2: a false wall (the ATLAS map shows a room behind it)
+for (x, y, w) in [(12,18,3),(7,15,3),(2,12,3),(1,9,2)]: r.rect(x, y, w, 1)   # ...and a way back up from the far side's floor
+r.put(32, 20, 'P'); r.put(27, 5, 'P'); r.put(12, 5, 'P'); r.put(2, 20, 'P')
 emit('t3', -2, -1, 'tally', 'LOOSE', r,
      parts=[dict(kind='seg', x=30, y=20, o='h', id='t3')],
      displays=dict(A=dict(s=6, val=7, sockets='a', at=[17, 6])))
@@ -138,6 +140,7 @@ for (x, y, w) in [(17,6,3),(22,10,3),(17,14,3),(22,17,3)]: r.rect(x, y, w, 1)
 r.rect(27, 2, 12, 18)                                             # the gate is housed in rock
 r.rect(26, 20, 8, 1, '.'); r.rect(30, 21, 4, 1, '.')
 gC = hang(r, 27, 20)
+r.rect(4, 0, 2, 1, '.')                                            # round 2: DOWN (p4) drops in here (one way)
 r.put(2, 1, 'P'); r.put(26, 20, 'P')
 emit('t4', -1, -1, 'tally', 'CARRY HOME', r,
      parts=[dict(kind='seg', x=10, y=1, o='h', id='home')],
@@ -169,6 +172,8 @@ for ex in (13, 20):
 r.rect(14, 14, 25, 7, '.'); r.rect(30, 1, 9, 14, '.'); r.rect(34, 0, 4, 1, '.')
 for (x, y, w) in [(31,18,3),(35,15,3),(31,12,3),(35,9,3),(31,6,3),(35,3,2)]: r.rect(x, y, w, 1)
 r.put(14, 8, 'o')
+r.rect(39, 18, 1, 3, '.')                                          # round 2: east into BABEL CLOCK (c5)
+r.rect(24, 21, 2, 1, '.')                                          # round 2: a hole in the floor, down to ATLAS (o4)
 r.put(2, 20, 'P'); r.put(20, 20, 'P')
 emit('c2', 2, 0, 'clock', 'STILL', r,
      displays=dict(D=dict(s=4, src='idle', at=[14, 3], wire=[[20, 2], [24, 2]], hint='idle')))
@@ -239,6 +244,7 @@ bridge(r, (7, 11), 8)
 r.rect(7, 20, 8, 1, '^'); r.rect(21, 20, 12, 1, '^')
 r.rect(21, 1, 12, 6)                                               # v3: a low roof over the jump bridge: no hopping on it
 r.rect(34, 0, 3, 1, '.'); r.rect(34, 5, 3, 1, '-'); r.rect(34, 2, 3, 1, '-')
+r.rect(37, 1, 3, 3, '.')                                           # round 2: east, over the ladder, to ATLAS (o4)
 r.put(3, 7, 'P'); r.put(20, 7, 'P'); r.put(37, 7, 'P')
 dsp = {f'L{i}': dict(s=2, src='pos', off=3, at=[x, 8]) for i, x in enumerate((7, 11))}
 dsp['J'] = dict(t='bar', n=12, src='jumps', mod=13, at=[21, 8], hint='jumps', wire=[[21, 9], [18, 9], [18, 12]])
@@ -268,7 +274,8 @@ r = Room('#')
 r.rect(1, 1, 38, 20, '.'); r.rect(34, 21, 4, 1, '.'); r.rect(39, 3, 1, 3, '.')
 r.rect(27, 6, 12, 1)
 r.put(9, 4, 'o')
-r.put(32, 20, 'P'); r.put(35, 5, 'P')
+r.rect(0, 18, 1, 3, '.')                                           # round 2: west along the floor, to DOWN (p4)
+r.put(32, 20, 'P'); r.put(35, 5, 'P'); r.put(2, 20, 'P')
 burn = [(31, 18), (25, 15), (19, 12), (13, 9), (19, 6), (8, 6)]
 emit('p2', 0, -2, 'over', 'BURN-IN', r, wing='PANEL',
      displays={f'B{i}': dict(t='bits', n=1, w=3, val=0, burn=True, at=[x, y]) for i, (x, y) in enumerate(burn)},
@@ -316,6 +323,7 @@ for (x, y, w) in [(19,18,2),(17,15,2),(20,12,2),(17,9,2),(20,6,2)]: r.rect(x, y,
 r.rect(9, 3, 8, 1, '.')                                            # over A, to the gap between its letters
 carve_code(r, 2, 5); r.rect(9, 4, 1, 7, '.'); r.put(8, 10, '.')    # A: down the gap, in at the first letter's right corner
 r.put(2, 10, '.'); r.rect(1, 10, 1, 11, '.'); r.rect(1, 21, 2, 1, '.')   # ...out at its left corner, down to LETTERS (l2)
+r.rect(18, 0, 2, 3, '.')                                           # round 2: CROSSTALK (s1) drops in here (one way)
 r.put(38, 10, 'P'); r.put(19, 20, 'P'); r.put(10, 3, 'P')
 emit('l1', -3, 0, 'lex', 'LANGUAGE ', r, wing='LEXICON',
      parts=[dict(kind='lang', x=37, y=7), dict(kind='lang', x=17, y=4)],
@@ -350,6 +358,63 @@ emit('l3', -2, 1, 'lex', 'INTERPRETER', r, wing='LEXICON',
                    U=dict(s=2, src='letters:up', at=[20, 9], wire=[[22, 16], [22, 17]]),
                    X=dict(s=2, src='letters:exit', at=[12, 4])),
      text=[dict(s='EXIT', x=14, y=15, a=0.8), dict(s='UP', x=24, y=15, a=0.8), dict(s='EXIT', x=12, y=1, a=0.6)])
+
+
+# ============================================================== ROUND 2
+# c5 (3,0): BABEL CLOCK -- the LANGUAGE sign again, set in rock, but now it speaks every language in turn, one a
+# second, starting from yours. Its first letter's middle is open in ZH JA DE, its second's in EN KO RU (as in
+# LANGUAGE): run through letter one, wait in the gap between the letters, run through letter two when it opens.
+r = Room('#')
+r.rect(0, 18, 1, 3, '.'); r.rect(1, 16, 38, 5, '.')               # from STILL (c2), a low hall
+r.rect(1, 3, 10, 13, '.')                                         # the climb up to the sign
+for (x, y, w) in [(6,18,3),(2,15,3),(6,12,2)]: r.rect(x, y, w, 1)
+r.rect(8, 10, 3, 1)                                               # the landing at the tunnel's mouth
+carve_code(r, 12, 4)
+r.put(11, 9, '.'); r.put(12, 9, '.'); r.put(18, 9, '.'); r.put(19, 9, '.'); r.put(20, 9, '.'); r.put(26, 9, '.'); r.put(27, 9, '.')
+r.rect(28, 4, 11, 6, '.')                                         # behind the sign: a pocket with a stray point
+r.rect(36, 10, 2, 6, '.')                                         # ...and a drop back down (too high to climb)
+r.put(33, 9, 'o')
+r.put(3, 20, 'P'); r.put(9, 9, 'P'); r.put(30, 9, 'P')
+emit('c5', 3, 0, 'clock', 'BABEL CLOCK', r,
+     displays=dict(S=dict(t='code', n=2, src='lang', langSrc='time', at=[12, 4], hint='time', wire=[[10, 2], [7, 2], [7, 3]])))
+
+# p4 (-1,-2): DOWN -- every room says its name as you come in. This one says it big, where the banner always is,
+# and for six seconds the name is solid: the only floor over the spikes. Leave and come back to say it again.
+r = Room('#')
+r.rect(1, 1, 38, 20, '.'); r.rect(39, 18, 1, 3, '.')
+r.rect(6, 20, 28, 1, '^'); r.rect(6, 21, 28, 1)
+r.rect(36, 18, 3, 1); r.rect(34, 15, 2, 1)                         # steps up by the door
+r.rect(1, 20, 5, 1, '.'); r.rect(4, 21, 2, 1, '.')                # the way down, into CARRY HOME (t4)
+r.put(20, 9, 'o')
+r.put(37, 20, 'P'); r.put(2, 20, 'P')
+emit('p4', -1, -2, 'over', 'DOWN', r, wing='PANEL', card=True,
+     displays=dict(CARD=dict(t='word', word='down', src='static', at=[0, 13], align='right', w=34, until=6)))
+
+# o4 (2,1): ATLAS -- the world map, one block per room, lit once you have been there. Lit is solid, so the map is
+# a climbing frame made of everywhere you have been. The stray point is up in the corner, over a block that is
+# still dark: a room you have not found (left of LOOSE, over LANGUAGE).
+r = Room('#')
+r.rect(0, 1, 39, 3, '.')                                          # from COORDINATES' top (o3)
+r.rect(8, 4, 31, 17, '.')                                         # the map room
+r.rect(1, 6, 5, 15, '.'); r.rect(6, 12, 2, 9, '.')                # the corner: walled off from the map above the dark block
+r.rect(8, 4, 28, 1); r.rect(24, 0, 2, 1, '.'); r.rect(24, 4, 2, 1, '.')   # the corridor's floor; STILL (c2) drops in through it
+for y in (6, 9, 12, 15, 18): r.rect(36, y, 3, 1, '-')             # a ladder back up to the corridor (the map is no way up)
+r.put(3, 8, 'o')
+r.put(2, 3, 'P'); r.put(37, 20, 'P'); r.put(10, 20, 'P')
+emit('o4', 2, 1, 'coord', 'ATLAS', r,
+     displays=dict(MAP=dict(t='map', src='visits', at=[3, 9], cw=3, ch=1, gap=2, gapy=2)))
+
+# s1 (-3,-1): CROSSTALK (secret) -- behind LOOSE's false wall. A button with a gold stripe: it is on the DIAL's bus,
+# so every press turns the dial in CLOCKWORK (and the gold digit in the hall) as well as the gate here.
+r = Room('#')
+r.rect(28, 13, 11, 8, '.'); r.rect(39, 18, 1, 3, '.')
+r.rect(18, 20, 10, 1, '.'); gX = hang(r, 22, 20)
+r.rect(18, 21, 2, 1, '.')                                         # behind the gate: down into LANGUAGE (l1), one way
+r.put(20, 20, 'o')
+r.put(37, 20, 'P')
+emit('s1', -3, -1, 'tally', 'CROSSTALK', r, wing='TALLY', secret=True,
+     parts=[dict(kind='button', x=31, y=20, w=2, reg='dial', bus=True)],
+     displays=dict(X=dict(s=2, src='reg:dial', bus=True, off=5, at=gX, hint='bus', wire=[[32, 19], [32, 16], [26, 16], [26, 17]])))
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

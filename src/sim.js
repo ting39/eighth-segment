@@ -95,6 +95,7 @@ function compileDisplay(roomId, d) {
   for (const ch of d.sockets || '') out.missing |= 1 << 'abcdefg'.indexOf(ch);
   if (d.t === 'code') return compileCode(roomId, out);
   if (d.t === 'word') return compileWord(roomId, out);
+  if (d.t === 'map') return out;                               // cells are laid out by buildWorld (it knows the grid)
   if (d.t === 'bar') {
     // unary meter: value v lights the first v cells (left to right, or bottom to top)
     const n = d.n, w = d.w || 1, h = d.h || 1, gap = d.gap ?? 0;
@@ -174,6 +175,19 @@ export function buildWorld(defs) {
     if (grid.has(k)) throw new Error(`rooms ${grid.get(k)} and ${r.id} share cell ${k}`);
     grid.set(k, r.id);
   }
+  // map displays: the whole world, each room a cw x ch block (gap 1), at the room's grid position
+  let gx0 = Infinity, gy0 = Infinity;
+  for (const r of rooms.values()) { gx0 = Math.min(gx0, r.gx); gy0 = Math.min(gy0, r.gy); }
+  for (const r of rooms.values()) for (const d of r.displays) if (d.t === 'map') {
+    const cw = d.cw || 4, ch = d.ch || 3, gap = d.gap ?? 1, gapy = d.gapy ?? gap;
+    d.cells = []; d.mapIds = [];
+    for (const o of rooms.values()) {
+      if (d.only && !d.only.includes(o.id)) continue;
+      const x = d.x + (o.gx - gx0) * (cw + gap), y = d.y + (o.gy - gy0) * (ch + gapy);
+      if (x < 0 || y < 0 || x + cw > RW || y + ch > RH) throw new Error(`${r.id}: map display out of bounds at ${o.id}`);
+      d.cells.push([x, y, cw, ch]); d.mapIds.push(o.id);
+    }
+  }
   return { rooms, grid };
 }
 
@@ -185,7 +199,7 @@ export function neighbor(world, room, dx, dy) {
 // ---------------------------------------------------------------- state ---
 
 export function newCounters() {
-  return { deaths: 0, jumps: 0, steps: 0, idle: 0, visits: {}, reg: {}, sw: {}, sock: {} };
+  return { deaths: 0, jumps: 0, steps: 0, idle: 0, here: 0, visits: {}, reg: {}, sw: {}, sock: {} };
 }
 
 export function createGame(world, roomId, opts = {}) {
@@ -218,7 +232,7 @@ export function createGame(world, roomId, opts = {}) {
 }
 
 function structuredCloneCounters(c) {
-  return { deaths: c.deaths, jumps: c.jumps, steps: c.steps, idle: c.idle, visits: { ...c.visits },
+  return { deaths: c.deaths, jumps: c.jumps, steps: c.steps, idle: c.idle, here: c.here || 0, visits: { ...c.visits },
     reg: { ...(c.reg || {}) }, sw: { ...(c.sw || {}) }, sock: { ...(c.sock || {}) } };
 }
 
@@ -230,6 +244,7 @@ function enterRoom(g, room, entry, forcedSpawn) {
     u: !!neighbor(g.world, room, 0, -1), d: !!neighbor(g.world, room, 0, 1),
   };
   g.c.visits[room.id] = (g.c.visits[room.id] || 0) + 1;
+  g.c.here = 0;                      // steps since you came in (a title card is lit for its first seconds)
   if (forcedSpawn) g.spawn = { x: forcedSpawn.x, y: forcedSpawn.y };
   else if (!entry) { const s0 = room.start || room.spawns[0]; g.spawn = { x: s0.x, y: s0.y }; }
   else {
@@ -288,18 +303,26 @@ export function displayValue(g, d) {
 // the language a word/code display is showing: yours, or (attract mode) the one standing still has reached
 export function displayLang(g, d) {
   if (d.langSrc === 'idle') return LANGS[(LANGS.indexOf(g.lang) + Math.floor(g.c.idle / HZ)) % LANGS.length];
+  // a sign that speaks every language in turn, one per `every` seconds, starting from yours: your language is its phase
+  if (d.langSrc === 'time') return LANGS[(LANGS.indexOf(g.lang) + Math.floor(g.c.steps / (HZ * (d.every || 1)))) % LANGS.length];
   return g.lang;
 }
 
 // lit cells for a display: a bitmask for digits/bits/bars, an array (d.litArr) for code/word faces
 export function displayLit(g, d) {
+  const gone = d.until && g.c.here >= d.until * HZ;           // a title card: lit only just after you come in
+  if (d.t === 'map') {
+    // the world map: one block per room, lit once you have been there
+    d.litArr = gone ? d.cells.map(() => 0) : d.mapIds.map((id) => (g.c.visits[id] ? 1 : 0));
+    return -1;
+  }
   if (d.t === 'code' || d.t === 'word') {
     const l = displayLang(g, d);
     let arr;
     if (d.t === 'code') arr = d.litBy[l];
     else { const lay = d.layouts[l]; d.cells = lay.cells; arr = lay.on; }
     d.burnArr = d.burn ? arr : null;
-    if (d.burn || (d.dim && g.bright === 0) || (d.needPoints && g.points.size < d.needPoints)) arr = d.cells.map(() => 0);
+    if (gone || d.burn || (d.dim && g.bright === 0) || (d.needPoints && g.points.size < d.needPoints)) arr = d.cells.map(() => 0);
     d.litArr = arr;
     return -1;
   }
@@ -315,6 +338,7 @@ export function displayLit(g, d) {
   if (d.hudAt && d.hudAt !== g.hudpos) m = 0;
   if (d.dim && g.bright === 0) m = 0;
   if (d.needPoints && g.points.size < d.needPoints) m = 0;   // the readout fills in as stray points are found
+  if (gone) m = 0;
   return m;
 }
 
@@ -475,7 +499,7 @@ export function restartRoom(g) { kill(g, 'restart'); }
 
 export function step(g, input) {
   const p = g.p, c = g.c;
-  c.steps++;
+  c.steps++; c.here = (c.here || 0) + 1;
   const left = !!(input & IN.LEFT), right = !!(input & IN.RIGHT), jump = !!(input & IN.JUMP);
   if (input & 7) c.idle = 0; else c.idle++;
   g.lastInput = input;

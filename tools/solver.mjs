@@ -42,6 +42,8 @@ function roomProfile(room) {
     if (d.src === 'jumps') prof.jumpMod = lcm(prof.jumpMod, period);
     if (d.src === 'time') prof.timePeriod = Math.max(prof.timePeriod, period * HZ);
     if (d.src === 'idle' || d.langSrc === 'idle') prof.idle = true;
+    if (d.langSrc === 'time') { prof.timePeriod = lcm(prof.timePeriod || 1, LANGS.length * (d.every || 1) * HZ); prof.timeQuant = HZ / 5; }
+    if (d.until) prof.here = Math.max(prof.here || 0, d.until * HZ);
     if (d.t === 'code' || d.t === 'word' || String(d.src).startsWith('letters:') || d.src === 'lang') prof.lang = true;
     if (d.src === 'visits') prof.visits = true;
     if (d.src === 'volume' || d.src2 === 'volume') prof.volume = true;
@@ -55,8 +57,9 @@ function key(g, prof, macro, cs = 0) {
   let k = `${g.room.id}|${p.x >> (8 + cs)}|${p.y >> (8 + cs)}|${p.vx >> (4 + cs)}|${p.vy >> (5 + cs)}|${p.ground ? 1 : 0}${p.coyote > 0 ? 1 : 0}${p.buf > 0 ? 1 : 0}${p.prevJump ? 1 : 0}${p.jumping ? 1 : 0}|${p.dead ? p.dtimer : 0}`;
   if (prof.deathMod > 1) k += `|d${c.deaths % prof.deathMod}`;
   if (prof.jumpMod > 1) k += `|j${c.jumps % prof.jumpMod}`;
-  if (prof.timePeriod) k += `|t${Math.floor((c.steps % prof.timePeriod) / macro)}`;
+  if (prof.timePeriod) k += `|t${Math.floor((c.steps % prof.timePeriod) / Math.max(macro, prof.timeQuant || 0))}`;
   if (prof.idle) k += `|i${Math.min(c.idle >> 2, 300)}`;
+  if (prof.here) k += `|e${Math.floor(Math.min(c.here, prof.here) / macro)}`;
   if (prof.visits) k += `|v${(c.visits[g.room.id] || 0) % 10}`;
   if (prof.volume) k += `|o${g.volume}`;
   if (prof.bright) k += `|b${g.bright}`;

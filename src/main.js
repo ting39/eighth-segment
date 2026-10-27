@@ -52,6 +52,7 @@ let visited = new Set(run ? run.visited : []);
 let mode = 'title';
 let menu = null;                       // { items, i, title }
 let banner = null;                     // { text, sub, t }
+let roomFx = 1;                        // 0..1: the CRT 'retune' when you cross into another room
 let squash = 0;
 let endingInfo = null;
 let lastSave = 0;
@@ -101,6 +102,7 @@ function enterPlay() {
 }
 
 function showBanner(room, force) {
+  if (room.card) return;                // this room says its name itself, big and solid (the title card)
   const first = !visited.has(room.id) || force;
   if (!first && !room.always) return;
   banner = { text: room.name || '', sub: room.wing || (PALETTES[room.region] || {}).name || '', t: 0 };
@@ -124,7 +126,7 @@ function handleEvents() {
         for (const k of hintsShown) if (!meta.hintsSeen.includes(k)) meta.hintsSeen.push(k);
         hintsShown.clear();
         for (const r of world.rooms.get(e.id).reveals || []) reveal(r);
-        sfx.room();
+        sfx.room(); roomFx = 0;
         const room = world.rooms.get(e.id);
         showBanner(room);
         visited.add(e.id);
@@ -360,6 +362,12 @@ function drawHints(x, pal) {
 }
 
 function drawHud(x, pal, dt) {
+  if (roomFx < 1) {          // the picture opens from a bright line in the middle, like a tube warming up
+    roomFx = Math.min(1, roomFx + dt / 0.13);
+    const h0 = Math.round((1 - roomFx) * (1 - roomFx) * H / 2);
+    x.fillStyle = 'rgba(0,0,0,0.75)'; x.fillRect(0, 0, W, h0); x.fillRect(0, H - h0, W, h0);
+    x.fillStyle = R.hexA(pal.lit, 0.5 * (1 - roomFx)); x.fillRect(0, h0, W, 1); x.fillRect(0, H - h0 - 1, W, 1);
+  }
   if ((settings.hud || game.room.hud) && !game.room.nohud && !game.room.hudSolid) {
     const t = game.c.steps / HZ, oy = (settings.hudpos === 'bottom' || game.room.hudBottom) ? H - 15 : 0;
     x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillRect(2, 2 + oy, 70, 11);
@@ -473,7 +481,7 @@ function drawMap(x, pal) {
 // The Master Readout, drawn big: digits light one by one, then the point (you) arcs into the slot
 // you chose. Ending 3 reads 3.14159; the wrong slots read ten times too much / too little.
 // how many stray points light each of the readout's last three digits (the hall's R3..R5 use the same numbers)
-const POINTS_FOR = [2, 4, TOTAL_POINTS];
+const POINTS_FOR = [3, 6, TOTAL_POINTS];
 const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
 function bigDigit(x, mask, px, py, on, ghost) {
   const L = 8;

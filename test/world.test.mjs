@@ -59,9 +59,9 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has six stray points and the hall readout asks for all of them', () => {
+test('the world has ten stray points and the hall readout asks for all of them', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 6);
+  assert.equal(pts, 10);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts);
 });

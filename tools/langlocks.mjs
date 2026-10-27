@@ -3,7 +3,7 @@
 import { buildWorld, createGame, updateDisplays } from '../src/sim.js';
 import { LANGS } from '../src/glyphs.js';
 import { ROOMS } from './world.mjs';
-import { solveAny } from './solver.mjs';
+import { solve, solveAny } from './solver.mjs';
 import { parseGoal } from './route.mjs';
 const [room, goalStr, ...kv] = process.argv.slice(2);
 const world = buildWorld(ROOMS);
@@ -17,7 +17,8 @@ for (const lang of LANGS) {
     else if (k === 'bright') g.bright = +v; else if (k.startsWith('reg.')) g.c.reg[k.slice(4)] = +v; else g.c[k] = +v;
   }
   updateDisplays(g);
-  const r = solveAny(g, parseGoal(goalStr), { quick: !!process.env.QUICK });
+  const goal = parseGoal(goalStr);
+  const r = process.env.W ? solve(g, goal, { weight: +process.env.W, maxNodes: +(process.env.MAXN || 400000) }) : solveAny(g, goal, { quick: !!process.env.QUICK });
   out.push(`${lang}:${r.ok ? 'PASS' : 'no'}`);
   console.log(lang, r.ok ? 'PASS' : 'no', r.expanded);
 }

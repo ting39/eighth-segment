@@ -70,3 +70,36 @@ test('every UI string is translated into every game language', () => {
   for (const l of LANGS) for (const w of Object.values(WORDS)) assert.ok(w[l], 'word in ' + l);
   assert.equal(tr('EXIT'), 'EXIT');
 });
+
+// ---- round 2
+test('a time-cycled sign speaks every language in turn, one a second, starting from yours', () => {
+  const g = game({ map: emptyMap([[2, 19, 'S']]), displays: { C: { t: 'code', n: 2, src: 'lang', langSrc: 'time', at: [20, 2] } } }, { lang: 'ja' });
+  const d = g.room.displays[0];
+  const shown = () => { updateDisplays(g); return LANGS.find((l) => d.litBy[l].every((v, i) => v === d.litArr[i])); };
+  assert.equal(shown(), 'ja');
+  g.c.steps = 120; assert.equal(shown(), 'ko');
+  g.c.steps = 120 * 6; assert.equal(shown(), 'zh-TW');
+  g.lang = 'en'; g.c.steps = 0; assert.equal(shown(), 'en');
+});
+
+test('a title card is lit (and solid) only for its first seconds in the room', () => {
+  const g = game({ map: emptyMap([[2, 19, 'S']]), displays: { T: { t: 'word', word: 'down', at: [1, 2], until: 2 } } }, { lang: 'en' });
+  const lit = () => { updateDisplays(g); return g.room.displays[0].litArr.some(Boolean); };
+  assert.ok(lit());
+  run(g, 0, 120 * 2 - 2); assert.ok(lit(), 'still lit just before the time is up');
+  run(g, 0, 4); assert.ok(!lit(), 'gone after two seconds');
+});
+
+test('a map display has one block per room, lit once that room has been visited', async () => {
+  const { buildWorld, createGame } = await import('../src/sim.js');
+  const { ROOMS } = await import('../tools/world.mjs');
+  const world = buildWorld(ROOMS);
+  const g = createGame(world, 'o4');
+  const d = g.room.displays.find((x) => x.t === 'map');
+  assert.equal(d.mapIds.length, world.rooms.size);
+  updateDisplays(g);
+  assert.deepEqual(d.mapIds.filter((id, i) => d.litArr[i]), ['o4'], 'only the room you are in, on a new save');
+  g.c.visits.s1 = 1; updateDisplays(g);
+  const [x, y] = d.cells[d.mapIds.indexOf('s1')];
+  assert.ok(g.dyn[y * 40 + x], "a visited room's block is solid");
+});

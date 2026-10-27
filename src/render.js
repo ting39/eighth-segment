@@ -4,6 +4,7 @@ import { RW, RH, TILE, SUB, PW, PH, T } from './sim.js';
 import { drawText, textWidth } from './font.js';
 import { FONT57 } from './font57.js';
 import { tr } from './i18n-game.js';
+import { LANGS, CODE } from './glyphs.js';
 
 // Wide (CJK) characters: drawn from a 12x12 bitmap rendered once with the system font, so Chinese
 // and Japanese text keeps the pixel look. Layout advance: Latin 4 low-res px, wide 7.
@@ -165,7 +166,7 @@ export function createRenderer(canvas) {
       if (d.hudAt || d.burn || d.t === 'word') continue;   // burn-in and word ghosts are drawn live
       d.cells.forEach((cell, i) => {
         if (d.missing & (1 << i)) drawSocket(x, cell, hexA(pal.lit, 0.3));
-        else drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.075), i);
+        else drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : d.t === 'map' ? 0.17 : 0.075), i);   // a map's unvisited rooms must read as rooms
       });
       if (d.icon) drawIcon(x, d, pal);
     }
@@ -177,6 +178,7 @@ export function createRenderer(canvas) {
     const px = cx * TILE, py = cy * TILE, w = cw * TILE, h = ch * TILE;
     x.fillStyle = color;
     if (d.t === 'bits') { x.fillRect(px + 1, py + 1, w - 2, h - 2); return; }
+    if (d.t === 'map') { x.fillRect(px + 1, py + 1, w - 2, h - 2); x.fillRect(px, py + 2, 1, h - 4); x.fillRect(px + w - 1, py + 2, 1, h - 4); return; }
     if (d.t === 'bar') { x.fillRect(px + 1, py + 1, w - 2, h - 2); x.fillRect(px + 1, py + (cw >= ch ? 3 : 1), w - 2, 1); return; }
     if (d.t === 'word') { x.beginPath(); x.arc(px + 4, py + 4, 3.2, 0, Math.PI * 2); x.fill(); return; }
     if (d.t === 'code' && i !== undefined && DIAG.has(d.seg[i] % 14)) {
@@ -314,6 +316,26 @@ export function createRenderer(canvas) {
       const k = 0.18 + (g.carry ? 0.45 : 0.14) * (0.5 + 0.5 * Math.sin(performance.now() / (g.carry ? 160 : 600)));
       d.cells.forEach((cell, i) => { if (holes & (1 << i)) drawCell(x, d, cell, hexA(pal.lit, k)); });
     }
+    // a sign that speaks every language in turn prints its cycle on the glass above it, the current code lit,
+    // with a bar that fills over each second (the beat to run on)
+    for (const d of room.displays) if (d.langSrc === 'time') {
+      const per = 120 * (d.every || 1), k = Math.floor(g.c.steps / per), cur = (LANGS.indexOf(g.lang) + k) % LANGS.length;
+      let lx = d.x * TILE, ly = (d.y - 1) * TILE - 1;
+      for (let j = 0; j < LANGS.length; j++) {
+        const code = CODE[LANGS[(cur + j) % LANGS.length]];
+        drawText(x, code, lx, ly, hexA(j ? pal.edge : pal.lit, j ? 0.5 - j * 0.05 : 0.95));
+        lx += 16;
+      }
+      x.fillStyle = hexA(BEZEL.time.c, 0.7);
+      x.fillRect(d.x * TILE, ly + 7, Math.round(13 * (g.c.steps % per) / per), 1);
+    }
+    // a map display marks the room you are standing in
+    for (const d of room.displays) if (d.t === 'map') {
+      const i = d.mapIds.indexOf(room.id);
+      if (i < 0 || (performance.now() / 400 | 0) % 2) continue;
+      const [cx, cy, cw] = d.cells[i];
+      x.fillStyle = hexA(pal.hazard, 0.95); x.fillRect(cx * TILE + (cw * TILE >> 1) - 1, cy * TILE - 4, 3, 3);
+    }
     // wire hints, once
     for (const d of room.displays) if (d.hint && d.wire && ui.showHint && ui.showHint(d)) {
       const [wx, wy] = d.wire[d.wire.length - 1], a = 0.5 + 0.5 * Math.sin(performance.now() / 250);
@@ -322,6 +344,9 @@ export function createRenderer(canvas) {
     // displays (lit segments with phosphor afterglow + light-up flash)
     for (let di = 0; di < room.displays.length; di++) {
       const d = room.displays[di];
+      // a title card's last second: it flickers, so the floor going away is never a surprise twice
+      const left = d.until ? d.until * 120 - g.c.here : 0;
+      const fk = left > 0 && left < 120 ? 0.45 + 0.55 * ((left >> 3) % 2) : 1;
       let st = R.seg.get(d);
       if (!st || st.length !== d.cells.length || st.lang !== d.cells) { st = d.cells.map((_, i) => (litAt(d, i) ? 1 : 0)); st.lang = d.cells; R.seg.set(d, st); }
       for (let i = 0; i < d.cells.length; i++) {
@@ -332,7 +357,7 @@ export function createRenderer(canvas) {
         } else st[i] = Math.max(0, st[i] - 0.12);
         const b = Math.min(st[i], 1);
         if (b <= 0) continue;
-        drawCell(x, d, d.cells[i], hexA(pal.lit, (0.25 + 0.75 * b) * bf), i);
+        drawCell(x, d, d.cells[i], hexA(pal.lit, (0.25 + 0.75 * b) * bf * fk), i);
         if (st[i] > 1 && R.opts.flashes) drawCell(x, d, d.cells[i], `rgba(255,255,255,${(st[i] - 1) * 0.8})`, i);
         if (on && (d.t === 'digit' || (d.t === 'code' && !DIAG.has(d.seg[i] % 14)))) { // inner highlight line
           const [cx, cy, cw, ch] = d.cells[i];

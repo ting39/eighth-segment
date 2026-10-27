@@ -1,4 +1,4 @@
-Status: done (v3 live 2026-10-28; waiting on the user's playtest — read V3_BRIEF.md, then the "V3" section at the end)
+Status: in-progress (v3 round 2 — more mechanisms, far reuse of buttons/time/HUD/starburst, map loops, polish; started 2026-10-28 01:42 CST; hard stop weekly 92% or 18:00 CST)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -387,3 +387,36 @@ code display outside LEXICON (a fair one: middle-row passages are the only selec
 top-bar bridges and climbs were not selective, see the p2 notes above).
 Status: v3 complete pending the user's playtest. To resume: read V3_BRIEF.md, this section, then `npm test` and
 `node tools/route.mjs --from N` after any room edit (rooms: tools/rooms_src/v3.py → src/rooms_v3.js).
+
+## V3 ROUND 2 (2026-10-28, from the parent session: "more mechanisms, more rooms, refine the map, polish, surprise me")
+Hard stops: weekly 92% or 18:00 CST. Resume = read this section, `npm test`, `node tools/route.mjs`.
+Plan (each new room = one insight; every gap in the recurrence map closed by a COMBINATION, not a copy):
+- E1 `langSrc:'time'`: a code/word sign that speaks every language in turn (one per second, starting from yours —
+  your menu language is the PHASE). → starburst + time far from both.
+- E2 title card: a word display lit only for the first N seconds after you enter the room (`until`). The room's own
+  name, printed huge where the banner always appears, is the bridge: leave and come back to relight it; its length
+  is your language. → UI-is-geometry (p3 HUD) + time + language, far away.
+- E3 map face `t:'map'`: one block per room of the world, lit (solid) once visited — the pause map as terrain.
+  Visited moves into sim state (g.c.seen) so the solver can prove it. A dark block on it is a room you have not
+  found: the visible hint for a secret.
+- E4 polish: segment light-up/fade animation (render only), room-transition wipe, readability.
+Rooms: c5 (3,0) BABEL CLOCK (door from c2): two time-cycled code signs in rock, rhythm passages, a point.
+p4 (-1,-2) TITLE CARD: from p2 west, drops into t4 → PANEL↔TALLY loop (far-side shortcut).
+o4 (2,1) ATLAS: from o3 east; the world map as climbing terrain, a point that needs the secret room's block.
+s1 (-3,-1) secret (FAKE-wall entrance, hinted by ATLAS + a mark in t3/l1), with a button on TALLY's bus.
+Progress log:
+- 01:50 — round 2 opened (weekly 73%, 5h 83%).
+- 02:40 — Engine: `langSrc:'time'`, `until` (title card, g.c.here), `t:'map'` (laid out in buildWorld; lit by
+  g.c.visits), solver keys for both (time buckets of 0.2 s for cycling signs). Rooms built and solver-checked:
+  c5 BABEL CLOCK (letter one in ZH/JA/DE, wait in the gap, letter two in EN/KO/RU), p4 DOWN (card right-aligned
+  to the door; EN DE ES RU cross, ZH JA KO too short; six seconds; leave + re-enter relights it), o4 ATLAS (point
+  needs s1's block: verified unreachable without it), s1 CROSSTALK (button on the DIAL bus, gate = dial+5).
+  Doors: c2 east + floor hole, o3 top-east, p2 west floor, t3 false wall (+ steps out of its far-side pit: it was
+  a dead end), t4 top hole, l1 top hole. Points 6 → 10, readout needs 3/6/10. Render: cycle legend + beat bar over
+  time signs, title-card flicker in its last second, map "you are here", CRT retune on room change.
+- 02:45 — PAUSED: 5-hour window hit 100% (weekly 75%). Committed locally, NOT pushed (route not yet proven).
+  RESUME: (1) check scratchpad route log or just re-run `nice -n 15 node tools/route.mjs --from 23` (goals 20-23
+  are stored; new goals: s1 detour after LOOSE's socket, c5+o4 after STILL's point, p4 after BURN-IN's point then
+  home via t4/t1/hall and back up through p1/p2 to p3); fix any FAILED goal with waypoints; (2) `npm test`;
+  (3) screenshots via the in-app browser (headless shot.sh renders black for this game) of c5/p4/o4/s1/t3;
+  (4) interest loop per new room + update the recurrence map; (5) push; (6) report + Status: done.

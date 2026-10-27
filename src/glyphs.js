@@ -12,6 +12,8 @@ export const LANG_NAME = { en: 'ENGLISH', 'zh-TW': '中文', ja: '日本語', ko
 export const WORDS = {
   exit: { en: 'EXIT', 'zh-TW': '出口', ja: '出口', ko: '나가기', de: 'AUSGANG', es: 'SALIDA', ru: 'ВЫХОД' },
   up: { en: 'UP', 'zh-TW': '上', ja: '上', ko: '위', de: 'OBEN', es: 'ARRIBA', ru: 'ВВЕРХ' },
+  // a room name that is also a word display (the title card in p4): keep it equal to the room's translated name
+  down: { en: 'DOWN', 'zh-TW': '下', ja: '下', ko: '아래', de: 'UNTEN', es: 'ABAJO', ru: 'ВНИЗ' },
 };
 export const wordOf = (key, lang) => (WORDS[key] || {})[lang] ?? (WORDS[key] || {}).en ?? '';
 export const lettersOf = (key, lang) => [...wordOf(key, lang)].length;
@@ -50,6 +52,9 @@ const WIDE = {
   '나': ['#....#.', '#....#.', '#....##', '#....#.', '#....#.', '####.#.', '.....#.'],
   '가': ['####.#.', '...#.#.', '...#.##', '..#..#.', '.#...#.', '#....#.', '.....#.'],
   '기': ['#####.#', '....#.#', '....#.#', '...#..#', '..#...#', '.#....#', '......#'],
+  '下': ['#######', '...#...', '...##..', '...#.#.', '...#...', '...#...', '...#...'],
+  '아': ['.##..#.', '#..#.#.', '#..#.##', '#..#.#.', '.##..#.', '.....#.', '.....#.'],
+  '래': ['###.#.#', '..#.#.#', '###.###', '#...#.#', '###.#.#', '....#.#', '....#.#'],
 };
 export const DOT_H = 7;
 // returns { w, px: [[x,y]...] } for one character
