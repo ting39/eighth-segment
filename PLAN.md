@@ -1,4 +1,4 @@
-Status: done (v3 round 3 live 2026-10-28; 30 rooms, route proven, 43 tests; waiting on the user's playtest — see 'Round 3 — end report')
+Status: in-progress (v3 round 4 — stuck nudges, first-impression audit, polish; started 2026-10-28 ~09:20 CST; hard stop weekly 92% or 18:00 CST)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -557,3 +557,20 @@ DE/ES singular "1 stray point" fixed. Route: new save → 100% in 316 s, D5, eve
 **Not done, on purpose:** a second title-card room (the only cheap CJK words are 上/下/出口 and 上 gives no useful
 shape — new hand-drawn glyphs for a weak room); growing ATLAS for the new rooms (they are "off the old map" by
 design). **Known gaps:** still no human playtest; WALL CLOCK depends on real time (beyond 100% by design).
+
+## V3 ROUND 4 (2026-10-28)
+- 09:20 — opened (weekly 84%). Plan: stuck nudges (pointing at what to look at), first-impression audit, polish.
+- 10:00 — **Stuck nudges, two stages** (Settings → HINTS WHEN STUCK still turns both off): stage 1 (existing, after
+  6+ deaths or 150 s in a room) now has glyphs for every source added since round 1 (bus, button register,
+  brightness, volume, real clock, paused time); stage 2 (≈14 deaths or 210 s) shows one line per room, in all 7
+  languages (`src/nudges.js`, 30 rooms × 7), pointing at WHAT TO LOOK AT, never the answer ("THE MAP SHOWS A ROOM
+  YOU HAVE NOT FOUND.", "THE HUD IS ALWAYS IN THE WAY. ALWAYS?", "WHOSE TIME IS THIS?"…), with a soft cue. Test:
+  every room has a nudge in every language that fits one line.
+  **Deep secret (a reinterpretation, not a mechanic):** the ending slots are where you, the decimal point, sit in
+  the readout — 1%, 10%, 100%. The gap after the fourth digit is 1000.00 %: a fourth slot, visible in the hall's
+  ceiling from the first frame, plugged until every stray point (WALL CLOCK's included) is found → ending 4 "ONE
+  THOUSAND PERCENT". Proven: replays/ending4-v3.json from the route's end state (test).
+  First-impression audit: naive random walkers from a new save drift down into COORDINATES (the hall floor hole)
+  and die ~23× in two minutes on BELOW's spikes — by design, now with a nudge ("THE BRIDGES KNOW WHERE YOU STAND.").
+  Controls hint translated in all 7 languages; one-time hints are language-free glyphs. Audio: the pause menu
+  ticks each second in a room that counts paused time. 45 tests pass.

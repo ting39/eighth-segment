@@ -4,6 +4,7 @@ import { LANGS, CODE, LANG_NAME } from './glyphs.js';
 import { createRenderer, W, H, PALETTES } from './render.js';
 import { createInput, DEFAULT_KEYS, keyName } from './input.js';
 import { digitMask } from './segments.js';
+import { nudgeFor } from './nudges.js';
 import { initAudio, sfx, playSong, setLayers, setVolumes } from './audio.js';
 
 const params = new URLSearchParams(location.search);
@@ -153,7 +154,7 @@ function handleEvents() {
 }
 
 function startEnding(id) {
-  if (V2 && id !== 3) {   // 1% / 10%: the machine shrugs, the point pops back out, the run goes on
+  if (V2 && id < 3) {   // 1% / 10%: the machine shrugs, the point pops back out, the run goes on
     sfx.slot();
     endingInfo = { id, time: game.c.steps / HZ, deaths: game.c.deaths, jumps: game.c.jumps, points: game.points.size, assisted: run.assisted, t: 0, nudge: true };
     if (!meta.endings.includes(id)) meta.endings.push(id);
@@ -298,7 +299,12 @@ function frame(now) {
   } else {
     acc = 0;
     // time in the pause menu (or on the map) is real time the game clock never sees: one display counts it
-    if (game && run && (mode === 'pause' || mode === 'map')) { game.c.paused = (game.c.paused || 0) + Math.min(dt, 0.25) * HZ; updateDisplays(game); }
+    if (game && run && (mode === 'pause' || mode === 'map')) {
+      const before = Math.floor((game.c.paused || 0) / HZ);
+      game.c.paused = (game.c.paused || 0) + Math.min(dt, 0.25) * HZ; updateDisplays(game);
+      // where a display counts paused time, the menu ticks: something in the room is still counting
+      if (Math.floor(game.c.paused / HZ) !== before && game.room.displays.some((d) => d.src === 'paused')) sfx.tick(false);
+    }
     if (mode === 'map') { if (edges.some((e) => e === 'pause' || e === 'back' || e === 'map' || e === 'confirm')) { mode = menu ? 'pause' : 'play'; sfx.move(); } }
     else if (mode === 'ending') {
       endingInfo.t += dt;
@@ -352,18 +358,21 @@ const HINT_GLYPHS = {
   idle: ['1111', '0010', '0100', '1111'],
   visits: ['1110', '1010', '1011', '1010', '1110'],
   lang: ['01110', '10101', '11111', '10101', '01110'],
+  reg: ['111', '101', '111'], bus: ['11111', '10001', '10101', '10001', '11111'], bright: ['10101', '01110', '11011', '01110', '10101'],
+  volume: ['00100', '01101', '11101', '01101', '00100'], clock: ['10101', '01110', '11011', '01110', '10101'], paused: ['11011', '11011', '11011', '11011', '11011'],
 };
 const roomStay = { id: null, d0: 0, s0: 0 };
 function drawHints(x, pal) {
   const room = game.room;
-  if (roomStay.id !== room.id) Object.assign(roomStay, { id: room.id, d0: game.c.deaths, s0: game.c.steps });
+  if (roomStay.id !== room.id) Object.assign(roomStay, { id: room.id, d0: game.c.deaths, s0: game.c.steps, nudged: false });
   if (!settings.hints) return;
   const stuck = Math.max((game.c.deaths - roomStay.d0 - 6) / 4, ((game.c.steps - roomStay.s0) / HZ - 150) / 30);
   if (stuck <= 0) return;
   const a = Math.min(1, stuck) * (0.75 + 0.15 * Math.sin(performance.now() / 400));
   for (const d of room.displays) {
     if (!d.cells.length) continue;
-    const g = HINT_GLYPHS[d.t === 'code' || d.t === 'word' || String(d.src).startsWith('letters:') ? 'lang' : d.src];
+    const src = String(d.src);
+    const g = HINT_GLYPHS[d.t === 'code' || d.t === 'word' || src.startsWith('letters:') ? 'lang' : src.startsWith('reg:') ? (d.bus ? 'bus' : 'reg') : d.dim || d.burn ? 'bright' : src];
     if (!g || d.icon) continue;
     let x0 = Infinity, x1 = -Infinity, y0 = Infinity;
     for (const [cx, cy, cw] of d.cells) { x0 = Math.min(x0, cx); x1 = Math.max(x1, cx + cw); y0 = Math.min(y0, cy); }
@@ -372,6 +381,16 @@ function drawHints(x, pal) {
     const py = y0 * TILE + 1;
     x.fillStyle = R.hexA(d.src === 'deaths' ? pal.hazard : pal.edge, a);
     g.forEach((row, j) => { for (let i = 0; i < row.length; i++) if (row[i] === '1') x.fillRect(px + i, py + j, 1, 1); });
+  }
+  // second stage (much later): one line pointing at what to look at -- never at the answer
+  if (stuck >= 2) {
+    const line = nudgeFor(room.id, curLang());
+    if (line && !roomStay.nudged) { roomStay.nudged = true; sfx.ok(); }
+    if (line) {
+      const b = Math.min(1, stuck - 2) * 0.8, y = (settings.hudpos === 'bottom' || room.hudBottom) ? 18 : H - 12;
+      x.fillStyle = `rgba(0,0,0,${0.5 * b})`; x.fillRect(0, y - 3, W, 11);
+      R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA(pal.edge, b));
+    }
   }
 }
 
@@ -497,7 +516,7 @@ function drawMap(x, pal) {
 // how many stray points light each of the readout's last three digits (the hall's R3..R5 use the same numbers)
 const CLOCK_POINT = 'x2:35,6';           // WALL CLOCK's stray point: the one beyond 100%
 const POINTS_FOR = [3, 7, 17];          // the hall needs 17; the wall clock's point is beyond 100%
-const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
+const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2], 4: ['100000', 3] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
 function bigDigit(x, mask, px, py, on, ghost) {
   const L = 8;
   const segs = [[2, 0, L, 2], [L + 2, 2, 2, L], [L + 2, L + 4, 2, L], [2, 2 * L + 4, L, 2], [0, L + 4, 2, L], [0, 2, 2, L], [2, L + 2, L, 2]];
@@ -512,9 +531,9 @@ function drawReadout(x, pal, e) {
   const landed = e.t >= T1;
   if (landed && !e.landed) { e.landed = true; sfx.point(); }
   // a wrong readout never settles: it flickers now and then
-  const wrong = e.id !== 3 && landed && Math.sin(e.t * 7.3) * Math.sin(e.t * 2.1) > 0.82;
+  const wrong = e.id < 3 && landed && Math.sin(e.t * 7.3) * Math.sin(e.t * 2.1) > 0.82;
   const settle = landed ? Math.min(1, (e.t - T1) * 2) : 0;
-  const onCol = e.id === 3 && landed ? R.hexA('#ffffff', 0.55 + 0.45 * settle) : R.hexA(pal.lit, wrong ? 0.35 : 0.95);
+  const onCol = e.id >= 3 && landed ? R.hexA('#ffffff', 0.55 + 0.45 * settle) : R.hexA(pal.lit, wrong ? 0.35 : 0.95);
   for (let i = 0; i < digits.length; i++) {
     const earned = e.id !== 3 || i < 3 || e.points >= POINTS_FOR[i - 3];   // the last three digits are your stray points
     bigDigit(x, i < lit && earned ? digitMask(+digits[i]) : 0, x0 + i * pitch, y0, onCol, R.hexA(pal.lit, 0.07));
@@ -555,7 +574,7 @@ function drawEnding(x, pal) {
   const stats = e.nudge ? ['THE POINT POPS BACK OUT.'] : [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/${TOTAL_POINTS}`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
   const b = Math.max(0, Math.min(1, (e.t - 3.6) / 1.2));
   for (const st of stats) { R.text(st, (W - R.textWidth(st)) / 2, y, R.hexA(pal.edge, b)); y += 9; }
-  if (e.id === 3 && e.points >= TOTAL_POINTS && b > 0) {          // ...and its time, in the machine's own digits
+  if (e.id >= 3 && e.points >= TOTAL_POINTS && b > 0) {          // ...and its time, in the machine's own digits
     const hhmm = String(clockValue()).padStart(4, '0'), cx = Math.round(W / 2 - 34), cy = H - 46;
     for (let i = 0; i < 4; i++) bigDigit(x, digitMask(+hhmm[i]), cx + i * 16 + (i > 1 ? 6 : 0), cy, R.hexA('#9ef0ff', 0.9 * b), R.hexA('#9ef0ff', 0.06));
     if (Math.floor(e.t * 2) % 2) { x.fillStyle = R.hexA('#9ef0ff', 0.9 * b); x.fillRect(cx + 32, cy + 6, 3, 3); x.fillRect(cx + 32, cy + 14, 3, 3); }

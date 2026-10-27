@@ -39,3 +39,17 @@ test('replaying the full route from a new game reaches every room, every slot an
   assert.equal(g.points.size, total, 'all stray points collected');
   for (const id of world.rooms.keys()) assert.ok(visited.has(id), `room ${id} visited by the route`);
 });
+
+test('the deep ending: with every stray point, the fourth slot (1000.00 %) opens and is reachable', () => {
+  const end4 = JSON.parse(fs.readFileSync(new URL('../replays/ending4-v3.json', import.meta.url), 'utf8'));
+  const world = buildWorld(W.ROOMS);
+  const g = createGame(world, W.START_ROOM);
+  for (const seg of data.segments.slice(0, end4.from)) { replay(g, seg.inputs); g.events.length = 0; }
+  const total = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
+  assert.equal(g.points.size, total);
+  let slot = null;
+  replay(g, end4.inputs, (gg) => { for (const e of gg.events) if (e.type === 'slot') slot = e.id; gg.events.length = 0; });
+  assert.equal(slot, 4);
+  const plug = world.rooms.get('hall').displays.find((d) => d.key === 'PLUG');
+  assert.equal(plug.untilPoints, total, 'the plug asks for every stray point');
+});

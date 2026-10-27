@@ -23,6 +23,14 @@ export const ENDINGS = [
   "lines": [
    "EVERY NUMBER IN THE MACHINE READS TRUE."
   ]
+ },
+ {
+  "id": 4,
+  "title": "ONE THOUSAND PERCENT",
+  "lines": [
+   "THE DECIMAL POINT WENT ONE DIGIT FURTHER.",
+   "NOTHING IN THE MACHINE CAN COUNT THAT HIGH."
+  ]
  }
 ];
 export const ROOMS = [
@@ -40,8 +48,8 @@ export const ROOMS = [
    "###....#....#....#....#....#.....#.#...#",
    "###.##.#.##.#.##.#.##.#.##.#.##.#..#...#",
    "###.##.#.##.#.##.#.##.#.##.#.##.#..#---#",
-   "###....a....b....c....#....#....####...#",
-   "#######.####.####.##################...#",
+   "###....a....b....c....d....#....####...#",
+   "#######.####.####.####.#############...#",
    ".....P.........#..P.................---.",
    "#...####....#########................w..",
    "#.......####.########...............P...",
@@ -211,6 +219,17 @@ export const ROOMS = [
      9
     ]
    },
+   "PLUG": {
+    "t": "bits",
+    "n": 1,
+    "val": 1,
+    "src": "static",
+    "untilPoints": 18,
+    "at": [
+     22,
+     8
+    ]
+   },
    "BURN": {
     "t": "bits",
     "n": 1,
@@ -256,6 +275,10 @@ export const ROOMS = [
    "c": {
     "kind": "slot",
     "id": 3
+   },
+   "d": {
+    "kind": "slot",
+    "id": 4
    }
   },
   "always": true,

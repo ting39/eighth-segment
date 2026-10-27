@@ -115,3 +115,12 @@ test('LOOP: its sides meet; every lap counts as coming in again and lights one m
   assert.ok(g.c.visits.lp >= 2, `visits ${g.c.visits.lp}`);
   assert.equal(steps(), Math.min(6, g.c.visits.lp - 1));
 });
+
+test('every room has a stuck nudge in every game language, short enough to fit on one line', async () => {
+  const { NUDGES } = await import('../src/nudges.js');
+  for (const id of world.rooms.keys()) {
+    const row = NUDGES[id];
+    assert.ok(row && row.length === LANGS.length && row.every((t) => t && t.length > 3), `nudge for ${id}`);
+    row.forEach((t, i) => assert.ok([...t].length <= (i >= 1 && i <= 3 ? 26 : 52), `${id} ${LANGS[i]} too long: ${t}`));
+  }
+});

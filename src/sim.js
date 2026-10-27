@@ -341,6 +341,7 @@ export function displayLit(g, d) {
   if (d.hudAt && d.hudAt !== g.hudpos) m = 0;
   if (d.dim && g.bright === 0) m = 0;
   if (d.needPoints && g.points.size < d.needPoints) m = 0;   // the readout fills in as stray points are found
+  if (d.untilPoints && g.points.size >= d.untilPoints) m = 0; // ...and a plug stays until every last one is
   if (gone) m = 0;
   return m;
 }
