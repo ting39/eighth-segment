@@ -493,7 +493,7 @@ function drawMap(x, pal) {
 // The Master Readout, drawn big: digits light one by one, then the point (you) arcs into the slot
 // you chose. Ending 3 reads 3.14159; the wrong slots read ten times too much / too little.
 // how many stray points light each of the readout's last three digits (the hall's R3..R5 use the same numbers)
-const POINTS_FOR = [3, 7, 12];          // the hall needs 12; the wall clock's point is beyond 100%
+const POINTS_FOR = [3, 7, 13];          // the hall needs 13; the wall clock's point is beyond 100%
 const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
 function bigDigit(x, mask, px, py, on, ghost) {
   const L = 8;

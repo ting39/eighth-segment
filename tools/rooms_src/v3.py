@@ -63,7 +63,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 12)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 13)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -185,6 +185,7 @@ r.rect(1, 9, 38, 1, '.'); r.rect(0, 9, 1, 1, '.')
 for (x, y, w) in [(31,18,3),(35,15,3),(31,12,3)]: r.rect(x, y, w, 1)
 gK = hang(r, 14, 9)
 r.rect(20, 5, 10, 4, '.')                                          # v3: headroom over the dial (hop along it a click at a time)
+r.rect(24, 0, 2, 5, '.')                                           # round 2: ATTRACT MODE (a1) drops in here (one way)
 r.put(39, 9, '.'); r.rect(39, 18, 1, 3, '.')                       # round 2: east to WALL CLOCK (x2), and its way back
 r.rect(36, 10, 3, 1)                                              # ...with a ledge under that door (it hung over the shaft)
 r.put(32, 20, 'P'); r.put(29, 9, 'P'); r.put(3, 9, 'P')
@@ -290,6 +291,7 @@ r.rect(0, 3, 1, 3, '.'); r.rect(1, 1, 17, 5, '.'); r.rect(18, 3, 4, 3, '.')
 r.rect(19, 6, 3, 9, '.'); r.rect(1, 15, 22, 6, '.'); r.rect(18, 16, 5, 5)
 r.rect(8, 21, 3, 1, '.')
 r.put(4, 20, '^'); r.put(14, 20, '^')
+r.rect(22, 3, 18, 3, '.')                                          # round 2: east, to ATTRACT MODE (a1)
 r.put(18, 5, 'P'); r.put(20, 15, 'P')
 emit('p3', 1, -2, 'over', 'STATUS BAR', r, wing='PANEL', hudSolid=True)
 
@@ -484,6 +486,23 @@ r.put(2, 20, 'P'); r.put(22, 20, 'P'); r.put(36, 8, 'P')
 emit('y1', 3, 1, 'coord', 'TURN IT DOWN', r, wing='COORDINATES',
      displays=dict(WALL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[16, 12], hint='volume', wire=[[15, 11], [12, 11], [12, 13]]),
                    PIL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[26, 12])))
+
+# a1 (2,-2): ATTRACT MODE -- east of STATUS BAR. A shop-window sign: leave the controls alone and it shows off
+# the next language every second; touch anything and it snaps back to yours. The way on is a trapdoor (STILL's
+# floor: it opens after a second of standing still) over the first letter's centre, which is open only for K.
+# You fall without touching anything, so the sign has already moved one language on: to fall through KO, be in
+# the language before it (JA). Below: a stray point and a drop into DIAL.
+r = Room('#')
+r.rect(0, 3, 1, 3, '.'); r.rect(1, 1, 30, 5, '.')                 # from STATUS BAR (p3), under the sign's legend
+r.put(19, 6, '.'); r.put(19, 7, '.')                              # the well, and its trapdoor
+carve_code(r, 16, 8)
+r.put(19, 19, '.'); r.rect(14, 19, 20, 2, '.')                    # under the sign: the chamber
+r.rect(24, 21, 2, 1, '.')                                         # down into DIAL (c3), one way
+r.put(29, 20, 'o')
+r.put(3, 5, 'P'); r.put(16, 20, 'P')
+emit('a1', 2, -2, 'over', 'ATTRACT MODE', r, wing='PANEL',
+     displays=dict(S=dict(t='code', n=2, src='lang', langSrc='idle', at=[16, 8], legend=[21, 6], hint='idle', wire=[[15, 7], [12, 7], [12, 6]]),
+                   TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[19, 7])))
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

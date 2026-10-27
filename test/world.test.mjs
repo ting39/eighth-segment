@@ -60,9 +60,9 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has thirteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
+test('the world has fourteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 13);
+  assert.equal(pts, 14);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
 });
@@ -76,4 +76,15 @@ test('the wall clock reads the real time, and its tunnel is open only when every
   };
   for (const t of [0, 110, 707, 1001, 1111, 1717, 1017]) assert.ok(tunnelOpen(t), `open at ${t}`);
   for (const t of [1200, 1112, 835, 2359, 1710, 1170 + 0]) assert.equal(tunnelOpen(t), [...String(t).padStart(4, '0')].every((c) => '017'.includes(c)), `at ${t}`);
+});
+
+test('ATTRACT MODE: standing still in the well drops you through the sign only in JA (shows KO as you fall) or ZH (one second later)', async () => {
+  const { step } = await import('../src/sim.js');
+  const through = [];
+  for (const lang of LANGS) {
+    const g = createGame(world, 'a1', { lang, spawn: { x: (19 * 8 + 1) * 256, y: (6 * 8 + 2) * 256 } });
+    for (let i = 0; i < 400; i++) step(g, 0);
+    if (Math.floor((g.p.y + 768) / 2048) >= 19 && !g.c.deaths) through.push(lang);
+  }
+  assert.deepEqual(through, ['zh-TW', 'ja']);
 });

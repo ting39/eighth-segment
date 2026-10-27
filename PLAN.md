@@ -470,3 +470,11 @@ Known gaps: the map display and the title card each appear in one room; `langSrc
   (`tools/vollocks.mjs`: doorway 0-3, point 9 only). Readout needs 3/7/12; WALL CLOCK still the 13th, beyond
   100%. Also fixed: DIAL's corridor ended over its climb shaft, so WALL CLOCK's door hung in the air → a ledge.
   Route: 25 rooms, 13/13 points, 258 s, D3; 39 tests pass.
+- ~08:00 — **ATTRACT MODE (a1, 2,-2)**, east of STATUS BAR, finally uses `langSrc:'idle'`: a shop-window code sign
+  that shows the next language for every second nobody touches the controls (and snaps back on any input). A
+  STILL trapdoor (idle bits, inverted) in a 1-wide well over the first letter's centre opens after 1 s; you fall
+  without touching anything, so the sign has already moved one language on. Only K (KO) has the centre column
+  open top to bottom → be in JA (falls straight through) — or in ZH (lands on J's foot, keeps still, KO opens).
+  Everyone else: the trapdoor re-closes inside you. Test pins it ([zh-TW, ja]). Drops into DIAL (PANEL →
+  CLOCKWORK shortcut). Solver note: "keep still" puzzles need explicit `idle:N` goals (any input resets idle).
+  Cycle legend now also for idle signs, with an optional position. Route: 26 rooms, 14/14, 268 s, D3; 40 tests.

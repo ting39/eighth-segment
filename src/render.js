@@ -318,16 +318,17 @@ export function createRenderer(canvas) {
     }
     // a sign that speaks every language in turn prints its cycle on the glass above it, the current code lit,
     // with a bar that fills over each second (the beat to run on)
-    for (const d of room.displays) if (d.langSrc === 'time') {
-      const per = 120 * (d.every || 1), k = Math.floor(g.c.steps / per), cur = (LANGS.indexOf(g.lang) + k) % LANGS.length;
-      let lx = d.x * TILE, ly = (d.y - 1) * TILE - 1;
+    for (const d of room.displays) if (d.langSrc === 'time' || d.langSrc === 'idle') {
+      const idle = d.langSrc === 'idle', per = 120 * (d.every || 1), clk = idle ? g.c.idle : g.c.steps;
+      const cur = (LANGS.indexOf(g.lang) + Math.floor(clk / per)) % LANGS.length;
+      let lx = (d.legend ? d.legend[0] : d.x) * TILE, ly = d.legend ? d.legend[1] * TILE : (d.y - 1) * TILE - 1;
       for (let j = 0; j < LANGS.length; j++) {
         const code = CODE[LANGS[(cur + j) % LANGS.length]];
         drawText(x, code, lx, ly, hexA(j ? pal.edge : pal.lit, j ? 0.5 - j * 0.05 : 0.95));
         lx += 16;
       }
-      x.fillStyle = hexA(BEZEL.time.c, 0.7);
-      x.fillRect(d.x * TILE, ly + 7, Math.round(13 * (g.c.steps % per) / per), 1);
+      x.fillStyle = hexA(idle ? BEZEL.idle.c : BEZEL.time.c, 0.7);
+      x.fillRect((d.legend ? d.legend[0] : d.x) * TILE, ly + 7, Math.round(13 * (clk % per) / per), 1);
     }
     // a map display marks the room you are standing in
     for (const d of room.displays) if (d.t === 'map') {

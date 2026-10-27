@@ -41,7 +41,10 @@ export const ROUTE = [
   // round 2: NO SIGNAL, off DOWN's landing: the solid HUD is in the way wherever it sits -> Settings: HUD OFF
   'x1', 'hud:off', 'at:10,20', 'event:point', 'at:30,20', 'p4', 'hud:top', 't4', 't1', 'hall',
   'bright:9', 'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',
-  'at:35,5', 'p3', 'at:20,15', 'c4', 'c1', 'hall',
+  'at:35,5', 'p3',
+  // round 2: ATTRACT MODE, east of STATUS BAR: stand still on the trapdoor and fall through the sign while it
+  // shows the NEXT language -- in JA it shows KO as you fall (the only letter K's centre is open)
+  'a1', 'lang:ja', 'at:19,6', 'idle:1', 'event:point', 'c3', 'reg.dial:7', 'reg.dial:7@19,9', 'c4', 'c1', 'hall',
   // the hall's burn-in ghost (point: brightness 9), and the burn-in rung up through the hatch to the upper right
   'at:17,20', 'event:point', 'at:37,20', 'bright:9', 'at:36,11',
   // the dim bar wants it dark, then the 100% slot
