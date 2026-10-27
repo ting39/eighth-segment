@@ -32,7 +32,7 @@ export const ROUTE = [
   // the support beams, PANEL, burn-in (the burned-in language code: point), the status bar, the long way home
   'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'event:point',
   // round 2: west along BURN-IN's floor to DOWN: its name is the bridge for six seconds (too short in Chinese)
-  'lang:de', 'at:2,20', 'p4', 'at:34,14', 'event:point', 'at:6,12',
+  'lang:de', 'at:2,20', 'p4', 'at:34,14', 'event:point', 'at:2,20',
   // round 2: NO SIGNAL, off DOWN's landing: the solid HUD is in the way wherever it sits -> Settings: HUD OFF
   'x1', 'hud:off', 'at:10,20', 'event:point', 'at:30,20', 'p4', 'hud:top', 't4', 't1', 'hall',
   'bright:9', 'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',

@@ -1714,7 +1714,7 @@ export const ROOMS = [
     ],
     "align": "right",
     "w": 34,
-    "until": 6
+    "until": 7
    }
   }
  },
@@ -1795,6 +1795,7 @@ export const ROOMS = [
   ],
   "wing": "TALLY",
   "secret": true,
+  "music": "secret",
   "parts": [
    {
     "kind": "button",

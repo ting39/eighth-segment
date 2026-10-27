@@ -386,7 +386,7 @@ emit('c5', 3, 0, 'clock', 'BABEL CLOCK', r,
      displays=dict(S=dict(t='code', n=2, src='lang', langSrc='time', at=[12, 4], hint='time', wire=[[10, 2], [7, 2], [7, 3]])))
 
 # p4 (-1,-2): DOWN -- every room says its name as you come in. This one says it big, where the banner always is,
-# and for six seconds the name is solid: the only floor over the spikes. Leave and come back to say it again.
+# and for seven seconds the name is solid: the only floor over the spikes. Leave and come back to say it again.
 r = Room('#')
 r.rect(1, 1, 38, 20, '.'); r.rect(39, 18, 1, 3, '.')
 r.rect(6, 20, 28, 1, '^'); r.rect(6, 21, 28, 1)
@@ -396,7 +396,7 @@ r.rect(0, 18, 1, 3, '.')                                           # ...and west
 r.put(20, 9, 'o')
 r.put(37, 20, 'P'); r.put(2, 20, 'P')
 emit('p4', -1, -2, 'over', 'DOWN', r, wing='PANEL', card=True,
-     displays=dict(CARD=dict(t='word', word='down', src='static', at=[0, 13], align='right', w=34, until=6)))
+     displays=dict(CARD=dict(t='word', word='down', src='static', at=[0, 13], align='right', w=34, until=7)))
 
 # o4 (2,1): ATLAS -- the world map, one block per room, lit once you have been there. Lit is solid, so the map is
 # a climbing frame made of everywhere you have been. The stray point is up in the corner, over a block that is
@@ -420,7 +420,7 @@ r.rect(18, 20, 10, 1, '.'); gX = hang(r, 22, 20)
 r.rect(18, 21, 2, 1, '.')                                         # behind the gate: down into LANGUAGE (l1), one way
 r.put(20, 20, 'o')
 r.put(37, 20, 'P')
-emit('s1', -3, -1, 'tally', 'CROSSTALK', r, wing='TALLY', secret=True,
+emit('s1', -3, -1, 'tally', 'CROSSTALK', r, wing='TALLY', secret=True, music='secret',
      parts=[dict(kind='button', x=31, y=20, w=2, reg='dial', bus=True)],
      displays=dict(X=dict(s=2, src='reg:dial', bus=True, off=5, at=gX, hint='bus', wire=[[32, 19], [32, 16], [26, 16], [26, 17]])))
 

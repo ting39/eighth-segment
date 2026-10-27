@@ -65,6 +65,8 @@ export const sfx = {
     if (!ac) return; const t = ac.currentTime; if (t - lastTick < 0.03) return; lastTick = t;
     tone('sine', 2100 + Math.random() * 300, 2100, 0.025, 0.035);
   },
+  // a clock's beat (signs that change language every second) and the title card's last-second warning
+  tick(hi) { if (!ac) return; tone('square', hi ? 1500 : 950, hi ? 1500 : 900, 0.012, 0.035); },
   room() { if (!ac) return; noise(0.22, 0.05, 'bandpass', 600, sfxBus, ac.currentTime, 2, 2400); },
   point() {
     if (!ac) return; const t = ac.currentTime;

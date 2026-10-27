@@ -288,6 +288,7 @@ function frame(now) {
       while (acc >= 1 / HZ && n < 24) {
         step(game, input.mask());
         handleEvents();
+        beat();
         acc -= 1 / HZ; n++;
       }
       if (n >= 24) acc = 0;
@@ -311,6 +312,15 @@ function frame(now) {
 }
 
 function clockValue() { const d = new Date(); return d.getHours() * 100 + d.getMinutes(); }
+
+// audible clocks: a sign that cycles languages ticks on every change; a title card ticks fast in its last second
+function beat() {
+  const c = game.c;
+  for (const d of game.room.displays) {
+    if (d.langSrc === 'time' && c.steps % (HZ * (d.every || 1)) === 0) sfx.tick(false);
+    if (d.until) { const left = d.until * HZ - c.here; if (left > 0 && left <= HZ && left % 15 === 0) sfx.tick(true); }
+  }
+}
 
 // ------------------------------------------------------------- drawing ---
 function draw(dt) {
