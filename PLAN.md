@@ -1,4 +1,4 @@
-Status: in-progress (v3 round 5 — FALL UP (pause counter + vertical wrap), polish; started 2026-10-28 ~10:20 CST; hard stop weekly 92% or 18:00 CST)
+Status: done (v3 round 5 live 2026-10-28; 31 rooms, 4 endings, route proven, 45 tests; waiting on the user's playtest)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -594,3 +594,12 @@ languages (worth a native read for ja/ko/ru).
   top half (jump out). Route: 'pause:1' here, INTERMISSION now 'pause:13' (1 + 13 = 14). Luck test 0%.
   31 rooms, 19 points (hall needs 18; plug 19). Ending 4 re-proven. 45 tests pass.
 - 11:00 — Ending juice: when the decimal point clicks into its slot, a burst at the slot (bigger, with flash + shake, for the true and deep endings; ending 4 adds the slot chord). Particles now draw above the ending overlay (render: particlesOnTop).
+
+### Round 5 — end report (2026-10-28 ~11:05 CST; weekly 86%, 5-hour window 85%)
+**New:** FALL UP — both round-3 ideas recur together, far from where they were taught (LEXICON side): a floor
+trapdoor reading the seconds you've spent paused, in a room whose floor and ceiling meet; at 1 you fall through the
+floor and out of the ceiling onto a ledge nothing else reaches. Ending juice: the decimal point now lands with a
+burst (and flash/shake for the true and deep endings), drawn over the ending screen. 31 rooms, 19 points, 4
+endings; route + deep ending proven; 45 tests. **Stopped here** because the 5-hour window (85%) would cut the next
+idea off half-proven; ~5 weekly points remain. **Next, if resumed:** a knowledge idea built on the game's fiction
+(you are the decimal point — e.g. a display that reads your body as its DP), with route proof.
