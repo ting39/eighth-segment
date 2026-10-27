@@ -1,4 +1,4 @@
-Status: blocked (v2 complete behind ?v2; waiting for the user to playtest and approve making it the default)
+Status: in-progress (v3 rework — read V3_BRIEF.md, then the "V3" section at the end of this file)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -292,3 +292,47 @@ right, o3→c1→hall, p3→c4→c1→hall); the 1% ending is a nudge, not a fai
   wing the run has reached, so every return to the hall sounds different. Maps unchanged; 33 tests pass; smoke-tested
   in the browser pane. Phase 4 remaining: making v2 the default needs the user's go-ahead (v1 stays default).
   Banner sub-labels now follow the v2 wings (`room.wing`): the hall reads START (not BOOT), p1–p3 read PANEL (not OVERFLOW).
+
+## V3 (overnight 2026-10-27/28, unattended; brief: V3_BRIEF.md) — CURRENT WORK
+Usage at start: weekly 66%, 5h 30%. Hard stop at weekly ≥ 92% (commit locally, log, end).
+
+### v3 design (interest loop run before building)
+Rule set unchanged (lit = solid; every number counts something; some you change by hand) plus one more line:
+**every display's frame (bezel) tells you what it is wired to**, so the wire is a hint, not the only hint.
+New display faces and inputs:
+- **Starburst (14-seg) code display** `t:'code'`: shows the current LANGUAGE CODE (EN ZH JA KO DE ES RU), 7x11 tiles
+  per letter. Diagonal segments are real 2-step staircases (Z climbs bottom-left→top-right, N top-left→bottom-right,
+  K/R have their own). Change language → letters → geometry.
+- **Dot-matrix word display** `t:'word'`: a word in the current language (5x7 dots for Latin/Cyrillic, 7x7 for
+  CJK/Hangul/kana), every dot a solid tile. "EXIT" is 4 letters, AUSGANG 7, 出口 2.
+- **Bar graph** `t:'bar'`: unary meter, n cells, value v lights v cells (a bridge that is exactly v long, or a pillar).
+- Sources: `lang` (code display), `word:K`, `letters:K` (number of letters of word K in your language), plus the
+  old ones. `langSrc:'idle'` = an attract-mode display whose language is chosen by how long you stand still.
+- **Language is shared with the site** (localStorage ting39:lang). Game languages: en zh-TW ja (site) + ko de es ru
+  (game only, chosen for shape: Hangul blocks, long German compounds, Spanish, Cyrillic mirror letters И/Я).
+  An in-world **language selector** (globe switch) in the first LEXICON room teaches it; later rooms need the menu.
+- **Bus** (one machine, displays in several rooms): the DIAL knob in c3 drives gates in c3, c4 and the hall (gold
+  bezel + tag). A value must satisfy the next rooms too → plan across rooms.
+Feedback fixes: (1) knobs get ≥3 tiles of headroom; (2) knob mini-readout only when no display in the room shows
+that value; (3) position displays count in zones of 4 tiles (0-9 across the room) with a ruler printed on the glass;
+(4) every idea recurs far from where it is taught (table below); v1 and the old v2 menu entry retired.
+
+| Idea | Taught | Reused far away |
+|---|---|---|
+| deaths | t1 | p3 (HUD deaths bridge), l3 |
+| button | t1/t2 | l2 |
+| loose bar → socket | t3 | t4 carry, hall socket |
+| time | c1 | c4, o3 |
+| idle | c2 | l4 SCREENSAVER (idle picks the word's language) |
+| knob / bus dial | c3 (headroom) | c4 + hall (same bus), p1 brightness knob |
+| switch rewires | o2 | hall beams |
+| position (zones+ruler) | o1 | hall beams, o3 |
+| jumps | t4 | o3 (bar-graph pillar = jumps mod n) |
+| brightness dim/burn | p1/p2 | hall final + l-wing? |
+| HUD is solid | p3 | (hall bottom HUD) |
+| language code (starburst) | l1 (selector) | hall, p-wing |
+| words / letter count | l2/l3 | p2 burn-in WORD is solid at brightness 9 (brightness × language) |
+| two languages in one room (user idea) | l3 INTERPRETER: long word bridge, then a short-word wall | — |
+Grid: l1(-3,0) l2(-3,1) l3(-2,1) l4(-3,-1); t2 gets a left exit to l1; l3 exits right into o2.
+Sources of truth: `tools/rooms_src/v3.py` → `src/rooms_v3.js`; route goals `tools/route-goals-v3.mjs` →
+`replays/route-v3.json`. New goal kinds: `lang:xx`.
