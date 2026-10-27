@@ -420,3 +420,4 @@ Progress log:
   home via t4/t1/hall and back up through p1/p2 to p3); fix any FAILED goal with waypoints; (2) `npm test`;
   (3) screenshots via the in-app browser (headless shot.sh renders black for this game) of c5/p4/o4/s1/t3;
   (4) interest loop per new room + update the recurrence map; (5) push; (6) report + Status: done.
+- 02:50 — route rebuild (--from 23) stopped at: #101 at:32,19 FAILED from room c2 (-3,162) after 122259 ms. Resume there (add waypoints), stored segments up to it are in replays/route-v3.json.
