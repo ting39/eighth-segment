@@ -436,3 +436,31 @@ Progress log:
   HUD 'off' is a world state now (g.hudpos 'off', main maps Settings→HUD to it, solver/route `hud:off`).
   First placed at (-4,0) but an 8th map column would overflow ATLAS and move its secret corner → moved inside the
   grid. Route: 23 rooms, 11/11 points, 240 s, D2; 38 tests pass. Readout needs 3/7/11.
+- ~05:40 — **WALL CLOCK (x2, 3,-1)**, east of DIAL, a secret beyond 100%: four s=3 digits set in rock reading the
+  REAL time (src 'clock' = HHMM, main already feeds it), a tunnel through all four middles: open only when every
+  digit is 0/1/7 (00:00, 01:10, 07:07, 10:01, 11:11, 17:17 …). Wait for it, or change your computer's clock.
+  Its point is the 12th; the hall readout still needs 11 (ending says "1 STRAY POINT STILL LOST"). Drop home to
+  a corridor back into DIAL's climb. Polish: beat tick for cycling signs, fast tick in the card's last second,
+  title card 7 s (solver needed 4.2 s; humans need slack), CROSSTALK + WALL CLOCK play the secret theme.
+
+### v3 round 2 — recurrence map (supersedes the round-1 table; gaps closed by combination)
+| Idea | Taught | Recurs far away / combined |
+|---|---|---|
+| deaths | t1 | p3 (HUD), NO SIGNAL (deaths digits 1/4/7 walk through the HUD) |
+| button | t1, t2 | CROSSTALK: a button on the DIAL's bus (button × bus × secret) |
+| loose bar → socket | t3 | t4 carry, hall socket |
+| time | c1 | c4, BABEL CLOCK (language cycles on the beat), DOWN (title card lasts 7 s), WALL CLOCK (real time) |
+| idle | c2 | o2 idle floor; STILL re-crossed after ATLAS |
+| knob / bus | c3 | c4, hall gold digit, CROSSTALK (button on the bus) |
+| switch | o2 | hall beams |
+| position | o1 | o2, o3, hall beams |
+| jumps | t4 | o3 |
+| brightness | p1/p2 | hall DIM/burn; BURN-IN floor → DOWN door needs no brightness (loop) |
+| HUD is solid | p3 | DOWN (the room-name banner is solid), NO SIGNAL (HUD OFF — the setting since frame 1) |
+| starburst code | l1 | BABEL CLOCK (in rock, time-cycled) |
+| letter counts | l2 | l3, p1, DOWN (the name's length per language) |
+| map / visits (new) | ATLAS | ATLAS → CROSSTALK hint (dark block = room not found) |
+| real clock (new) | WALL CLOCK | — (a secret; the HUD/game clock taught how to read it) |
+Map: PANEL↔TALLY loop (BURN-IN → DOWN → CARRY HOME), COORDINATES↔CLOCKWORK (STILL ↓ ATLAS → o3), CLOCKWORK
+side loop (DIAL → WALL CLOCK → DIAL), secrets: CROSSTALK (false wall in LOOSE, hinted by ATLAS), WALL CLOCK.
+Known gaps: the map display and the title card each appear in one room; `langSrc:'idle'` still unused.

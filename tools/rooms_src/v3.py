@@ -185,6 +185,8 @@ r.rect(1, 9, 38, 1, '.'); r.rect(0, 9, 1, 1, '.')
 for (x, y, w) in [(31,18,3),(35,15,3),(31,12,3)]: r.rect(x, y, w, 1)
 gK = hang(r, 14, 9)
 r.rect(20, 5, 10, 4, '.')                                          # v3: headroom over the dial (hop along it a click at a time)
+r.put(39, 9, '.'); r.rect(39, 18, 1, 3, '.')                       # round 2: east to WALL CLOCK (x2), and its way back
+r.rect(36, 10, 3, 1)                                              # ...with a ledge under that door (it hung over the shaft)
 r.put(32, 20, 'P'); r.put(29, 9, 'P'); r.put(3, 9, 'P')
 emit('c3', 2, -1, 'clock', 'DIAL', r,
      parts=[dict(kind='knob', x=22, y=10, w=6, reg='dial', bus=True)],
@@ -446,6 +448,26 @@ r.rect(19, 1, 20, 5, '.'); r.rect(36, 6, 2, 12, '.')              # the far end,
 r.put(28, 4, 'o')
 r.put(37, 20, 'P'); r.put(10, 20, 'P')
 emit('x1', -2, -2, 'over', 'NO SIGNAL', r, wing='PANEL', hudSolid=True)
+
+# x2 (3,-1): WALL CLOCK (a secret beyond 100%) -- east of DIAL. A clock set in rock that reads the real time of
+# day (the player's own clock). The tunnel runs through all four digits' middles: it is open only when every digit
+# is a 0, 1 or 7 -- 00:00, 01:10, 07:07, 10:01, 11:11, 17:17... Come back at the right time (or change the clock).
+r = Room('#')
+r.rect(1, 6, 3, 4, '.')                                           # in from DIAL (c3)
+CLK = (4, 10, 20, 26)
+for x in CLK: carve_cells(r, x, 5, 3, corners=False)
+r.rect(0, 9, 32, 1, '.')                                          # the tunnel through the middles
+for x in CLK:
+    for dx in (0, 4): r.put(x + dx, 10, '-')                      # one-way floor over the dark lower strokes
+r.put(17, 7, '.'); r.put(17, 11, '.')                             # the colon
+r.rect(31, 3, 8, 7, '.'); r.rect(34, 8, 2, 1)                     # the far side: a stray point on a perch
+r.put(35, 6, 'o')
+r.rect(37, 10, 2, 8, '.'); r.rect(0, 18, 39, 3, '.')               # drop home: a corridor back to DIAL
+r.put(2, 9, 'P'); r.put(32, 9, 'P'); r.put(3, 20, 'P')
+disp = {f'C{i}': dict(s=3, src='clock', place=3 - i, at=[x, 5]) for i, x in enumerate(CLK)}
+disp['C0']['hint'] = 'clock'
+disp['COL0'] = dict(t='bits', n=1, val=1, at=[17, 7]); disp['COL1'] = dict(t='bits', n=1, val=1, at=[17, 11])
+emit('x2', 3, -1, 'clock', 'WALL CLOCK', r, wing='CLOCKWORK', secret=True, music='secret', displays=disp)
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

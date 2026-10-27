@@ -60,9 +60,20 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has eleven stray points and the hall readout asks for all of them', () => {
+test('the world has twelve stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 11);
+  assert.equal(pts, 12);
   const hall = world.rooms.get('hall');
-  assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts);
+  assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
+});
+
+test('the wall clock reads the real time, and its tunnel is open only when every digit is 0, 1 or 7', () => {
+  const g = createGame(world, 'x2');
+  const tunnelOpen = (hhmm) => {
+    g.clockMinutes = hhmm; updateDisplays(g);
+    for (let x = 4; x <= 31; x++) if (g.dyn[9 * RW + x]) return false;
+    return true;
+  };
+  for (const t of [0, 110, 707, 1001, 1111, 1717, 1017]) assert.ok(tunnelOpen(t), `open at ${t}`);
+  for (const t of [1200, 1112, 835, 2359, 1710, 1170 + 0]) assert.equal(tunnelOpen(t), [...String(t).padStart(4, '0')].every((c) => '017'.includes(c)), `at ${t}`);
 });

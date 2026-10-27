@@ -28,6 +28,8 @@ export const ROUTE = [
   'event:point', 'at:37,7', 'at:2,3', 'o3', 'at:20,7', 'at:37,7', 'c1', 'at:37,20', 'c2',
   // back across STILL the only way there is: over the top and stand still on the digit (ATLAS's drop is one way)
   'at:12,3', 'at:14,3', 'idle:1', 'at:32,19', 'c3',
+  // round 2: WALL CLOCK, east of DIAL: the route's clock reads 00:00 (all middles dark), so the tunnel is open
+  'at:32,11', 'at:37,9', 'x2', 'event:point', 'at:3,20', 'c3', 'at:32,11',
   'at:29,9', 'reg.dial:7', 'reg.dial:7@19,9', 'c4', 'at:37,9', 'at:9,9', 'c1', 'time:2', 'at:5,11', 'hall',
   // the support beams, PANEL, burn-in (the burned-in language code: point), the status bar, the long way home
   'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'event:point',
