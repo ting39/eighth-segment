@@ -8,11 +8,11 @@ export const ROUTE = [
   'at:2,20', 't1', 'at:34,19', 'reg.t1:1', 'deaths:1', 't2',
   'at:11,8', 'reg.t2:4', 'at:17,11', 'reg.t2:5', 'at:23,11', 'at:36,2', 't3',
   'event:pickup', 'at:27,5', 'event:socket',
-  // round 2: LOOSE's false wall hides CROSSTALK: its gold-striped button turns the DIAL (2 + 5 = 7: the gate opens)
-  'at:2,20', 's1', 'reg.dial:2', 'event:point', 't3', 'at:13,17', 'at:3,11', 'at:6,5', 'at:12,5', 'at:2,3', 't4',
+  // round 2: LOOSE's false wall (a one-tile slot over the far side's step) hides CROSSTALK: its gold-striped button turns the DIAL (2 + 5 = 7: the gate opens)
+  'at:12,5', 'at:3,11', 's1', 'reg.dial:2', 'event:point', 't3', 'at:3,11', 'at:6,5', 'at:12,5', 'at:2,3', 't4',
   'event:pickup', 'at:26,20', 'jumps:1', 't1', 'hall', 'event:socket', 'at:3,12', 'at:5,9', 'at:12,9', 'event:slot/2',
   // LEXICON: through PRESS's west door; B's second letter in EN, a globe to ZH for A's first letter
-  'at:2,9', 'at:3,12', 'at:2,20', 't1', 't2', 'at:2,10', 'l1', 'at:19,20', 'event:lang', 'at:10,3', 'l2',
+  'at:2,9', 'at:3,12', 'at:2,20', 't1', 'deaths:4', 't2', 'at:2,10', 'l1', 'at:19,20', 'event:lang', 'at:10,3', 'l2',
   // LETTERS: the bridge is as long as EXIT -> German (AUSGANG, 7); INTERPRETER: DE, then ZH for UP, then DE for X
   'lang:de', 'l3', 'at:33,20', 'lang:zh-TW', 'at:16,7', 'lang:de', 'event:point', 'at:37,7', 'o2',
   // REWIRE: the idle floor (stand still: fall through a stray point), the switch, east over the zones to BELOW
@@ -42,7 +42,7 @@ export const ROUTE = [
   'x1', 'hud:off', 'at:10,20', 'event:point', 'at:30,20', 'at:10,20',
   // round 2: ENCORE, west off NO SIGNAL's shaft: volume <=3, EN/KO/RU, dial 7 (+4 = 1), and stand still -- then down
   // into CROSSTALK and home through LOOSE's false wall
-  'e1', 'vol:2', 'lang:en', 'at:27,12', 'at:26,9', 'at:17,7', 'at:4,14', 'idle:1', 'event:point', 's1', 'hud:top', 'vol:6',
+  'e1', 'vol:2', 'lang:en', 'at:29,12', 'at:26,9', 'at:17,7', 'at:4,14', 'idle:1', 'event:point', 's1', 'hud:top', 'vol:6',
   't3', 'at:13,17', 'at:3,11', 'at:6,5', 'at:12,5', 'at:2,3', 't4', 't1', 'hall',
   'bright:9', 'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',
   'at:35,5', 'p3',

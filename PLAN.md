@@ -1,4 +1,4 @@
-Status: done (v3 round 2 live 2026-10-28; 28 rooms, route proven; waiting on the user's playtest — see 'V3 ROUND 2' end report)
+Status: in-progress (v3 round 3 — playtest metrics, title card + real clock recurrence, ending, first-time polish; started 2026-10-28 ~10:40 CST; hard stop weekly 92% or 18:00 CST)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -511,3 +511,19 @@ in sign tunnels (players fell into dark strokes), 7 s title card (solver 4.2 s �
 **Known gaps:** no human playtest yet (all fairness checks are solver/simulation); WALL CLOCK depends on real time
 (by design, beyond 100%); title card and real clock each appear in one room; the 7×4 grid is full — more rooms
 need ATLAS/NEGATIVE re-laid out for an 8th column.
+
+## V3 ROUND 3 (2026-10-28)
+- 10:40 — opened (weekly 80%). Plan: metrics on round-2 precision bits; title card + real clock far recurrence; ending; first-time polish.
+- 07:00 — **Playtest metrics + fixes** (skill §8 thresholds: ≤2% lottery, 10–20% tight-fair, >50% walk):
+  ENCORE step to the tunnel mouth 0.3% (a step hanging over the floor path) → a solid block: 48% / 100%.
+  TURN IT DOWN steps 8% (stacked) → offset: 16% / 34%. NO SIGNAL shaft ledges 12–16% (kept: tight-fair, a miss
+  only drops one ledge). ATLAS side-shaft climbs 17.5% (new 'L>R' drift sampling). DOWN 31% / 64%, BABEL climb
+  54%, TURN IT DOWN wall 60%, pillar→ledge 51%. Fall-in: ATTRACT well 26/26 running, ENCORE trapdoor 7/7.
+  **Luck test** (`tools/luck.mjs`, random play): CROSSTALK was found by accident 30% (far side top) / 71% (floor)
+  → the false wall is now a one-tile slot mid-wall, entered by a jump from the far side's step: 3% / 0%;
+  CROSSTALK got ledges back up to the slot (its way home). NEGATIVE 0.5%, ATLAS 0%, CROSSTALK gate by mashing 6.5%.
+  **Ending:** the true ending with all 16 points now shows the player's real clock in the machine's digits under
+  100.000% ("EVEN THE CLOCK ON YOUR WALL READS TRUE."); with only WALL CLOCK's point missing: "IT IS ONLY A
+  MATTER OF TIME." (the real clock recurs far away, in the ending). DE/ES singular "1 stray point" fixed.
+  Also fixed: a replace-all had carved ENCORE's shaft into t1 as well (harmless one-way drop) — removed.
+  Phone width (375×812, ko): readable, touch buttons + pause present. Route: 28 rooms, 16/16, 306 s, D5.

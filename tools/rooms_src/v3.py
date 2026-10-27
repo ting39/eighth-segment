@@ -86,7 +86,6 @@ emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, music='hall', wing='START ', d
 # t1 (-1,0): a button and a spike, each wired to a gate. Above: the balcony home (from t4).
 r = Room('#')
 r.rect(28, 13, 11, 8, '.'); r.rect(39, 18, 1, 3, '.')
-r.rect(30, 0, 2, 13, '.')                                          # round 2: ENCORE (e1) drops in here (one way)
 r.rect(6, 20, 22, 1, '.'); r.rect(1, 13, 5, 8, '.'); r.rect(0, 18, 1, 3, '.')
 gA = hang(r, 22, 20); gB = hang(r, 12, 20)
 r.put(29, 20, '^')
@@ -126,7 +125,8 @@ r.rect(1, 4, 2, 1)
 r.rect(1, 1, 38, 1, '.'); r.rect(39, 1, 1, 1, '.')               # the high corridor back over the room
 r.rect(4, 2, 35, 1); r.rect(1, 2, 3, 1, '.')
 r.put(30, 20, '.')
-r.rect(0, 18, 1, 3, 'X')                                           # round 2: a false wall (the ATLAS map shows a room behind it)
+r.put(0, 10, 'X')                                                 # round 2: a false wall, one tile, mid-wall (the ATLAS map shows a room behind it)
+                                                                  # (round 3: at floor level random play found it 71% of the time)
 for (x, y, w) in [(12,18,3),(7,15,3),(2,12,3),(1,9,2)]: r.rect(x, y, w, 1)   # ...and a way back up from the far side's floor
 r.put(32, 20, 'P'); r.put(27, 5, 'P'); r.put(12, 5, 'P'); r.put(2, 20, 'P')
 emit('t3', -2, -1, 'tally', 'LOOSE', r,
@@ -421,8 +421,9 @@ emit('o4', 2, 1, 'coord', 'ATLAS', r,
 # s1 (-3,-1): CROSSTALK (secret) -- behind LOOSE's false wall. A button with a gold stripe: it is on the DIAL's bus,
 # so every press turns the dial in CLOCKWORK (and the gold digit in the hall) as well as the gate here.
 r = Room('#')
-r.rect(28, 13, 11, 8, '.'); r.rect(39, 18, 1, 3, '.')
+r.rect(28, 13, 11, 8, '.'); r.rect(32, 10, 8, 1, '.')             # (round 3: in at a one-tile slot, mid-wall)
 r.rect(30, 0, 2, 13, '.')                                          # round 2: ENCORE (e1) drops in here (one way)
+for (x, y) in [(31,18),(30,15),(31,12)]: r.put(x, y, '#')             # round 3: ledges back up to the slot (the room's way home)
 r.rect(18, 20, 10, 1, '.'); gX = hang(r, 22, 20)
 r.rect(18, 21, 2, 1, '.')                                         # behind the gate: down into LANGUAGE (l1), one way
 r.put(20, 20, 'o')
@@ -483,7 +484,7 @@ r.rect(0, 19, 1, 2, '.'); r.rect(1, 12, 15, 9, '.')               # from ATLAS (
 r.rect(16, 12, 2, 9, '.')                                         # the doorway: a wall of sound fills it
 r.rect(18, 3, 21, 18, '.')                                        # the far side
 r.rect(30, 9, 9, 1)                                               # a high ledge
-r.rect(20, 18, 3, 1); r.rect(22, 15, 2, 1)                         # steps up beside the pillar
+r.rect(20, 18, 3, 1); r.rect(23, 15, 2, 1)                         # steps up beside the pillar (not over each other)
 r.put(34, 8, 'o')
 r.put(2, 20, 'P'); r.put(22, 20, 'P'); r.put(36, 8, 'P')
 emit('y1', 3, 1, 'coord', 'TURN IT DOWN', r, wing='COORDINATES',
@@ -530,7 +531,7 @@ r = Room('#')
 r.rect(39, 10, 1, 3, '.'); r.rect(26, 4, 13, 9, '.')              # from NO SIGNAL (x1)
 carve_code(r, 10, 2)
 r.put(25, 7, '.'); r.put(24, 7, '.'); r.put(18, 7, '.')           # in at the second letter's right corner, out at its left
-r.rect(26, 10, 2, 1)                                              # a step up to the tunnel's mouth
+r.rect(26, 10, 2, 3)                                              # a block to climb to the tunnel's mouth (a hanging step was a 0.3% jump)
 floor_code(r, 10, 2, [1])
 r.rect(17, 7, 1, 8, '.')                                          # down the gap between the letters
 r.rect(9, 14, 9, 1, '.')                                          # west, through the bus digit's middle

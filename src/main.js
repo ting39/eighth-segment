@@ -161,7 +161,7 @@ function startEnding(id) {
   }
   sfx.slot();
   const time = game.c.steps / HZ;
-  endingInfo = { id, time, deaths: game.c.deaths, jumps: game.c.jumps, points: game.points.size, assisted: run.assisted, t: 0 };
+  endingInfo = { id, time, deaths: game.c.deaths, jumps: game.c.jumps, points: game.points.size, assisted: run.assisted, t: 0, clock: game.points.has(CLOCK_POINT) };
   if (!meta.endings.includes(id)) meta.endings.push(id);
   if (!run.assisted) {
     if (meta.bestTime === null || time < meta.bestTime) meta.bestTime = time;
@@ -493,6 +493,7 @@ function drawMap(x, pal) {
 // The Master Readout, drawn big: digits light one by one, then the point (you) arcs into the slot
 // you chose. Ending 3 reads 3.14159; the wrong slots read ten times too much / too little.
 // how many stray points light each of the readout's last three digits (the hall's R3..R5 use the same numbers)
+const CLOCK_POINT = 'x2:35,6';           // WALL CLOCK's stray point: the one beyond 100%
 const POINTS_FOR = [3, 7, 15];          // the hall needs 15; the wall clock's point is beyond 100%
 const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
 function bigDigit(x, mask, px, py, on, ghost) {
@@ -544,11 +545,19 @@ function drawEnding(x, pal) {
   R.text(end.title, (W - R.textWidth(end.title)) / 2, y, R.hexA(pal.lit, a)); y += 14;
   const lines = [...end.lines];
   if (e.id === 3 && e.points < TOTAL_POINTS) lines.push(`${TOTAL_POINTS - e.points} STRAY POINT${TOTAL_POINTS - e.points > 1 ? 'S' : ''} STILL LOST.`);
+  // the true ending nods at the one number that was never the machine's: the clock on the player's wall
+  if (e.id === 3 && e.points === TOTAL_POINTS - 1 && !e.clock) lines.push('IT IS ONLY A MATTER OF TIME.');
+  if (e.id === 3 && e.points >= TOTAL_POINTS) lines.push('EVEN THE CLOCK ON YOUR WALL READS TRUE.');
   for (const line of lines.filter((l) => !/^[\d.]+$/.test(l))) { R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA('#ffffff', a * 0.85)); y += 9; }
   y += 6;
   const stats = e.nudge ? ['THE POINT POPS BACK OUT.'] : [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/${TOTAL_POINTS}`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
   const b = Math.max(0, Math.min(1, (e.t - 3.6) / 1.2));
   for (const st of stats) { R.text(st, (W - R.textWidth(st)) / 2, y, R.hexA(pal.edge, b)); y += 9; }
+  if (e.id === 3 && e.points >= TOTAL_POINTS && b > 0) {          // ...and its time, in the machine's own digits
+    const hhmm = String(clockValue()).padStart(4, '0'), cx = Math.round(W / 2 - 34), cy = H - 46;
+    for (let i = 0; i < 4; i++) bigDigit(x, digitMask(+hhmm[i]), cx + i * 16 + (i > 1 ? 6 : 0), cy, R.hexA('#9ef0ff', 0.9 * b), R.hexA('#9ef0ff', 0.06));
+    if (Math.floor(e.t * 2) % 2) { x.fillStyle = R.hexA('#9ef0ff', 0.9 * b); x.fillRect(cx + 32, cy + 6, 3, 3); x.fillRect(cx + 32, cy + 14, 3, 3); }
+  }
   if (e.t > 4.5) R.text('PRESS JUMP', (W - R.textWidth('PRESS JUMP')) / 2, H - 12, R.hexA(pal.edge, 0.5 + 0.5 * Math.sin(e.t * 4)));
 }
 
@@ -646,7 +655,7 @@ if (SHOT) {
   mode = params.has('title') ? 'title' : 'play';
   if (mode === 'title') menu = titleMenu();
   devOverlay = params.has('grid');
-  if (params.get('ending')) { endingInfo = { id: +params.get('ending'), time: 1234.5, deaths: 88, jumps: 321, points: 2, assisted: false, t: +params.get('t') || 6 }; mode = 'ending'; }
+  if (params.get('ending')) { endingInfo = { id: +params.get('ending'), time: 1234.5, deaths: 88, jumps: 321, points: +params.get('points') || 2, clock: params.has('clockpt'), assisted: false, t: +params.get('t') || 6 }; mode = 'ending'; }
   if (params.has('stuck')) Object.assign(roomStay, { id, d0: c.deaths - 20, s0: 0 });
   draw(0);
 } else {
