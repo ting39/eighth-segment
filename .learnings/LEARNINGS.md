@@ -15,3 +15,9 @@ that room, not from where the last failure was.
 Round 2 left 14 wait loops running for hours: the loop's own `bash -c` command line contains the pattern, so
 `pgrep -f` always finds it. Wait on the background task's notification instead, or match with an awk regex that
 excludes the waiter (`ps -eo args | awk '/[n]ode tools\/route/'`). Kill strays by PID after a session.
+
+## 2026-10-28 — a new door can leak a puzzle through the respawn rule
+Respawn = the room's spawn nearest to where you entered. Adding an east door to BABEL CLOCK and ATTRACT MODE made
+the nearest spawn one *behind* each room's puzzle: enter, die, collect the point. Found by a random-play luck test
+(a "hit" that was really in the neighbouring room). After adding any door, list door → nearest spawn for every
+room and add a spawn on the door's side if needed.

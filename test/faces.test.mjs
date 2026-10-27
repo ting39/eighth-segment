@@ -96,7 +96,7 @@ test('a map display has one block per room, lit once that room has been visited'
   const world = buildWorld(ROOMS);
   const g = createGame(world, 'o4');
   const d = g.room.displays.find((x) => x.t === 'map');
-  assert.equal(d.mapIds.length, world.rooms.size);
+  assert.equal(d.mapIds.length, [...world.rooms.values()].filter((r) => !r.offmap).length);
   updateDisplays(g);
   assert.deepEqual(d.mapIds.filter((id, i) => d.litArr[i]), ['o4'], 'only the room you are in, on a new save');
   g.c.visits.s1 = 1; updateDisplays(g);

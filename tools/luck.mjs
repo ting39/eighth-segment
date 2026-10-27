@@ -15,7 +15,7 @@ for (let t = 0; t < +trials; t++) {
   for (let i = 0; i < +steps && !hit; i++) {
     if (i % 20 === 0) { const r = rnd(); m = (r < 0.4 ? IN.LEFT : r < 0.8 ? IN.RIGHT : 0) | (rnd() < 0.35 ? IN.JUMP : 0); }
     step(g, m);
-    if (goal.startsWith('event:') ? g.events.some((e) => e.type === goal.slice(6)) : g.room.id === goal) hit = true;
+    if (goal.startsWith('event:') ? g.room.id === room && g.events.some((e) => e.type === goal.slice(6)) : g.room.id === goal) hit = true;
     g.events.length = 0;
   }
   if (hit) hits++;

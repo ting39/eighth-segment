@@ -1,6 +1,6 @@
 # Eighth Segment
 
-A hard, minimal precision platformer for the browser — 28 dense rooms around one hall, 16 stray points, 3 endings,
+A hard, minimal precision platformer for the browser — 29 dense rooms around one hall, 17 stray points, 3 endings,
 playable in 7 languages (and the language is part of the level). **Play: https://ting39.github.io/eighth-segment/**
 
 A seven-segment display has eight parts: seven bars and the decimal point. You are the decimal
@@ -36,6 +36,7 @@ one of them reads the clock on your wall.
   `tools/langlocks.mjs` / `tools/reglocks.mjs` sweep which languages / dial values open a gate;
   `tools/atlas.mjs` checks which visited rooms the map room's stray point depends on; `tools/hudlocks.mjs` /
   `tools/vollocks.mjs` sweep HUD settings / music volume. `tools/probe.mjs` replays the route to goal N and tries more.
+  Playtest metrics: `tools/jumprate.mjs` (jump success rate; `L>R` drifts), `tools/luck.mjs` (random-play luck test).
 - `tools/rooms_src/v3.py` — the world, authored with drawing ops; generates `src/rooms_v3.js`.
 - `src/glyphs.js` — languages, the words on displays, starburst letters, hand-made dot-matrix glyphs.
 - `npm test` — physics tests, world validators (edges, spawns, crush-safety for every counter value)

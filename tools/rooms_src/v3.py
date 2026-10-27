@@ -63,7 +63,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 15)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 16)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -386,7 +386,9 @@ floor_code(r, 12, 4, [0, 1])
 r.rect(28, 4, 11, 6, '.')                                         # behind the sign: a pocket with a stray point
 r.rect(36, 10, 2, 6, '.')                                         # ...and a drop back down (too high to climb)
 r.put(33, 9, 'o')
-r.put(3, 20, 'P'); r.put(9, 9, 'P'); r.put(30, 9, 'P')
+r.rect(39, 18, 1, 3, '.')                                          # round 3: east to INTERMISSION (i1)
+r.put(3, 20, 'P'); r.put(9, 9, 'P'); r.put(30, 9, 'P'); r.put(37, 20, 'P')   # (a spawn by the east door, or dying
+                                                                  # there respawned you behind the sign, at the point)
 emit('c5', 3, 0, 'clock', 'BABEL CLOCK', r,
      displays=dict(S=dict(t='code', n=2, src='lang', langSrc='time', at=[12, 4], hint='time', wire=[[10, 2], [7, 2], [7, 3]])))
 
@@ -504,7 +506,8 @@ carve_code(r, 16, 8)
 r.put(19, 19, '.'); r.rect(14, 19, 20, 2, '.')                    # under the sign: the chamber
 r.rect(24, 21, 2, 1, '.')                                         # down into DIAL (c3), one way
 r.put(29, 20, 'o')
-r.put(3, 5, 'P'); r.put(16, 20, 'P')
+r.put(3, 5, 'P'); r.put(16, 20, 'P'); r.put(36, 5, 'P')            # (round 3: a spawn by the east door, or dying after
+                                                                  # coming in from NEGATIVE respawned you in the chamber)
 emit('a1', 2, -2, 'over', 'ATTRACT MODE', r, wing='PANEL',
      displays=dict(S=dict(t='code', n=2, src='lang', langSrc='idle', at=[16, 8], legend=[21, 6], hint='idle', wire=[[15, 7], [12, 7], [12, 6]]),
                    TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[19, 7])))
@@ -545,6 +548,20 @@ emit('e1', -3, -2, 'tally', 'ENCORE', r, wing='TALLY',
                    S=dict(t='code', n=2, src='lang', at=[10, 2], hint='lang'),
                    D=dict(s=2, src='reg:dial', bus=True, off=4, at=[5, 11], hint='bus'),
                    TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[2, 15])))
+
+# i1 (4,0): INTERMISSION (round 3) -- east of BABEL CLOCK, past the edge of the old map (offmap: ATLAS and NEGATIVE
+# don't know it). Two gates hang over the way in, reading one number the game clock never sees: the seconds you have
+# spent in the pause menu (tens and ones). Each lets you walk under it when its bottom bar is dark -- 1, 4 or 7 --
+# so pause until it reads 11, 14, 17, 41, 44... The pause menu has been there since the first frame.
+r = Room('#')
+r.rect(0, 18, 1, 3, '.'); r.rect(1, 13, 8, 8, '.')                # from BABEL CLOCK (c5): an antechamber
+r.rect(9, 20, 18, 1, '.'); gT = hang(r, 11, 20); gO = hang(r, 19, 20)
+r.rect(27, 12, 12, 9, '.')                                        # behind the gates
+r.put(33, 20, 'o')
+r.put(3, 20, 'P'); r.put(29, 20, 'P')
+emit('i1', 4, 0, 'clock', 'INTERMISSION', r, wing='CLOCKWORK', offmap=True,
+     displays=dict(PT=dict(s=2, src='paused', place=1, at=gT, hint='paused', wire=[[10, 15], [6, 15], [6, 14]]),
+                   PO=dict(s=2, src='paused', at=gO, wire=[[23, 15], [26, 15]])))
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

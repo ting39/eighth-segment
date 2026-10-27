@@ -60,9 +60,9 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has sixteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
+test('the world has seventeen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 16);
+  assert.equal(pts, 17);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
 });
@@ -97,4 +97,10 @@ test("NEGATIVE: the map of rooms you have NOT been to is solid; WALL CLOCK's blo
   g.c.visits.x2 = 1;
   assert.ok(!lid(), 'visiting WALL CLOCK lifts it');
   assert.ok(!g.room.displays[0].litArr.some(Boolean), 'with every room visited the map is all air');
+});
+
+test('coming in through a door and dying respawns you on that side of the room\'s puzzle (no free points)', () => {
+  const nearest = (id, x, y) => { let b = null, bd = 1e9; for (const s of world.rooms.get(id).spawns) { const d = (s.tx - x) ** 2 + (s.ty - y) ** 2; if (d < bd) { bd = d; b = s; } } return [b.tx, b.ty]; };
+  assert.deepEqual(nearest('c5', 39, 19), [37, 20], 'BABEL CLOCK from INTERMISSION: not behind the sign');
+  assert.deepEqual(nearest('a1', 39, 4), [36, 5], 'ATTRACT MODE from NEGATIVE: not in the chamber under the sign');
 });

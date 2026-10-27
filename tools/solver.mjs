@@ -10,8 +10,10 @@ export const VOL = 16;    // VOL + v: set music volume to v (menu action)
 export const BRIGHT = 32; // BRIGHT + v: set brightness to v
 export const HUDTOP = 48, HUDBOT = 49, HUDOFF = 50;   // HUD off: Settings → HUD (TIME/DEATHS) OFF
 export const LANG = 64;   // LANG + i: set the language to LANGS[i] (menu action)
+export const PAUSE = 128;  // PAUSE + n: sit in the pause menu for n seconds (menu action)
 export function applySetting(g, a) {
-  if (a >= LANG) g.lang = LANGS[a - LANG];
+  if (a >= PAUSE) g.c.paused = (g.c.paused || 0) + (a - PAUSE) * HZ;
+  else if (a >= LANG) g.lang = LANGS[a - LANG];
   else if (a >= HUDTOP) g.hudpos = a === HUDTOP ? 'top' : a === HUDBOT ? 'bottom' : 'off';
   else if (a >= BRIGHT) g.bright = a - BRIGHT;
   else g.volume = a - VOL;

@@ -177,12 +177,12 @@ export function buildWorld(defs) {
   }
   // map displays: the whole world, each room a cw x ch block (gap 1), at the room's grid position
   let gx0 = Infinity, gy0 = Infinity;
-  for (const r of rooms.values()) { gx0 = Math.min(gx0, r.gx); gy0 = Math.min(gy0, r.gy); }
+  for (const r of rooms.values()) if (!r.offmap) { gx0 = Math.min(gx0, r.gx); gy0 = Math.min(gy0, r.gy); }
   for (const r of rooms.values()) for (const d of r.displays) if (d.t === 'map') {
     const cw = d.cw || 4, ch = d.ch || 3, gap = d.gap ?? 1, gapy = d.gapy ?? gap;
     d.cells = []; d.mapIds = [];
     for (const o of rooms.values()) {
-      if (d.only && !d.only.includes(o.id)) continue;
+      if ((d.only && !d.only.includes(o.id)) || o.offmap) continue;   // (offmap rooms were built after the map was drawn)
       const x = d.x + (o.gx - gx0) * (cw + gap), y = d.y + (o.gy - gy0) * (ch + gapy);
       if (x < 0 || y < 0 || x + cw > RW || y + ch > RH) throw new Error(`${r.id}: map display out of bounds at ${o.id}`);
       d.cells.push([x, y, cw, ch]); d.mapIds.push(o.id);
@@ -199,7 +199,7 @@ export function neighbor(world, room, dx, dy) {
 // ---------------------------------------------------------------- state ---
 
 export function newCounters() {
-  return { deaths: 0, jumps: 0, steps: 0, idle: 0, here: 0, visits: {}, reg: {}, sw: {}, sock: {} };
+  return { deaths: 0, jumps: 0, steps: 0, idle: 0, here: 0, paused: 0, visits: {}, reg: {}, sw: {}, sock: {} };
 }
 
 export function createGame(world, roomId, opts = {}) {
@@ -232,7 +232,7 @@ export function createGame(world, roomId, opts = {}) {
 }
 
 function structuredCloneCounters(c) {
-  return { deaths: c.deaths, jumps: c.jumps, steps: c.steps, idle: c.idle, here: c.here || 0, visits: { ...c.visits },
+  return { deaths: c.deaths, jumps: c.jumps, steps: c.steps, idle: c.idle, here: c.here || 0, paused: c.paused || 0, visits: { ...c.visits },
     reg: { ...(c.reg || {}) }, sw: { ...(c.sw || {}) }, sock: { ...(c.sock || {}) } };
 }
 
@@ -281,6 +281,7 @@ export function sourceValue(g, d) {
     case 'jumps': return g.c.jumps;
     case 'time': return Math.floor(g.c.steps / HZ);
     case 'idle': return Math.floor(g.c.idle / HZ);
+    case 'paused': return Math.floor((g.c.paused || 0) / HZ);   // seconds spent in the pause menu (the game clock never sees them)
     case 'visits': return g.c.visits[g.room.id] || 0;
     case 'pos': return Math.floor(Math.floor((p.x + PW / 2) / TS) / (d.zone ?? 4));   // zones of 4 tiles: 0-9 across the room
     case 'posy': return RH - 1 - Math.floor((p.y + PH / 2) / TS);

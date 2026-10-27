@@ -297,6 +297,8 @@ function frame(now) {
     }
   } else {
     acc = 0;
+    // time in the pause menu (or on the map) is real time the game clock never sees: one display counts it
+    if (game && run && (mode === 'pause' || mode === 'map')) { game.c.paused = (game.c.paused || 0) + Math.min(dt, 0.25) * HZ; updateDisplays(game); }
     if (mode === 'map') { if (edges.some((e) => e === 'pause' || e === 'back' || e === 'map' || e === 'confirm')) { mode = menu ? 'pause' : 'play'; sfx.move(); } }
     else if (mode === 'ending') {
       endingInfo.t += dt;
@@ -494,7 +496,7 @@ function drawMap(x, pal) {
 // you chose. Ending 3 reads 3.14159; the wrong slots read ten times too much / too little.
 // how many stray points light each of the readout's last three digits (the hall's R3..R5 use the same numbers)
 const CLOCK_POINT = 'x2:35,6';           // WALL CLOCK's stray point: the one beyond 100%
-const POINTS_FOR = [3, 7, 15];          // the hall needs 15; the wall clock's point is beyond 100%
+const POINTS_FOR = [3, 7, 16];          // the hall needs 16; the wall clock's point is beyond 100%
 const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
 function bigDigit(x, mask, px, py, on, ghost) {
   const L = 8;

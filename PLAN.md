@@ -527,3 +527,12 @@ need ATLAS/NEGATIVE re-laid out for an 8th column.
   MATTER OF TIME." (the real clock recurs far away, in the ending). DE/ES singular "1 stray point" fixed.
   Also fixed: a replace-all had carved ENCORE's shaft into t1 as well (harmless one-way drop) — removed.
   Phone width (375×812, ko): readable, touch buttons + pause present. Route: 28 rooms, 16/16, 306 s, D5.
+- 08:00 — **INTERMISSION (i1, 4,0)**, east of BABEL CLOCK, the first room past the old map's edge (`offmap`: map
+  displays skip it and keep their bounds, so ATLAS/NEGATIVE are untouched). A new counter, `paused` — real seconds
+  spent in the pause menu or on the map, which the game clock never sees (main adds dt while paused and redraws
+  the room behind the menu, so the digits visibly tick). Two hanging gates read its tens and ones; each opens
+  when its bottom bar is dark (1/4/7): pause until it reads 11, 14, 17, 41… The pause menu, since the first frame,
+  is the key. Solver/route: `pause:N` menu action. Points 17 (hall needs 16; WALL CLOCK beyond).
+  **Respawn leaks found by the luck test**: BABEL CLOCK's new east door and ATTRACT MODE's east door made the
+  nearest spawn one *behind* the puzzle (enter, die, take the point) → spawns by both doors + a test.
+  Route: 29 rooms, 17/17, 306 s, D5; 42 tests pass.

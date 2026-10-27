@@ -24,7 +24,9 @@ export const ROUTE = [
   'at:3,20', 'at:37,20', 'c2', 'at:12,3', 'at:14,3', 'idle:1', 'event:point',
   // round 2: BABEL CLOCK (the language sign speaks every language in turn: letter one, wait between, letter two);
   // then down STILL's floor hole into ATLAS: the map of where you have been, and CROSSTALK's block is the last step
-  'c5', 'at:9,9', 'at:19,9', 'at:28,9', 'event:point', 'at:3,20', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
+  'c5', 'at:9,9', 'at:19,9', 'at:28,9', 'event:point',
+  // round 3: INTERMISSION, east of BABEL CLOCK: its gates read the seconds spent in the pause menu -> pause 14 s
+  'at:37,20', 'i1', 'pause:14', 'event:point', 'c5', 'at:3,20', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
   'event:point',
   // round 2: TURN IT DOWN, east of ATLAS: the music volume is a wall (jump it at <=3) and a pillar (stand on it at 9)
   'at:37,20', 'vol:2', 'y1', 'at:22,20', 'vol:9', 'event:point', 'vol:2', 'at:2,20', 'o4', 'vol:6',

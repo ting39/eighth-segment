@@ -18,6 +18,7 @@ export function parseGoal(s) {
   if (s === 'hud:top') return { set: 48 };
   if (s === 'hud:bottom') return { set: 49 };
   if (s === 'hud:off') return { set: 50 };
+  if (s.startsWith('pause:')) return { set: 128 + +s.slice(6) };
   const m = s.match(/^(deaths|jumps|idle|visits|time|reg\.\w+|sw\.\w+):(\d+)(?:\/(\d+))?(?:@(\d+),(\d+))?$/);
   if (m) return { ctr: m[1], val: +m[2], mod: m[3] ? +m[3] : (m[1].startsWith('sw.') ? 2 : 10), ...(m[4] ? { stay: [+m[4], +m[5]] } : {}) };
   if (s.startsWith('event:')) { const [ev, id] = s.slice(6).split('/'); return { event: ev, id: id ? +id : undefined }; }

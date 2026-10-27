@@ -49,7 +49,7 @@ export const BEZEL = {
   deaths: { c: '#ff4d6d', pat: 'solid' }, jumps: { c: '#ffb347', pat: 'dash' }, time: { c: '#7dff8a', pat: 'tick' },
   idle: { c: '#8ab4ff', pat: 'dot' }, pos: { c: '#ff7ae3', pat: 'ruler' }, reg: { c: '#e8f0ff', pat: 'rivet' },
   bus: { c: '#ffd23d', pat: 'double' }, bright: { c: '#fff27a', pat: 'dot' }, volume: { c: '#5ff2e6', pat: 'dash' },
-  lang: { c: '#b98cff', pat: 'double' }, clock: { c: '#9ef0ff', pat: 'tick' }, visits: { c: '#e8f0ff', pat: 'dot' }, points: { c: '#ffffff', pat: 'solid' },
+  lang: { c: '#b98cff', pat: 'double' }, clock: { c: '#9ef0ff', pat: 'tick' }, paused: { c: '#c8c8c8', pat: 'dash' }, visits: { c: '#e8f0ff', pat: 'dot' }, points: { c: '#ffffff', pat: 'solid' },
 };
 export function bezelKind(src, d) {
   if (!src || src === 'static') return null;
@@ -242,7 +242,7 @@ export function createRenderer(canvas) {
     pos: ['..#..', '.#...', '#####', '.#...', '..#..'], visits: ['.###.', '.#.#.', '##.##', '#...#', '#####'],
     button: ['.###.', '#####', '.....', '#####', '#####'], knob: ['.###.', '#...#', '#.#.#', '#...#', '.###.'],
     switch: ['#....', '.#...', '..###', '..#.#', '..###'], bright: ['#.#.#', '.###.', '##.##', '.###.', '#.#.#'],
-    volume: ['..#..', '.##.#', '###.#', '.##.#', '..#..'], clock: ['#.#.#', '.###.', '##.##', '.###.', '#.#.#'], seg: ['.....', '.....', '#####', '.....', '.....'],
+    volume: ['..#..', '.##.#', '###.#', '.##.#', '..#..'], clock: ['#.#.#', '.###.', '##.##', '.###.', '#.#.#'], paused: ['##.##', '##.##', '##.##', '##.##', '##.##'], seg: ['.....', '.....', '#####', '.....', '.....'],
     lang: ['.###.', '#.#.#', '#####', '#.#.#', '.###.'], bus: ['#####', '#...#', '#.#.#', '#...#', '#####'],
   };
   R.glyph = function (x, name, px, py, color) {
