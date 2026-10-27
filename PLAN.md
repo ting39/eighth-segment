@@ -1,4 +1,4 @@
-Status: in-progress (v3 rework — read V3_BRIEF.md, then the "V3" section at the end of this file)
+Status: done (v3 live 2026-10-28; waiting on the user's playtest — read V3_BRIEF.md, then the "V3" section at the end)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -361,3 +361,29 @@ Sources of truth: `tools/rooms_src/v3.py` → `src/rooms_v3.js`; route goals `to
   v2 layout, and language × settings lives in **p1 DIMMER**: a middle slot counting UP's letters (open ZH/JA/KO) on
   the way to the dimmer door; (3) l3's climb had 4-5 row steps (impossible) → re-stepped; (4) route holds the dial
   with `reg.dial:7@19,9` (walking off the knob turns it). `langSrc:'idle'` (attract mode) is implemented but unused.
+- 2026-10-28 ~01:10 — **v3 is the default and live** (pushed 7669ad3; Pages serves rooms_v3.js). Smoke-tested in a real
+  browser (ru, no console errors); screenshots in .shots/v3 (grid1/grid2/titles). Usage: weekly 72%, 5h 76%.
+
+### v3 as built — recurrence map (final; supersedes the plan table above)
+| Idea | Taught | Recurs far away / combined |
+|---|---|---|
+| deaths | t1 | p3 (your HUD death digits are the bridge) |
+| button | t1, t2 | — (GAP: no far reuse yet) |
+| loose bar → socket | t3 | t4 carry, hall socket (10% slot) |
+| time | c1 | c4 time gate, c1 trapdoors on the way home (same wing — GAP: no far reuse) |
+| idle | c2 (stand still) | o2: an idle floor digit — keep moving or it drops you (reverse lesson) + stray point |
+| knob / bus dial | c3 (headroom, readout via its gate) | c4 FAR DIAL + the hall's gold digit (dial+3): only 7 opens all three; p1 brightness knob |
+| switch rewires | o2 | hall beams |
+| position (zones + ruler) | o1 | o2, o3, hall beams |
+| jumps | t4 | o3 COUNT THE HOPS (bar = jumps mod 13) |
+| brightness dim / burn | p1 / p2 | hall DIM bar (final) + hall burn rung/point |
+| HUD is solid / position | p3 | — (GAP) |
+| language code (starburst, in rock) | l1 (globes): 2nd letter's middle EN/KO/RU, then 1st letter's ZH/JA/DE | (l1 only — GAP: no far starburst reuse) |
+| letter counts (bar / digits) | l2 bar = EXIT's letters (DE/ES) | l3 (EXIT 1/4/7 = EN/DE; UP 0/1/7 = ZH/JA/KO; X: EXIT 7 = DE), p1 DIMMER (UP slot) |
+| two languages in one room (user idea) | l1 (selector), l3 (menu) | — |
+Ideas for a v3.1 pass (need the user's playtest first): far reuse for buttons (e.g. a button whose register is a
+bus read in another wing), time (a clock digit in LEXICON), HUD (hudSolid somewhere with words), and a starburst
+code display outside LEXICON (a fair one: middle-row passages are the only selective starburst mechanic found —
+top-bar bridges and climbs were not selective, see the p2 notes above).
+Status: v3 complete pending the user's playtest. To resume: read V3_BRIEF.md, this section, then `npm test` and
+`node tools/route.mjs --from N` after any room edit (rooms: tools/rooms_src/v3.py → src/rooms_v3.js).
