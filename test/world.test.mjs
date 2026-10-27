@@ -12,10 +12,10 @@ test('room edges line up with their neighbours', () => {
     const right = r.wrap ? r : world.rooms.get(world.grid.get(`${r.gx + 1},${r.gy}`));   // (a wrapping room is its own neighbour)
     if (right) for (let y = 0; y < RH; y++) assert.equal(solidTile(r, RW - 1, y), solidTile(right, 0, y), `${r.id}|${right.id} row ${y}`);
     else for (let y = 0; y < RH; y++) assert.ok(solidTile(r, RW - 1, y) || r.tiles[y * RW + RW - 1] === T.FAKE, `${r.id} right edge open at row ${y} with no neighbour`);
-    const down = world.rooms.get(world.grid.get(`${r.gx},${r.gy + 1}`));
+    const down = r.wrapV ? r : world.rooms.get(world.grid.get(`${r.gx},${r.gy + 1}`));
     if (down) for (let x = 0; x < RW; x++) assert.equal(solidTile(r, x, RH - 1), solidTile(down, x, 0), `${r.id}|${down.id} col ${x}`);
     if (!r.wrap && !world.rooms.get(world.grid.get(`${r.gx - 1},${r.gy}`))) for (let y = 0; y < RH; y++) assert.ok(solidTile(r, 0, y), `${r.id} left edge open at row ${y}`);
-    if (!world.rooms.get(world.grid.get(`${r.gx},${r.gy - 1}`))) for (let x = 0; x < RW; x++) assert.ok(solidTile(r, x, 0), `${r.id} top edge open at col ${x}`);
+    if (!r.wrapV && !world.rooms.get(world.grid.get(`${r.gx},${r.gy - 1}`))) for (let x = 0; x < RW; x++) assert.ok(solidTile(r, x, 0), `${r.id} top edge open at col ${x}`);
   }
 });
 
@@ -60,9 +60,9 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has eighteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
+test('the world has nineteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 18);
+  assert.equal(pts, 19);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
 });

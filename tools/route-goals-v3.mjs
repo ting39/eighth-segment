@@ -13,6 +13,8 @@ export const ROUTE = [
   'event:pickup', 'at:26,20', 'jumps:1', 't1', 'hall', 'event:socket', 'at:3,12', 'at:5,9', 'at:12,9', 'event:slot/2',
   // LEXICON: through PRESS's west door; B's second letter in EN, a globe to ZH for A's first letter
   'at:2,9', 'at:3,12', 'at:2,20', 't1', 'deaths:4', 't2', 'at:2,10', 'l1', 'at:19,20', 'event:lang', 'at:10,3', 'l2',
+  // round 5: FALL UP, west of LETTERS: pause 1 s so the trapdoor digit reads 1, fall through, come out of the ceiling
+  'at:2,14', 'fu', 'pause:1', 'at:25,14', 'event:point', 'l2',
   // LETTERS: the bridge is as long as EXIT -> German (AUSGANG, 7); INTERPRETER: DE, then ZH for UP, then DE for X
   'lang:de', 'l3', 'at:33,20', 'lang:zh-TW', 'at:16,7', 'lang:de', 'event:point', 'at:37,7', 'o2',
   // REWIRE: the idle floor (stand still: fall through a stray point), the switch, east over the zones to BELOW
@@ -25,8 +27,8 @@ export const ROUTE = [
   // round 2: BABEL CLOCK (the language sign speaks every language in turn: letter one, wait between, letter two);
   // then down STILL's floor hole into ATLAS: the map of where you have been, and CROSSTALK's block is the last step
   'c5', 'at:9,9', 'at:19,9', 'at:28,9', 'event:point',
-  // round 3: INTERMISSION, east of BABEL CLOCK: its gates read the seconds spent in the pause menu -> pause 14 s
-  'at:37,20', 'i1', 'pause:14', 'event:point', 'c5', 'at:3,20', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
+  // round 3: INTERMISSION, east of BABEL CLOCK: its gates read the seconds spent in the pause menu -> 1 + 13 = 14 s
+  'at:37,20', 'i1', 'pause:13', 'event:point', 'c5', 'at:3,20', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
   'event:point',
   // round 2: TURN IT DOWN, east of ATLAS: the music volume is a wall (jump it at <=3) and a pillar (stand on it at 9)
   'at:37,20', 'vol:2', 'y1', 'at:22,20', 'vol:9', 'event:point',

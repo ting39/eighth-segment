@@ -1,4 +1,4 @@
-Status: done (v3 round 4 live 2026-10-28; 30 rooms, 4 endings, route proven, 45 tests; waiting on the user's playtest)
+Status: in-progress (v3 round 5 — FALL UP (pause counter + vertical wrap), polish; started 2026-10-28 ~10:20 CST; hard stop weekly 92% or 18:00 CST)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -584,3 +584,12 @@ point) read one digit further. **Feel:** the pause menu ticks while a room is co
 when a nudge appears. **Proof:** route unchanged and re-verified (30 rooms, 18/18, 316 s), the deep ending replayed
 from the route's end state; 45 tests. **Known gaps:** still no human playtest; nudge wording is mine in all 7
 languages (worth a native read for ja/ko/ru).
+
+## V3 ROUND 5 (2026-10-28)
+- 10:20 — opened (weekly 85%). FALL UP: a paused-seconds trapdoor + a room whose floor and ceiling meet.
+- 10:45 — **FALL UP (fu, -4,1)**, offmap, west of LETTERS: both round-3 ideas again, combined, far from where they
+  were taught. A trapdoor in the floor is a digit reading INTERMISSION's counter (seconds spent paused); at 1 every
+  bar down its middle is dark, you fall through — and this room's floor and ceiling meet (`wrapV`: LOOP on its
+  side), so you come out of the ceiling onto a ledge nothing else reaches. At 4 you only drop into the digit's
+  top half (jump out). Route: 'pause:1' here, INTERMISSION now 'pause:13' (1 + 13 = 14). Luck test 0%.
+  31 rooms, 19 points (hall needs 18; plug 19). Ending 4 re-proven. 45 tests pass.

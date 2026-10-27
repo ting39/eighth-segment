@@ -64,7 +64,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 17)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 18)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -74,7 +74,7 @@ for i, x in enumerate((21, 25, 29)):
 # own gates need {1,4,7} and {0,1,7}: only 7 opens all three.
 disp['BUS'] = dict(s=2, src='reg:dial', bus=True, off=3, at=[16, 12])
 disp['DIM'] = dict(t='bits', n=1, w=1, h=1, val=1, src='static', dim=True, at=[20, 9])
-disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=18, at=[22, 8])
+disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=19, at=[22, 8])
 disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 18])
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
 for k in list(disp):
@@ -348,6 +348,7 @@ r.rect(1, 0, 2, 1, '.'); r.rect(1, 1, 12, 20, '.')
 for (x, y, w) in [(9,17,3),(4,14,3),(9,11,3),(4,8,3)]: r.rect(x, y, w, 1)   # (a way back up to LANGUAGE)
 r.rect(13, 19, 26, 2, '.'); r.rect(13, 21, PIT_W, 1, '.')          # a low tunnel over a bottomless gap
 r.rect(39, 18, 1, 3, '.'); r.rect(36, 18, 3, 1, '.')
+r.rect(0, 12, 1, 3, '.'); r.rect(1, 12, 3, 3, '.'); r.rect(1, 15, 3, 1)   # round 5: west, off a ledge, to FALL UP (fu)
 r.put(11, 20, 'P'); r.put(37, 20, 'P')
 emit('l2', -3, 1, 'lex', 'LETTERS', r, wing='LEXICON',
      displays=dict(BR=dict(t='bar', n=8, src='letters:exit', at=[13, 21], hint='lang', wire=[[13, 20], [12, 20], [12, 18]])),
@@ -581,6 +582,21 @@ disp = {f'S{k}': dict(t='bar', n=1, w=3, src='visits', off=-(k + 1), at=[x, y]) 
 disp['S0']['hint'] = 'visits'
 disp['N'] = dict(s=2, src='visits', at=[5, 9])
 emit('lp', 3, 2, 'coord', 'LOOP', r, wing='COORDINATES', offmap=True, wrap=True, displays=disp)
+
+# fu (-4,1): FALL UP (round 5) -- west of LETTERS (offmap). The floor has a trapdoor in it: a digit that, like
+# INTERMISSION's gates, reads the seconds you have spent in the pause menu. When it reads 1, every bar across its
+# middle is dark and you fall straight through -- and this room's floor and ceiling meet (LOOP, turned on its side):
+# you come out of the ceiling onto a ledge nothing else reaches.
+r = Room('#')
+r.rect(39, 12, 1, 3, '.'); r.rect(1, 1, 38, 14, '.')              # from LETTERS (l2)
+carve_cells(r, 20, 15, 2, corners=False)                          # the trapdoor digit, set in the floor
+r.rect(21, 16, 2, 2, '.'); r.rect(21, 19, 2, 2, '.')               # (its hollow middle: a straight drop when every bar is dark)
+r.put(21, 0, '.'); r.put(22, 0, '.')                              # ...and the one place the ceiling is open
+r.rect(15, 4, 14, 1)                                              # the ledge under it
+r.put(16, 3, 'o')
+r.put(37, 14, 'P'); r.put(5, 14, 'P'); r.put(26, 3, 'P')
+emit('fu', -4, 1, 'lex', 'FALL UP', r, wing='LEXICON', offmap=True, wrapV=True,
+     displays=dict(T=dict(s=2, src='paused', at=[20, 15], hint='paused')))
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

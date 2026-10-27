@@ -193,6 +193,7 @@ export function buildWorld(defs) {
 
 export function neighbor(world, room, dx, dy) {
   if (room.wrap && dy === 0) return room;            // a room whose sides meet: walking off one edge comes back in the other
+  if (room.wrapV && dx === 0) return room;           // ...or whose floor and ceiling meet: fall out the bottom, in at the top
   const id = world.grid.get(`${room.gx + dx},${room.gy + dy}`);
   return id ? world.rooms.get(id) : null;
 }
