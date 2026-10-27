@@ -1,4 +1,4 @@
-Status: in-progress (v3 round 3 — playtest metrics, title card + real clock recurrence, ending, first-time polish; started 2026-10-28 ~10:40 CST; hard stop weekly 92% or 18:00 CST)
+Status: done (v3 round 3 live 2026-10-28; 30 rooms, route proven, 43 tests; waiting on the user's playtest — see 'Round 3 — end report')
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -541,3 +541,19 @@ need ATLAS/NEGATIVE re-laid out for an 8th column.
   counts its visitors (`visits`, already a source), and one step of the way out appears per lap (6 laps; a sealed
   digit keeps count). Solver: `visits:N` goals read the current room's count. Test: running right wraps and lights
   steps. Points 18 (hall needs 17). Route: 30 rooms, 18/18, 316 s, D5; 43 tests pass.
+
+### Round 3 — end report (2026-10-28 ~09:10 CST; weekly 84%)
+**New:** INTERMISSION (seconds spent in the pause menu — the one clock the game never counts — open two gates;
+pause until it reads 14/41/…) and LOOP (a room whose sides meet: every lap is coming in again, one step out appears
+per lap). Both live past the old map's edge (`offmap`), so ATLAS/NEGATIVE stay exactly as proven. The true ending
+now nods at the real clock: with all 18 points your wall-clock time lights up in the machine's digits under
+100.000%; with only WALL CLOCK's missing, "IT IS ONLY A MATTER OF TIME." 30 rooms, 18 points (hall needs 17).
+**Playtest metrics (first time measured):** jump success / fall-in / luck tests over every round-2 precision bit.
+Fixed: ENCORE's step (0.3% → 48%), TURN IT DOWN's stacked steps (8% → 16%), CROSSTALK found by accident (71% from
+LOOSE's floor → 0%, now a one-tile slot from a step), two respawn leaks that gave free points through new doors.
+Kept as tight-but-fair: NO SIGNAL's shaft (12–16%), ATLAS's drift climbs (17.5%).
+**Checked:** phone width (375×812, ko) readable with touch + pause buttons; all new names translated (7 langs);
+DE/ES singular "1 stray point" fixed. Route: new save → 100% in 316 s, D5, every room and point; 43 tests.
+**Not done, on purpose:** a second title-card room (the only cheap CJK words are 上/下/出口 and 上 gives no useful
+shape — new hand-drawn glyphs for a weak room); growing ATLAS for the new rooms (they are "off the old map" by
+design). **Known gaps:** still no human playtest; WALL CLOCK depends on real time (beyond 100% by design).

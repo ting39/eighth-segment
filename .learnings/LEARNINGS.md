@@ -21,3 +21,7 @@ Respawn = the room's spawn nearest to where you entered. Adding an east door to 
 the nearest spawn one *behind* each room's puzzle: enter, die, collect the point. Found by a random-play luck test
 (a "hit" that was really in the neighbouring room). After adding any door, list door → nearest spawn for every
 room and add a spawn on the door's side if needed.
+
+## 2026-10-28 — never chain `npm test | grep … && git push`
+`grep` succeeds when it prints the ✖ line, so the push ran with a failing test (fixed 10 minutes later).
+Gate pushes on the test's own exit code: `npm test >log 2>&1 && git push`, then read the log.
