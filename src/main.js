@@ -370,7 +370,7 @@ function drawHud(x, pal, dt) {
   }
   if (game.room.id === START_ROOM && game.c.jumps < 3) {
     const hint = input.lastDevice === 'touch' ? '' : input.lastDevice === 'pad' ? 'STICK MOVE   A JUMP' : 'ARROWS MOVE   Z / SPACE JUMP';
-    if (hint) R.text(hint, (W - R.textWidth(hint)) / 2, V2 ? 96 : 40, R.hexA(pal.edge, 0.55));
+    if (hint) R.text(hint, (W - R.textWidth(hint)) / 2, 82, R.hexA(pal.edge, 0.55));
   }
   if (banner) {
     banner.t += dt;

@@ -169,12 +169,6 @@ export function createRenderer(canvas) {
       });
       if (d.icon) drawIcon(x, d, pal);
     }
-    // a ruler printed along the top of the glass wherever a display counts position: zones of 4 tiles, 0-9
-    if (room.displays.some((d) => d.src === 'pos' || d.src2 === 'pos')) {
-      x.fillStyle = hexA(BEZEL.pos.c, 0.5);
-      for (let z = 0; z <= 10; z++) x.fillRect(Math.min(W - 1, z * 32), 0, 1, z % 5 ? 4 : 6);
-      for (let z = 0; z < 10; z++) R.segNum(x, String(z), z * 32 + 14, 1, hexA(BEZEL.pos.c, 0.55), null);
-    }
     // decorative room text is drawn crisp on top each frame (see R.draw / drawTextQueue)
     return c;
   }
@@ -294,6 +288,12 @@ export function createRenderer(canvas) {
     R.brightFlash = (R.brightFlash || 0) * 0.94;
     for (const d of room.displays) if (d.t === 'word' && !d.burn) d.cells.forEach((cell, i) => drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.07)));
     for (const d of room.displays) drawBezel(x, d, g);
+    // a ruler printed along the top of the glass while any display counts position: zones of 4 tiles, 0-9
+    if (room.displays.some((d) => (d.sw && g.c.sw[d.sw] ? d.src2 : d.src) === 'pos')) {
+      x.fillStyle = hexA(BEZEL.pos.c, 0.5);
+      for (let z = 0; z <= 10; z++) x.fillRect(Math.min(W - 1, z * 32), 0, 1, z % 5 ? 4 : 6);
+      for (let z = 0; z < 10; z++) R.segNum(x, String(z), z * 32 + 14, 1, hexA(BEZEL.pos.c, 0.55), null);
+    }
     for (const d of room.displays) if (d.burn) d.cells.forEach((cell, i) => {
       if (litAt(d, i) || (d.missing & ~(g.c.sock[d.sockKey] || 0) & (1 << i))) return;
       if (d.burnArr && !d.burnArr[i]) { drawCell(x, d, cell, hexA(pal.lit, 0.03)); return; }
