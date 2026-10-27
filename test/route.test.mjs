@@ -30,7 +30,7 @@ test('replaying the full route from a new game reaches every room, every slot an
     if (goal.at) assert.deepEqual([Math.floor((g.p.x + 768) / 2048), Math.floor((g.p.y + 768) / 2048)], goal.at, `segment ${seg.goal}`);
     if (goal.ctr === 'idle') assert.equal(Math.floor(g.c.idle / 120), goal.val, `segment ${seg.goal}`);
     else if (goal.ctr === 'time') assert.equal(Math.floor(g.c.steps / 120) % goal.mod, goal.val);
-    else if (goal.ctr && !goal.ctr.includes('.')) assert.equal(g.c[goal.ctr] % goal.mod, goal.val, `segment ${seg.goal}`);
+    else if (goal.ctr && !goal.ctr.includes('.')) assert.equal((goal.ctr === 'visits' ? g.c.visits[g.room.id] : g.c[goal.ctr]) % goal.mod, goal.val, `segment ${seg.goal}`);
     if (goal.event) assert.ok(hit, `segment ${seg.goal}`);
   }
   assert.deepEqual([...new Set(slots)].sort(), [1, 2, 3], 'every slot (1%, 10%, 100%) reached from a new game');
