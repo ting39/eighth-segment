@@ -444,19 +444,23 @@ export function createRenderer(canvas) {
       }
     } else R.trail.length = 0;
 
-    // particles
-    for (let i = R.particles.length - 1; i >= 0; i--) {
-      const q = R.particles[i];
-      q.x += q.vx; q.y += q.vy; q.vy += q.g; q.life--;
-      if (q.life <= 0) { R.particles.splice(i, 1); continue; }
-      x.fillStyle = q.c; x.globalAlpha = Math.min(1, q.life / 20);
-      x.fillRect(Math.round(q.x), Math.round(q.y), q.s, q.s);
-    }
-    x.globalAlpha = 1;
+    // particles (over the overlay instead while an ending is up: its bursts are drawn on the readout)
+    const drawParticles = () => {
+      for (let i = R.particles.length - 1; i >= 0; i--) {
+        const q = R.particles[i];
+        q.x += q.vx; q.y += q.vy; q.vy += q.g; q.life--;
+        if (q.life <= 0) { R.particles.splice(i, 1); continue; }
+        x.fillStyle = q.c; x.globalAlpha = Math.min(1, q.life / 20);
+        x.fillRect(Math.round(q.x), Math.round(q.y), q.s, q.s);
+      }
+      x.globalAlpha = 1;
+    };
+    if (!ui.particlesOnTop) drawParticles();
 
     const dimA = (5 - (g.bright ?? 5)) / 5 * 0.5;   // a dimmer: the whole glass darkens step by step below 5
     if (dimA > 0) { x.fillStyle = `rgba(0,0,0,${dimA})`; x.fillRect(0, 0, W, H); }
     if (ui.overlay) ui.overlay(x, pal);
+    if (ui.particlesOnTop) drawParticles();
 
     // ---- composite to screen
     sc.setTransform(1, 0, 0, 1, 0, 0);

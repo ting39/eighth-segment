@@ -593,3 +593,4 @@ languages (worth a native read for ja/ko/ru).
   side), so you come out of the ceiling onto a ledge nothing else reaches. At 4 you only drop into the digit's
   top half (jump out). Route: 'pause:1' here, INTERMISSION now 'pause:13' (1 + 13 = 14). Luck test 0%.
   31 rooms, 19 points (hall needs 18; plug 19). Ending 4 re-proven. 45 tests pass.
+- 11:00 — Ending juice: when the decimal point clicks into its slot, a burst at the slot (bigger, with flash + shake, for the true and deep endings; ending 4 adds the slot chord). Particles now draw above the ending overlay (render: particlesOnTop).

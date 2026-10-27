@@ -334,7 +334,7 @@ function beat() {
 function draw(dt) {
   if (!game) { game = createGame(world, START_ROOM, gopts()); }
   R.draw(game, {
-    squash, showHint,
+    squash, showHint, particlesOnTop: mode === 'ending',
     onSegOn: () => { if (mode === 'play') sfx.seg(); },
     overlay: (x, pal) => {
       if (mode === 'play' || mode === 'pause') { drawHints(x, pal); drawHud(x, pal, dt); }
@@ -529,7 +529,14 @@ function drawReadout(x, pal, e) {
   if (lit > (e.lit || 0)) { e.lit = lit; sfx.seg(); }
   const T0 = 0.8 + digits.length * 0.18, T1 = T0 + 0.7;          // point flight
   const landed = e.t >= T1;
-  if (landed && !e.landed) { e.landed = true; sfx.point(); }
+  if (landed && !e.landed) {
+    e.landed = true; sfx.point();
+    // the point clicks home: a burst at the slot (the true and deep endings ring out further)
+    const bx = x0 + slot * pitch + 14, by = y0 + 21, big = e.id >= 3;
+    R.burst(bx, by, '#ffffff', big ? 40 : 14, big ? 2.2 : 1.1, big ? 70 : 30);
+    R.burst(bx, by, pal.lit, big ? 30 : 8, big ? 1.4 : 0.8, big ? 90 : 30);
+    if (big) { R.flash = 0.6; R.shake = 3; if (e.id === 4) sfx.slot(); }
+  }
   // a wrong readout never settles: it flickers now and then
   const wrong = e.id < 3 && landed && Math.sin(e.t * 7.3) * Math.sin(e.t * 2.1) > 0.82;
   const settle = landed ? Math.min(1, (e.t - T1) * 2) : 0;
