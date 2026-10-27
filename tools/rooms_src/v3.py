@@ -59,6 +59,8 @@ r.put(37, 10, 'w')
 r.rect(34, 12, 2, 1, '-')
 # a burn-in ledge with a stray point (lower right): only solid at brightness 9
 r.put(36, 15, 'o')
+r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2, 1, '.')   # the gold digit is set in rock:
+r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
 for i, n in ((3, 2), (4, 4), (5, 6)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
@@ -66,6 +68,10 @@ disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bi
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
     disp[f'BEAM{i}'] = dict(s=2, val=1, src='static', src2='pos', sw='beams', at=[x, 12], wire=[[x+1, 19], [x+1, 20], [36, 20], [36, 12]] if i == 0 else None)
+# v3: a gold digit hangs in the lower hall from frame 1. It reads the DIAL (in c3) plus three; its upper cell holds a
+# stray point that you can only get into when its middle bar is dark (0, 1, 7) -- the dial at 4, 7 or 8. CLOCKWORK's
+# own gates need {1,4,7} and {0,1,7}: only 7 opens all three.
+disp['BUS'] = dict(s=2, src='reg:dial', bus=True, off=3, at=[16, 12])
 disp['DIM'] = dict(t='bits', n=1, w=1, h=1, val=1, src='static', dim=True, at=[20, 9])
 disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 18])
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
@@ -234,10 +240,8 @@ r.rect(7, 20, 8, 1, '^'); r.rect(21, 20, 12, 1, '^')
 r.rect(21, 1, 12, 6)                                               # v3: a low roof over the jump bridge: no hopping on it
 r.rect(34, 0, 3, 1, '.'); r.rect(34, 5, 3, 1, '-'); r.rect(34, 2, 3, 1, '-')
 r.put(3, 7, 'P'); r.put(20, 7, 'P'); r.put(37, 7, 'P')
-r.put(17, 3, 'o')                                                  # inside the dial's upper cell: in through b (dial 5 or 6)
 dsp = {f'L{i}': dict(s=2, src='pos', off=3, at=[x, 8]) for i, x in enumerate((7, 11))}
 dsp['J'] = dict(t='bar', n=12, src='jumps', mod=13, at=[21, 8], hint='jumps', wire=[[21, 9], [18, 9], [18, 12]])
-dsp['DL'] = dict(s=2, src='reg:dial', bus=True, at=[16, 1])
 emit('o3', 1, 1, 'coord', 'COUNT THE HOPS', r, displays=dsp)
 
 # ============================================================== PANEL
@@ -250,26 +254,25 @@ for (x, y, w) in [(2,18,3),(5,15,3),(2,12,3)]: r.rect(x, y, w, 1)
 r.rect(31, 1, 8, 11, '.'); r.rect(32, 12, 7, 1); r.rect(31, 12, 1, 1)
 r.rect(34, 0, 4, 1, '.')
 for (x, y, w) in [(36,9,3),(32,6,3),(36,3,2)]: r.rect(x, y, w, 1)
-r.put(35, 20, 'P'); r.put(3, 20, 'P'); r.put(34, 11, 'P')
+r.rect(19, 7, 6, 7); carve_cells(r, 20, 7, 2, corners=False); r.rect(19, 10, 6, 1, '.')   # v3: a slot that counts UP's letters
+r.put(35, 20, 'P'); r.put(3, 20, 'P'); r.put(34, 11, 'P'); r.put(10, 11, 'P')
 emit('p1', 0, -1, 'over', 'DIMMER', r, wing='PANEL',
      parts=[dict(kind='knob', x=12, y=20, w=16, reg='bright')],
-     displays=dict(DOOR=dict(t='bits', n=1, w=1, h=3, val=1, src='static', dim=True, at=[31, 9],
+     displays=dict(UP=dict(s=2, src='letters:up', at=[20, 7]),
+                   DOOR=dict(t='bits', n=1, w=1, h=3, val=1, src='static', dim=True, at=[31, 9],
                              wire=[[20, 19], [20, 14], [31, 14], [31, 12]], hint='bright')),
-     reveals=['bright'])
+     text=[dict(s='UP', x=21, y=5, a=0.8)], reveals=['bright'])
 
-# p2 (0,-2): BURN-IN -- at brightness 9 old burned-in bars glow and hold you; the glass shows old text.
-# v3: the machine's language code is burned in too (left): its letters are a climbing frame only at 9, and a
-# different frame in every language. The stray point sits over the gap between the letters.
+# p2 (0,-2): BURN-IN -- at brightness 9 old burned-in bars glow and hold you; the glass shows old text
 r = Room('#')
 r.rect(1, 1, 38, 20, '.'); r.rect(34, 21, 4, 1, '.'); r.rect(39, 3, 1, 3, '.')
 r.rect(27, 6, 12, 1)
-r.put(8, 4, 'o')
-r.put(32, 20, 'P'); r.put(35, 5, 'P'); r.put(19, 20, 'P')
-burn = [(31, 18), (25, 15), (19, 12), (23, 9)]
-dsp = {f'B{i}': dict(t='bits', n=1, w=3, val=0, burn=True, at=[x, y]) for i, (x, y) in enumerate(burn)}
-dsp['CODE'] = dict(t='code', n=2, src='lang', burn=True, at=[1, 6])
-emit('p2', 0, -2, 'over', 'BURN-IN', r, wing='PANEL', displays=dsp,
-     text=[dict(s='HUD POSITION: BOTTOM', x=18, y=2, burn=True), dict(s='THE HALL WANTS IT DARK', x=18, y=4, burn=True)],
+r.put(9, 4, 'o')
+r.put(32, 20, 'P'); r.put(35, 5, 'P')
+burn = [(31, 18), (25, 15), (19, 12), (13, 9), (19, 6), (8, 6)]
+emit('p2', 0, -2, 'over', 'BURN-IN', r, wing='PANEL',
+     displays={f'B{i}': dict(t='bits', n=1, w=3, val=0, burn=True, at=[x, y]) for i, (x, y) in enumerate(burn)},
+     text=[dict(s='HUD POSITION: BOTTOM', x=3, y=17, burn=True), dict(s='THE HALL WANTS IT DARK', x=3, y=19, burn=True)],
      burnMarks=[[27, 17]], reveals=['hudpos'])
 
 # p3 (1,-2): STATUS BAR -- your own HUD blocks the way in; at the bottom it bridges the pit
@@ -335,7 +338,7 @@ r = Room('#')
 r.rect(0, 18, 1, 3, '.'); r.rect(1, 18, 30, 3, '.')
 gE = hang(r, 9, 20)
 r.rect(31, 12, 8, 9, '.')
-for (x, y, w) in [(35,17,3),(31,14,3)]: r.rect(x, y, w, 1)
+for (x, y, w) in [(31,18,3),(35,15,3),(31,13,4)]: r.rect(x, y, w, 1)
 r.rect(24, 12, 7, 1, '.'); carve_cells(r, 20, 9, 2); r.rect(17, 12, 3, 1, '.')     # U: a slot through its middle
 r.rect(17, 7, 2, 5, '.'); r.rect(17, 10, 2, 1, '-')
 r.rect(16, 7, 24, 1, '.'); r.rect(25, 5, 15, 2, '.')               # the way out east, to REWIRE (o2)

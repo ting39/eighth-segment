@@ -351,3 +351,13 @@ Sources of truth: `tools/rooms_src/v3.py` → `src/rooms_v3.js`; route goals `to
   point). Decision: no separate SCREENSAVER room — any word puzzle there is solved by the menu, so idle wouldn't
   be what it tests; idle recurs in o2 instead. Points: c2 p2 hall o3 l3 o2 = 6. 33 unit/world tests pass.
   NEXT: tune p2, write tools/route-goals-v3.mjs and solve the full route, screenshots, deploy.
+- 2026-10-28 ~00:45 — **Full v3 route proven**: `node tools/route.mjs` → replays/route-v3.json, 109 goals, new save →
+  1% → 10% → LEXICON → o-wing → CLOCKWORK (dial 7) → PANEL → hall points → 100%; 152 s game time, D3, all 6 points,
+  every room. 35 tests pass. Design changes forced by the solver (interest loop): (1) the bus's third display could
+  never be reached at 5/6 because leaving c3 requires gate K → moved to **the hall**: a gold digit set in rock that
+  reads dial+3, its dark middle bar is the tunnel to a stray point → open at dial {4,7,8}; with K {1,4,7} and c4's H
+  {0,1,7} only **7** works in all three rooms (verified by tools/reglocks.mjs); (2) p2's burned-in code letters
+  couldn't make a fair gate (climb = lottery/impossible; in rock a missing top bar is just a dip) → p2 is back to the
+  v2 layout, and language × settings lives in **p1 DIMMER**: a middle slot counting UP's letters (open ZH/JA/KO) on
+  the way to the dimmer door; (3) l3's climb had 4-5 row steps (impossible) → re-stepped; (4) route holds the dial
+  with `reg.dial:7@19,9` (walking off the knob turns it). `langSrc:'idle'` (attract mode) is implemented but unused.

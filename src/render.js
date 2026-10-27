@@ -101,10 +101,15 @@ export function createRenderer(canvas) {
     x.fillStyle = hexA(pal.edge, 0.07);
     for (let yy = 4; yy < H; yy += 8) for (let xx = 4; xx < W; xx += 8) x.fillRect(xx, yy, 1, 1);
     const t = room.tiles;
+    // rock inside a starburst letter's box is drawn dim and edgeless: the strokes (lit or dark) carry the shape
+    const inLetter = new Uint8Array(RW * RH);
+    for (const d of room.displays) if (d.t === 'code') for (let k = 0; k < (d.n || 2); k++)
+      for (let yy = d.y; yy < d.y + 11; yy++) for (let xx = d.x + k * 8; xx < d.x + k * 8 + 7; xx++) inLetter[yy * RW + xx] = 1;
     const isW = (tx, ty) => tx < 0 || ty < 0 || tx >= RW || ty >= RH ? null : (t[ty * RW + tx] === T.WALL || t[ty * RW + tx] === T.FAKE);
     for (let ty = 0; ty < RH; ty++) for (let tx = 0; tx < RW; tx++) {
       const v = t[ty * RW + tx];
       const px = tx * TILE, py = ty * TILE;
+      if (v === T.WALL && inLetter[ty * RW + tx]) { x.fillStyle = pal.wall; x.globalAlpha = 0.55; x.fillRect(px, py, TILE, TILE); x.globalAlpha = 1; continue; }
       if (v === T.WALL || v === T.FAKE) {
         // deep interior (all 8 neighbours solid) is drawn dim so big slabs don't overpower the room
         let deep = true;
