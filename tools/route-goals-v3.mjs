@@ -25,8 +25,10 @@ export const ROUTE = [
   // round 2: BABEL CLOCK (the language sign speaks every language in turn: letter one, wait between, letter two);
   // then down STILL's floor hole into ATLAS: the map of where you have been, and CROSSTALK's block is the last step
   'c5', 'at:9,9', 'at:19,9', 'at:28,9', 'event:point', 'at:3,20', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
-  'event:point', 'at:37,7', 'at:2,3', 'o3', 'at:20,7', 'at:37,7', 'c1', 'at:37,20', 'c2', 'at:32,19', 'c3',
-  'at:29,9', 'reg.dial:7', 'reg.dial:7@19,9', 'c4', 'at:37,9', 'at:9,9', 'c1', 'hall',
+  'event:point', 'at:37,7', 'at:2,3', 'o3', 'at:20,7', 'at:37,7', 'c1', 'at:37,20', 'c2',
+  // back across STILL the only way there is: over the top and stand still on the digit (ATLAS's drop is one way)
+  'at:12,3', 'at:14,3', 'idle:1', 'at:32,19', 'c3',
+  'at:29,9', 'reg.dial:7', 'reg.dial:7@19,9', 'c4', 'at:37,9', 'at:9,9', 'c1', 'time:2', 'at:5,11', 'hall',
   // the support beams, PANEL, burn-in (the burned-in language code: point), the status bar, the long way home
   'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'event:point',
   // round 2: west along BURN-IN's floor to DOWN: its name is the bridge for six seconds (too short in Chinese)
@@ -34,7 +36,7 @@ export const ROUTE = [
   'bright:9', 'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',
   'at:35,5', 'p3', 'at:20,15', 'c4', 'c1', 'hall',
   // the hall's burn-in ghost (point: brightness 9), and the burn-in rung up through the hatch to the upper right
-  'at:17,20', 'event:point', 'at:37,20', 'bright:9', 'event:point', 'at:36,11',
+  'at:17,20', 'event:point', 'at:37,20', 'bright:9', 'at:36,11',
   // the dim bar wants it dark, then the 100% slot
   'bright:0', 'at:22,11', 'at:18,9', 'event:slot/3',
 ];

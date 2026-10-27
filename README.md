@@ -1,6 +1,6 @@
 # Eighth Segment
 
-A hard, minimal precision platformer for the browser — 18 dense rooms around one hall, 6 stray points, 3 endings,
+A hard, minimal precision platformer for the browser — 22 dense rooms around one hall, 10 stray points, 3 endings,
 playable in 7 languages (and the language is part of the level). **Play: https://ting39.github.io/eighth-segment/**
 
 A seven-segment display has eight parts: seven bars and the decimal point. You are the decimal
@@ -13,6 +13,8 @@ understand what the numbers mean. Move and jump are the only controls.
 v3 adds displays beyond numbers: starburst (14-segment) letters, dot-matrix words and bar graphs. Words are
 shown in your language, so changing the language (English, 中文, 日本語, 한국어, Deutsch, Español, Русский)
 changes their shape — and the shape is the level. A display's frame tells you what it is wired to.
+Some displays are less obvious: a sign that cycles through every language on a beat, a room whose own name
+is the floor for a few seconds after you walk in, and a map of everywhere you have been (which is solid too).
 
 - Controls: arrows / WASD + Z / Space / C (remappable), gamepad, or on-screen touch buttons.
   Esc pauses (map, restart room, settings). Progress saves automatically.
@@ -29,7 +31,8 @@ changes their shape — and the shape is the level. A display's frame tells you 
 - `src/audio.js` — all sound and music synthesized with WebAudio.
 - `tools/solver.mjs` — weighted A* over the real sim. `tools/route.mjs` solves the whole game from a
   new save (waypoints in `tools/route-goals-v3.mjs`) and records the inputs in `replays/route-v3.json`.
-  `tools/langlocks.mjs` / `tools/reglocks.mjs` sweep which languages / dial values open a gate.
+  `tools/langlocks.mjs` / `tools/reglocks.mjs` sweep which languages / dial values open a gate;
+  `tools/atlas.mjs` checks which visited rooms the map room's stray point depends on.
 - `tools/rooms_src/v3.py` — the world, authored with drawing ops; generates `src/rooms_v3.js`.
 - `src/glyphs.js` — languages, the words on displays, starburst letters, hand-made dot-matrix glyphs.
 - `npm test` — physics tests, world validators (edges, spawns, crush-safety for every counter value)

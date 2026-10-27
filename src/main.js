@@ -36,12 +36,14 @@ const settings = Object.assign({
 for (const [act, codes] of Object.entries(DEFAULT_KEYS)) if (!settings.keys[act]) settings.keys[act] = [...codes];
 input.keys = settings.keys;
 const meta = Object.assign({ endings: [], bestTime: null, bestDeaths: null, clears: 0, revealed: [], hintsSeen: [] }, saved.meta || {});
-const gopts = () => ({ volume: settings.music, bright: settings.bright, hudpos: settings.hudpos, lang: curLang() });
+// the HUD is a world quantity too: where it sits, or 'off' (Settings → HUD), decides what a solid HUD blocks
+const hudOf = () => (settings.hud ? settings.hudpos : 'off');
+const gopts = () => ({ volume: settings.music, bright: settings.bright, hudpos: hudOf(), lang: curLang() });
 
 function applySettings() {
   setVolumes(settings.music, settings.sfx);
   R.opts.glow = settings.glow; R.opts.shake = settings.shake; R.opts.flashes = settings.flashes;
-  if (game) { game.volume = settings.music; game.bright = settings.bright; game.hudpos = settings.hudpos; game.lang = curLang(); updateDisplays(game); }
+  if (game) { game.volume = settings.music; game.bright = settings.bright; game.hudpos = hudOf(); game.lang = curLang(); updateDisplays(game); }
   updateTouchVisibility();
 }
 

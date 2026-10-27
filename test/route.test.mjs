@@ -35,6 +35,7 @@ test('replaying the full route from a new game reaches every room, every slot an
   }
   assert.deepEqual([...new Set(slots)].sort(), [1, 2, 3], 'every slot (1%, 10%, 100%) reached from a new game');
   assert.equal(slots[slots.length - 1], 3, 'the run ends in the true ending');
-  assert.equal(g.points.size, 6, 'all stray points collected');
+  const total = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
+  assert.equal(g.points.size, total, 'all stray points collected');
   for (const id of world.rooms.keys()) assert.ok(visited.has(id), `room ${id} visited by the route`);
 });

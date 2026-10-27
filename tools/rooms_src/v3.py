@@ -313,6 +313,11 @@ def carve_code(r, x, y, n=2):
         for rects in STAR:
             for (dx, dy, w, h) in rects: r.rect(x + 8 * k + dx, y + dy, w, h, '.')
         r.put(x + 8 * k + 3, y + 5, '.')                              # the hollow middle where the strokes meet
+def floor_code(r, x, y, ks):
+    """a one-way floor under the middle row of letters ks: dark strokes below a tunnel are not pits to fall into"""
+    for k in ks:
+        for dx in range(7):
+            if r.g[y + 6][x + 8 * k + dx] == '.': r.put(x + 8 * k + dx, y + 6, '-')
 r = Room('#')
 r.rect(39, 8, 1, 3, '.'); r.rect(37, 6, 2, 5, '.')                 # the door from PRESS (t2) and a landing with a globe
 carve_code(r, 22, 5); r.rect(37, 10, 1, 1, '.'); r.put(36, 10, '.')  # B: in at the second letter's right corner
@@ -323,6 +328,7 @@ for (x, y, w) in [(19,18,2),(17,15,2),(20,12,2),(17,9,2),(20,6,2)]: r.rect(x, y,
 r.rect(9, 3, 8, 1, '.')                                            # over A, to the gap between its letters
 carve_code(r, 2, 5); r.rect(9, 4, 1, 7, '.'); r.put(8, 10, '.')    # A: down the gap, in at the first letter's right corner
 r.put(2, 10, '.'); r.rect(1, 10, 1, 11, '.'); r.rect(1, 21, 2, 1, '.')   # ...out at its left corner, down to LETTERS (l2)
+floor_code(r, 22, 5, [1]); floor_code(r, 2, 5, [0])                # round 2: the tunnels have floors (KO/RU fell into l)
 r.rect(18, 0, 2, 3, '.')                                           # round 2: CROSSTALK (s1) drops in here (one way)
 r.put(38, 10, 'P'); r.put(19, 20, 'P'); r.put(10, 3, 'P')
 emit('l1', -3, 0, 'lex', 'LANGUAGE ', r, wing='LEXICON',
@@ -371,6 +377,7 @@ for (x, y, w) in [(6,18,3),(2,15,3),(6,12,2)]: r.rect(x, y, w, 1)
 r.rect(8, 10, 3, 1)                                               # the landing at the tunnel's mouth
 carve_code(r, 12, 4)
 r.put(11, 9, '.'); r.put(12, 9, '.'); r.put(18, 9, '.'); r.put(19, 9, '.'); r.put(20, 9, '.'); r.put(26, 9, '.'); r.put(27, 9, '.')
+floor_code(r, 12, 4, [0, 1])
 r.rect(28, 4, 11, 6, '.')                                         # behind the sign: a pocket with a stray point
 r.rect(36, 10, 2, 6, '.')                                         # ...and a drop back down (too high to climb)
 r.put(33, 9, 'o')

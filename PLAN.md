@@ -1,4 +1,4 @@
-Status: in-progress (v3 round 2 — more mechanisms, far reuse of buttons/time/HUD/starburst, map loops, polish; started 2026-10-28 01:42 CST; hard stop weekly 92% or 18:00 CST)
+Status: in-progress (v3 round 2 — resumed 2026-10-28 after the 5h reset; route from #101, then tests, push, more rooms; hard stop weekly 92% or 18:00 CST)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -421,3 +421,11 @@ Progress log:
   (3) screenshots via the in-app browser (headless shot.sh renders black for this game) of c5/p4/o4/s1/t3;
   (4) interest loop per new room + update the recurrence map; (5) push; (6) report + Status: done.
 - 02:50 — route rebuild (--from 23) stopped at: #101 at:32,19 FAILED from room c2 (-3,162) after 122259 ms. Resume there (add waypoints), stored segments up to it are in replays/route-v3.json.
+- ~04:10 — **Round-2 route proven**: new save → 100% through all 22 rooms, 10/10 points, 232 s, D3 (161 goals).
+  Fixes on the way (interest loop / solver): BABEL CLOCK's and LANGUAGE's tunnels dropped you into dark lower
+  strokes when you just held a direction (KO/RU in l1 fell into a 4-deep l-pit) → `floor_code`: one-way floors
+  under the walked middle rows (test allows one-way tiles under display cells). STILL re-crossing after ATLAS
+  uses the idle digit again (ATLAS's drop stays one-way so STILL's lesson can't be skipped). c1's clock trapdoors
+  need a `time:2` goal (the solver can't find "stand still 3 s" in a 10 s clock's state space). route.mjs now
+  re-checks reused segments (a t3 edit had silently desynced the stored replay; see .learnings).
+  38 tests pass. Pushing this milestone; NO SIGNAL (x1, HUD OFF) is written in scratch and comes next.

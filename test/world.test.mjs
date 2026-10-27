@@ -26,7 +26,8 @@ test('display cells never overlap static tiles, in any language', () => {
       g.lang = lang; updateDisplays(g);
       for (const d of r.displays) for (const [x, y, w, h] of d.cells)
         for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++)
-          assert.equal(r.tiles[yy * RW + xx], T.EMPTY, `${r.id}: display ${d.key} (${lang}) cell at ${xx},${yy} overlaps a tile`);
+          assert.ok(r.tiles[yy * RW + xx] === T.EMPTY || r.tiles[yy * RW + xx] === T.ONEWAY,   // (one-way floors run through sign strokes)
+            `${r.id}: display ${d.key} (${lang}) cell at ${xx},${yy} overlaps a tile`);
     }
   }
 });

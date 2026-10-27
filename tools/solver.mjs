@@ -8,11 +8,11 @@ const ACTIONS = [0, IN.LEFT, IN.RIGHT, IN.JUMP, IN.LEFT | IN.JUMP, IN.RIGHT | IN
 export const RESTART = 8;
 export const VOL = 16;    // VOL + v: set music volume to v (menu action)
 export const BRIGHT = 32; // BRIGHT + v: set brightness to v
-export const HUDTOP = 48, HUDBOT = 49;
+export const HUDTOP = 48, HUDBOT = 49, HUDOFF = 50;   // HUD off: Settings → HUD (TIME/DEATHS) OFF
 export const LANG = 64;   // LANG + i: set the language to LANGS[i] (menu action)
 export function applySetting(g, a) {
   if (a >= LANG) g.lang = LANGS[a - LANG];
-  else if (a >= HUDTOP) g.hudpos = a === HUDTOP ? 'top' : 'bottom';
+  else if (a >= HUDTOP) g.hudpos = a === HUDTOP ? 'top' : a === HUDBOT ? 'bottom' : 'off';
   else if (a >= BRIGHT) g.bright = a - BRIGHT;
   else g.volume = a - VOL;
 }
@@ -131,7 +131,7 @@ export function solve(g, goal, opts = {}) {
   if (opts.settings) {
     if (prof.volume) for (let v = 0; v <= 9; v++) actions.push(VOL + v);
     if (prof.bright) for (let v = 0; v <= 9; v++) actions.push(BRIGHT + v);
-    if (prof.hud) actions.push(HUDTOP, HUDBOT);
+    if (prof.hud) actions.push(HUDTOP, HUDBOT, HUDOFF);
     if (prof.lang) for (let i = 0; i < LANGS.length; i++) actions.push(LANG + i);
   }
 
@@ -148,7 +148,7 @@ export function solve(g, goal, opts = {}) {
       if (a >= VOL && a < BRIGHT && node.s.volume === a - VOL) continue;
       if (a >= BRIGHT && a < HUDTOP && node.s.bright === a - BRIGHT) continue;
       if (a >= LANG && node.s.lang === LANGS[a - LANG]) continue;
-      if (a >= HUDTOP && a < LANG && node.s.hudpos === (a === HUDTOP ? 'top' : 'bottom')) continue;
+      if (a >= HUDTOP && a < LANG && node.s.hudpos === (a === HUDTOP ? 'top' : a === HUDBOT ? 'bottom' : 'off')) continue;
       restore(g, node.s);
       g.events.length = 0;
       let n = macro, ok = false, left = false, cost = macro;

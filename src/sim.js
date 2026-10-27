@@ -211,7 +211,7 @@ export function createGame(world, roomId, opts = {}) {
     c: opts.counters ? structuredCloneCounters(opts.counters) : newCounters(),
     volume: opts.volume ?? 7,
     bright: opts.bright ?? 5,          // global display brightness 0-9
-    hudpos: opts.hudpos || 'top',      // where the HUD sits: 'top' | 'bottom'
+    hudpos: opts.hudpos || 'top',      // where the HUD sits: 'top' | 'bottom' | 'off' (Settings → HUD)
     lang: LANGS.includes(opts.lang) ? opts.lang : 'en',   // the game language is a world quantity too
     carry: null,                       // key of the loose segment being carried
     pending: null,                     // a just-filled socket cell that stays air until you step out of it
