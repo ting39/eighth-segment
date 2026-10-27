@@ -1,4 +1,4 @@
-Status: in-progress (v3 round 4 — stuck nudges, first-impression audit, polish; started 2026-10-28 ~09:20 CST; hard stop weekly 92% or 18:00 CST)
+Status: done (v3 round 4 live 2026-10-28; 30 rooms, 4 endings, route proven, 45 tests; waiting on the user's playtest)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -574,3 +574,13 @@ design). **Known gaps:** still no human playtest; WALL CLOCK depends on real tim
   and die ~23× in two minutes on BELOW's spikes — by design, now with a nudge ("THE BRIDGES KNOW WHERE YOU STAND.").
   Controls hint translated in all 7 languages; one-time hints are language-free glyphs. Audio: the pause menu
   ticks each second in a room that counts paused time. 45 tests pass.
+
+### Round 4 — end report (2026-10-28 ~10:10 CST; weekly 85%, stopped with margin)
+**For a first-time human:** two-stage stuck help that never gives the answer — glyphs on every display (now for
+every kind of source), then, much later, one line per room in your language pointing at what to look at. Off
+with Settings → HINTS WHEN STUCK. **Deep secret:** a fourth ending slot, 1000.00 %, visible in the hall's ceiling
+from the first frame and plugged until every stray point is found — the game's own fiction (you are the decimal
+point) read one digit further. **Feel:** the pause menu ticks while a room is counting paused time; a soft cue
+when a nudge appears. **Proof:** route unchanged and re-verified (30 rooms, 18/18, 316 s), the deep ending replayed
+from the route's end state; 45 tests. **Known gaps:** still no human playtest; nudge wording is mine in all 7
+languages (worth a native read for ja/ko/ru).
