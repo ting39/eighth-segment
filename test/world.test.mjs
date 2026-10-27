@@ -60,9 +60,9 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has fourteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
+test('the world has fifteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 14);
+  assert.equal(pts, 15);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
 });
@@ -87,4 +87,14 @@ test('ATTRACT MODE: standing still in the well drops you through the sign only i
     if (Math.floor((g.p.y + 768) / 2048) >= 19 && !g.c.deaths) through.push(lang);
   }
   assert.deepEqual(through, ['zh-TW', 'ja']);
+});
+
+test("NEGATIVE: the map of rooms you have NOT been to is solid; WALL CLOCK's block is the lid over the stray point", () => {
+  const g = createGame(world, 'n1');
+  const lid = () => { updateDisplays(g); return [33, 34, 35].every((x) => g.dyn[9 * RW + x]); };
+  for (const id of world.rooms.keys()) if (id !== 'x2') g.c.visits[id] = 1;
+  assert.ok(lid(), 'lid closed until WALL CLOCK has been visited');
+  g.c.visits.x2 = 1;
+  assert.ok(!lid(), 'visiting WALL CLOCK lifts it');
+  assert.ok(!g.room.displays[0].litArr.some(Boolean), 'with every room visited the map is all air');
 });

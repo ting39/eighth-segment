@@ -63,7 +63,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 13)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 14)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -494,6 +494,7 @@ emit('y1', 3, 1, 'coord', 'TURN IT DOWN', r, wing='COORDINATES',
 # the language before it (JA). Below: a stray point and a drop into DIAL.
 r = Room('#')
 r.rect(0, 3, 1, 3, '.'); r.rect(1, 1, 30, 5, '.')                 # from STATUS BAR (p3), under the sign's legend
+r.rect(31, 3, 9, 3, '.')                                           # ...and on east, to NEGATIVE (n1)
 r.put(19, 6, '.'); r.put(19, 7, '.')                              # the well, and its trapdoor
 carve_code(r, 16, 8)
 r.put(19, 19, '.'); r.rect(14, 19, 20, 2, '.')                    # under the sign: the chamber
@@ -503,6 +504,20 @@ r.put(3, 5, 'P'); r.put(16, 20, 'P')
 emit('a1', 2, -2, 'over', 'ATTRACT MODE', r, wing='PANEL',
      displays=dict(S=dict(t='code', n=2, src='lang', langSrc='idle', at=[16, 8], legend=[21, 6], hint='idle', wire=[[15, 7], [12, 7], [12, 6]]),
                    TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[19, 7])))
+
+# n1 (3,-2): NEGATIVE -- east of ATTRACT MODE. ATLAS inverted: the world map again, but here the rooms you have NOT
+# been to are the solid blocks. The stray point is in a pocket whose lid is one room's block: east of DIAL -- the
+# room you will have missed if you missed it (WALL CLOCK). Visiting it is enough to lift the lid.
+r = Room('#')
+r.rect(0, 3, 1, 3, '.'); r.rect(1, 1, 38, 20, '.'); r.rect(1, 6, 2, 1)   # from ATTRACT MODE (a1), onto a ledge
+r.rect(32, 10, 1, 2); r.rect(36, 10, 1, 2); r.rect(32, 12, 5, 1)  # the pocket under WALL CLOCK's block
+r.put(34, 11, 'o')
+for y in (18, 15, 12, 9, 6): r.rect(37, y, 2, 1, '-')             # a ladder up the east wall
+for y in (18, 15, 12, 9): r.rect(1, y, 2, 1, '-')                # ...and the west wall, back to the door (with every room
+                                                                  # visited there is no other floor at all)
+r.put(2, 5, 'P'); r.put(20, 20, 'P')
+emit('n1', 3, -2, 'over', 'NEGATIVE', r, wing='PANEL',
+     displays=dict(MAP=dict(t='map', src='visits', inv=True, at=[3, 5], cw=3, ch=1, gap=2, gapy=3)))
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

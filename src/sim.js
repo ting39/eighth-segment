@@ -313,7 +313,8 @@ export function displayLit(g, d) {
   const gone = d.until && g.c.here >= d.until * HZ;           // a title card: lit only just after you come in
   if (d.t === 'map') {
     // the world map: one block per room, lit once you have been there
-    d.litArr = gone ? d.cells.map(() => 0) : d.mapIds.map((id) => (g.c.visits[id] ? 1 : 0));
+    // (inverted: the rooms you have NOT been to are the solid ones)
+    d.litArr = gone ? d.cells.map(() => 0) : d.mapIds.map((id) => ((g.c.visits[id] ? 1 : 0) ^ (d.inv ? 1 : 0)));
     return -1;
   }
   if (d.t === 'code' || d.t === 'word') {

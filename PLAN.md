@@ -478,3 +478,9 @@ Known gaps: the map display and the title card each appear in one room; `langSrc
   Everyone else: the trapdoor re-closes inside you. Test pins it ([zh-TW, ja]). Drops into DIAL (PANEL →
   CLOCKWORK shortcut). Solver note: "keep still" puzzles need explicit `idle:N` goals (any input resets idle).
   Cycle legend now also for idle signs, with an optional position. Route: 26 rooms, 14/14, 268 s, D3; 40 tests.
+- ~08:50 — **NEGATIVE (n1, 3,-2)**, east of ATTRACT MODE: ATLAS inverted (`inv` on map faces) — the rooms you have
+  NOT been to are solid. The stray point's lid is WALL CLOCK's block (visiting that room is enough, not its real-
+  time tunnel): the second visible hint for that secret. West + east ladders (with every room visited the map is
+  all air — the first version had no way back to the door: a softlock caught by walking the "all visited" case).
+  Grid is now full (7×4, 27 rooms). Readout needs 3/7/14; WALL CLOCK's point is the 15th (beyond 100%).
+  Route: 27 rooms, 15/15, 282 s, D3; 41 tests pass.

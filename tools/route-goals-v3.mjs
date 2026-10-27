@@ -44,7 +44,10 @@ export const ROUTE = [
   'at:35,5', 'p3',
   // round 2: ATTRACT MODE, east of STATUS BAR: stand still on the trapdoor and fall through the sign while it
   // shows the NEXT language -- in JA it shows KO as you fall (the only letter K's centre is open)
-  'a1', 'lang:ja', 'at:19,6', 'idle:1', 'event:point', 'c3', 'reg.dial:7', 'reg.dial:7@19,9', 'c4', 'c1', 'hall',
+  // round 2: NEGATIVE first (east along ATTRACT MODE's corridor): the map of rooms you have NOT been to is the solid
+  // part; WALL CLOCK was visited on the way through CLOCKWORK, so the lid over the stray point is gone
+  'a1', 'n1', 'at:20,20', 'at:37,17', 'at:37,11', 'at:37,8', 'event:point', 'at:2,17', 'at:2,5', 'a1',
+  'lang:ja', 'at:19,6', 'idle:1', 'event:point', 'c3', 'reg.dial:7', 'reg.dial:7@19,9', 'c4', 'c1', 'hall',
   // the hall's burn-in ghost (point: brightness 9), and the burn-in rung up through the hatch to the upper right
   'at:17,20', 'event:point', 'at:37,20', 'bright:9', 'at:36,11',
   // the dim bar wants it dark, then the 100% slot
