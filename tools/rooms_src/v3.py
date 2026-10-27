@@ -63,7 +63,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 14)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 15)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -86,6 +86,7 @@ emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, music='hall', wing='START ', d
 # t1 (-1,0): a button and a spike, each wired to a gate. Above: the balcony home (from t4).
 r = Room('#')
 r.rect(28, 13, 11, 8, '.'); r.rect(39, 18, 1, 3, '.')
+r.rect(30, 0, 2, 13, '.')                                          # round 2: ENCORE (e1) drops in here (one way)
 r.rect(6, 20, 22, 1, '.'); r.rect(1, 13, 5, 8, '.'); r.rect(0, 18, 1, 3, '.')
 gA = hang(r, 22, 20); gB = hang(r, 12, 20)
 r.put(29, 20, '^')
@@ -421,6 +422,7 @@ emit('o4', 2, 1, 'coord', 'ATLAS', r,
 # so every press turns the dial in CLOCKWORK (and the gold digit in the hall) as well as the gate here.
 r = Room('#')
 r.rect(28, 13, 11, 8, '.'); r.rect(39, 18, 1, 3, '.')
+r.rect(30, 0, 2, 13, '.')                                          # round 2: ENCORE (e1) drops in here (one way)
 r.rect(18, 20, 10, 1, '.'); gX = hang(r, 22, 20)
 r.rect(18, 21, 2, 1, '.')                                         # behind the gate: down into LANGUAGE (l1), one way
 r.put(20, 20, 'o')
@@ -448,6 +450,7 @@ r.rect(9, 1, 2, 20, '.')                                          # a shaft betw
 for (x, y) in [(9,18),(10,15),(9,12),(10,9),(9,6)]: r.put(x, y, '#')
 for x in (11, 13, 15, 17, 14, 18): r.put(x, 20, '.')             # (the walks again: the shaft carve doesn't reach them)
 r.rect(19, 1, 20, 5, '.'); r.rect(36, 6, 2, 12, '.')              # the far end, and a drop home
+r.rect(0, 10, 9, 3, '.')                                           # round 2: west off the shaft, to ENCORE (e1)
 r.put(28, 4, 'o')
 r.put(37, 20, 'P'); r.put(10, 20, 'P')
 emit('x1', -2, -2, 'over', 'NO SIGNAL', r, wing='PANEL', hudSolid=True)
@@ -518,6 +521,29 @@ for y in (18, 15, 12, 9): r.rect(1, y, 2, 1, '-')                # ...and the we
 r.put(2, 5, 'P'); r.put(20, 20, 'P')
 emit('n1', 3, -2, 'over', 'NEGATIVE', r, wing='PANEL',
      displays=dict(MAP=dict(t='map', src='visits', inv=True, at=[3, 5], cw=3, ch=1, gap=2, gapy=3)))
+
+# e1 (-3,-2): ENCORE -- west of NO SIGNAL, the last cell of the grid: the return trip that asks for everything at
+# once. A wall of sound (music volume <= 3), the LANGUAGE sign's tunnel through its second letter (EN KO RU), the
+# DIAL's bus once more (dial + 4 needs a dark middle: 3, 6 or 7 -- 7 still works everywhere), and STILL's
+# trapdoor. Then a stray point, and a drop into CROSSTALK.
+r = Room('#')
+r.rect(39, 10, 1, 3, '.'); r.rect(26, 4, 13, 9, '.')              # from NO SIGNAL (x1)
+carve_code(r, 10, 2)
+r.put(25, 7, '.'); r.put(24, 7, '.'); r.put(18, 7, '.')           # in at the second letter's right corner, out at its left
+r.rect(26, 10, 2, 1)                                              # a step up to the tunnel's mouth
+floor_code(r, 10, 2, [1])
+r.rect(17, 7, 1, 8, '.')                                          # down the gap between the letters
+r.rect(9, 14, 9, 1, '.')                                          # west, through the bus digit's middle
+carve_cells(r, 5, 11, 2, corners=False); r.put(5, 14, '.'); r.put(8, 14, '.'); r.put(5, 15, '-'); r.put(8, 15, '-')
+r.rect(2, 14, 3, 1, '.'); r.rect(2, 15, 1, 4, '.')                # STILL's trapdoor at the corridor's end
+r.rect(1, 19, 31, 2, '.'); r.rect(30, 21, 2, 1, '.')              # the chamber, and down into CROSSTALK (s1)
+r.put(14, 20, 'o')
+r.put(37, 12, 'P'); r.put(3, 20, 'P')
+emit('e1', -3, -2, 'tally', 'ENCORE', r, wing='TALLY',
+     displays=dict(VOL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[30, 4], hint='volume'),
+                   S=dict(t='code', n=2, src='lang', at=[10, 2], hint='lang'),
+                   D=dict(s=2, src='reg:dial', bus=True, off=4, at=[5, 11], hint='bus'),
+                   TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[2, 15])))
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

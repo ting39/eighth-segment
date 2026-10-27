@@ -39,7 +39,11 @@ export const ROUTE = [
   // round 2: west along BURN-IN's floor to DOWN: its name is the bridge for six seconds (too short in Chinese)
   'lang:de', 'at:2,20', 'p4', 'at:34,14', 'event:point', 'at:2,20',
   // round 2: NO SIGNAL, off DOWN's landing: the solid HUD is in the way wherever it sits -> Settings: HUD OFF
-  'x1', 'hud:off', 'at:10,20', 'event:point', 'at:30,20', 'p4', 'hud:top', 't4', 't1', 'hall',
+  'x1', 'hud:off', 'at:10,20', 'event:point', 'at:30,20', 'at:10,20',
+  // round 2: ENCORE, west off NO SIGNAL's shaft: volume <=3, EN/KO/RU, dial 7 (+4 = 1), and stand still -- then down
+  // into CROSSTALK and home through LOOSE's false wall
+  'e1', 'vol:2', 'lang:en', 'at:27,12', 'at:26,9', 'at:17,7', 'at:4,14', 'idle:1', 'event:point', 's1', 'hud:top', 'vol:6',
+  't3', 'at:13,17', 'at:3,11', 'at:6,5', 'at:12,5', 'at:2,3', 't4', 't1', 'hall',
   'bright:9', 'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',
   'at:35,5', 'p3',
   // round 2: ATTRACT MODE, east of STATUS BAR: stand still on the trapdoor and fall through the sign while it

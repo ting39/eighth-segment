@@ -484,3 +484,8 @@ Known gaps: the map display and the title card each appear in one room; `langSrc
   all air — the first version had no way back to the door: a softlock caught by walking the "all visited" case).
   Grid is now full (7×4, 27 rooms). Readout needs 3/7/14; WALL CLOCK's point is the 15th (beyond 100%).
   Route: 27 rooms, 15/15, 282 s, D3; 41 tests pass.
+- ~10:00 — **ENCORE (e1, -3,-2)**, the last grid cell, west off NO SIGNAL's shaft: the return trip that asks for
+  everything at once — a wall of sound (volume ≤3), LANGUAGE's tunnel through a second letter (EN/KO/RU), the DIAL
+  bus again (dial+4 dark middle: 3/6/7 — 7 still works everywhere), STILL's trapdoor; then a stray point and a
+  one-way drop into CROSSTALK (home through LOOSE's false wall). Locks checked (vol 6 / DE / dial 2 each fail).
+  ATLAS lock still holds with the new map block. Route: 28 rooms, 16/16, 306 s, D2; 41 tests pass.

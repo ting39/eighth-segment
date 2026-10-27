@@ -1,6 +1,6 @@
 # Eighth Segment
 
-A hard, minimal precision platformer for the browser — 27 dense rooms around one hall, 15 stray points, 3 endings,
+A hard, minimal precision platformer for the browser — 28 dense rooms around one hall, 16 stray points, 3 endings,
 playable in 7 languages (and the language is part of the level). **Play: https://ting39.github.io/eighth-segment/**
 
 A seven-segment display has eight parts: seven bars and the decimal point. You are the decimal
