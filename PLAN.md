@@ -536,3 +536,8 @@ need ATLAS/NEGATIVE re-laid out for an 8th column.
   **Respawn leaks found by the luck test**: BABEL CLOCK's new east door and ATTRACT MODE's east door made the
   nearest spawn one *behind* the puzzle (enter, die, take the point) → spawns by both doors + a test.
   Route: 29 rooms, 17/17, 306 s, D5; 42 tests pass.
+- 08:50 — **LOOP (lp, 3,2)**, offmap, down a hole in TURN IT DOWN's far corner (off the main path): a room whose
+  sides meet (`wrap`: neighbor() returns the room itself). Every lap is coming into the room again, the room
+  counts its visitors (`visits`, already a source), and one step of the way out appears per lap (6 laps; a sealed
+  digit keeps count). Solver: `visits:N` goals read the current room's count. Test: running right wraps and lights
+  steps. Points 18 (hall needs 17). Route: 30 rooms, 18/18, 316 s, D5; 43 tests pass.

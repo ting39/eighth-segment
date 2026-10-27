@@ -63,7 +63,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 16)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 17)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -486,6 +486,7 @@ r.rect(0, 19, 1, 2, '.'); r.rect(1, 12, 15, 9, '.')               # from ATLAS (
 r.rect(16, 12, 2, 9, '.')                                         # the doorway: a wall of sound fills it
 r.rect(18, 3, 21, 18, '.')                                        # the far side
 r.rect(30, 9, 9, 1)                                               # a high ledge
+r.rect(36, 21, 2, 1, '.')                                          # round 3: a hole in the far corner, down to LOOP (lp)
 r.rect(20, 18, 3, 1); r.rect(23, 15, 2, 1)                         # steps up beside the pillar (not over each other)
 r.put(34, 8, 'o')
 r.put(2, 20, 'P'); r.put(22, 20, 'P'); r.put(36, 8, 'P')
@@ -562,6 +563,22 @@ r.put(3, 20, 'P'); r.put(29, 20, 'P')
 emit('i1', 4, 0, 'clock', 'INTERMISSION', r, wing='CLOCKWORK', offmap=True,
      displays=dict(PT=dict(s=2, src='paused', place=1, at=gT, hint='paused', wire=[[10, 15], [6, 15], [6, 14]]),
                    PO=dict(s=2, src='paused', at=gO, wire=[[23, 15], [26, 15]])))
+
+# lp (3,2): LOOP (round 3) -- under TURN IT DOWN's far corner (offmap). Its two sides meet: run off the right edge
+# and you come back in on the left. Every lap is coming into the room again -- and the room counts its visitors:
+# one step of the way out appears for each lap (a digit in the wall keeps count). DOWN taught "come back in";
+# here the door you come back in through is the room itself.
+r = Room('#')
+r.rect(0, 19, 40, 2, '.')                                         # the corridor, edge to edge
+r.rect(29, 1, 10, 18, '.'); r.rect(36, 0, 2, 1, '.')              # the way up, to TURN IT DOWN
+r.rect(5, 9, 4, 7, '.')                                           # (a sealed pocket for the counter)
+r.put(32, 4, 'o')
+r.put(2, 20, 'P'); r.put(37, 20, 'P')
+STEPS = [(30, 18), (35, 15), (30, 12), (35, 9), (30, 6), (35, 3)]
+disp = {f'S{k}': dict(t='bar', n=1, w=3, src='visits', off=-(k + 1), at=[x, y]) for k, (x, y) in enumerate(STEPS)}
+disp['S0']['hint'] = 'visits'
+disp['N'] = dict(s=2, src='visits', at=[5, 9])
+emit('lp', 3, 2, 'coord', 'LOOP', r, wing='COORDINATES', offmap=True, wrap=True, displays=disp)
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

@@ -19,6 +19,7 @@ export function applySetting(g, a) {
   else g.volume = a - VOL;
 }
 
+function ctrNum(g, name) { return name === 'visits' ? g.c.visits[g.room.id] || 0 : g.c[name]; }   // (visits: of the room you are in)
 function ctrVal(g, name) { const [kind, k] = name.split('.'); return (kind === 'reg' ? g.c.reg[k] : g.c.sw[k]) || 0; }
 
 class Heap {
@@ -107,7 +108,7 @@ export function solve(g, goal, opts = {}) {
     if (goal.ctr === 'idle') return Math.max(0, goal.val * 120 - gg.c.idle);
     if (goal.ctr === 'time') { const P = goal.mod * 120; return (((goal.val * 120 - gg.c.steps) % P) + P) % P; }
     if (goal.ctr && goal.ctr.includes('.')) { const m = goal.mod || 10; return ((((goal.val - ctrVal(gg, goal.ctr)) % m) + m) % m) * 20; }
-    if (goal.ctr) { const m = goal.mod || 10; return ((((goal.val - gg.c[goal.ctr]) % m) + m) % m) * (goal.ctr === 'deaths' ? 60 : 30); }
+    if (goal.ctr) { const m = goal.mod || 10; return ((((goal.val - ctrNum(gg, goal.ctr)) % m) + m) % m) * (goal.ctr === 'deaths' ? 60 : 30); }
     const tx = Math.min(RW - 1, Math.max(0, Math.floor((gg.p.x + 768) / TS)));
     const ty = Math.min(RH - 1, Math.max(0, Math.floor((gg.p.y + 768) / TS)));
     const d = dist[ty * RW + tx];
@@ -121,7 +122,7 @@ export function solve(g, goal, opts = {}) {
     if (goal.ctr === 'idle') return !gg.p.dead && gg.p.ground && gg.c.deaths === startDeaths && Math.floor(gg.c.idle / 120) === goal.val;
     if (goal.ctr === 'time') return !gg.p.dead && gg.p.ground && Math.floor(gg.c.steps / 120) % goal.mod === goal.val && gg.c.steps % 120 < 8;
     if (goal.ctr && goal.ctr.includes('.')) return !gg.p.dead && gg.p.ground && ctrVal(gg, goal.ctr) % (goal.mod || 10) === goal.val;
-    if (goal.ctr) return !gg.p.dead && gg.p.ground && ((gg.c[goal.ctr] % (goal.mod || 10)) + (goal.mod || 10)) % (goal.mod || 10) === goal.val;
+    if (goal.ctr) return !gg.p.dead && gg.p.ground && ((ctrNum(gg, goal.ctr) % (goal.mod || 10)) + (goal.mod || 10)) % (goal.mod || 10) === goal.val;
     if (goal.event) return gg.events.some((e) => e.type === goal.event && (!goal.id || e.id === goal.id));
     return false;
   };

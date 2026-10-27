@@ -29,7 +29,10 @@ export const ROUTE = [
   'at:37,20', 'i1', 'pause:14', 'event:point', 'c5', 'at:3,20', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
   'event:point',
   // round 2: TURN IT DOWN, east of ATLAS: the music volume is a wall (jump it at <=3) and a pillar (stand on it at 9)
-  'at:37,20', 'vol:2', 'y1', 'at:22,20', 'vol:9', 'event:point', 'vol:2', 'at:2,20', 'o4', 'vol:6',
+  'at:37,20', 'vol:2', 'y1', 'at:22,20', 'vol:9', 'event:point',
+  // round 3: LOOP, down the far corner: its sides meet, every lap is coming in again, one step appears per lap
+  'at:35,20', 'lp', 'visits:7', 'at:31,17', 'at:36,14', 'at:31,11', 'at:36,8', 'at:31,5', 'at:36,2', 'y1',
+  'vol:2', 'at:2,20', 'o4', 'vol:6',
   'at:37,7', 'at:2,3', 'o3', 'at:20,7', 'at:37,7', 'c1', 'at:37,20', 'c2',
   // back across STILL the only way there is: over the top and stand still on the digit (ATLAS's drop is one way)
   'at:12,3', 'at:14,3', 'idle:1', 'at:32,19', 'c3',

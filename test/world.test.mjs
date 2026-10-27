@@ -9,12 +9,12 @@ const solidTile = (r, x, y) => r.tiles[y * RW + x] === T.WALL;
 
 test('room edges line up with their neighbours', () => {
   for (const r of world.rooms.values()) {
-    const right = world.rooms.get(world.grid.get(`${r.gx + 1},${r.gy}`));
+    const right = r.wrap ? r : world.rooms.get(world.grid.get(`${r.gx + 1},${r.gy}`));   // (a wrapping room is its own neighbour)
     if (right) for (let y = 0; y < RH; y++) assert.equal(solidTile(r, RW - 1, y), solidTile(right, 0, y), `${r.id}|${right.id} row ${y}`);
     else for (let y = 0; y < RH; y++) assert.ok(solidTile(r, RW - 1, y) || r.tiles[y * RW + RW - 1] === T.FAKE, `${r.id} right edge open at row ${y} with no neighbour`);
     const down = world.rooms.get(world.grid.get(`${r.gx},${r.gy + 1}`));
     if (down) for (let x = 0; x < RW; x++) assert.equal(solidTile(r, x, RH - 1), solidTile(down, x, 0), `${r.id}|${down.id} col ${x}`);
-    if (!world.rooms.get(world.grid.get(`${r.gx - 1},${r.gy}`))) for (let y = 0; y < RH; y++) assert.ok(solidTile(r, 0, y), `${r.id} left edge open at row ${y}`);
+    if (!r.wrap && !world.rooms.get(world.grid.get(`${r.gx - 1},${r.gy}`))) for (let y = 0; y < RH; y++) assert.ok(solidTile(r, 0, y), `${r.id} left edge open at row ${y}`);
     if (!world.rooms.get(world.grid.get(`${r.gx},${r.gy - 1}`))) for (let x = 0; x < RW; x++) assert.ok(solidTile(r, x, 0), `${r.id} top edge open at col ${x}`);
   }
 });
@@ -60,9 +60,9 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has seventeen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
+test('the world has eighteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 17);
+  assert.equal(pts, 18);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
 });
@@ -103,4 +103,15 @@ test('coming in through a door and dying respawns you on that side of the room\'
   const nearest = (id, x, y) => { let b = null, bd = 1e9; for (const s of world.rooms.get(id).spawns) { const d = (s.tx - x) ** 2 + (s.ty - y) ** 2; if (d < bd) { bd = d; b = s; } } return [b.tx, b.ty]; };
   assert.deepEqual(nearest('c5', 39, 19), [37, 20], 'BABEL CLOCK from INTERMISSION: not behind the sign');
   assert.deepEqual(nearest('a1', 39, 4), [36, 5], 'ATTRACT MODE from NEGATIVE: not in the chamber under the sign');
+});
+
+test('LOOP: its sides meet; every lap counts as coming in again and lights one more step', async () => {
+  const { step, IN } = await import('../src/sim.js');
+  const g = createGame(world, 'lp', { spawn: { x: (2 * 8 + 1) * 256, y: (20 * 8 + 2) * 256 } });
+  const steps = () => { updateDisplays(g); return g.room.displays.filter((d) => d.key.startsWith('S') && d.lit).length; };
+  assert.equal(g.c.visits.lp, 1); assert.equal(steps(), 0);
+  for (let i = 0; i < 120 * 5; i++) step(g, IN.RIGHT);       // run right for 5 s: off the right edge, in on the left
+  assert.equal(g.room.id, 'lp');
+  assert.ok(g.c.visits.lp >= 2, `visits ${g.c.visits.lp}`);
+  assert.equal(steps(), Math.min(6, g.c.visits.lp - 1));
 });
