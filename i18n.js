@@ -1,5 +1,6 @@
 // Tiny shared i18n for ting39 sites (copy this file into each repo; no build step).
-// Languages: en, zh-TW, ja. Choice is shared across ting39.github.io via localStorage["ting39:lang"].
+// Languages: en, zh-TW, ja (the site). THIS GAME'S COPY adds ko, de, es, ru (game only).
+// Choice is shared across ting39.github.io via localStorage["ting39:lang"]; the site ignores codes it lacks.
 // Usage:
 //   I18N.add({ en: { hi: "Hello {name}" }, "zh-TW": { hi: "你好，{name}" }, ja: { hi: "こんにちは、{name}" } });
 //   I18N.t("hi", { name: "ting39" });
@@ -8,10 +9,10 @@
 //   <input data-i18n-attr="placeholder:key;title:key2">
 //   I18N.apply(document); I18N.onChange(() => rerender()); I18N.switcher(containerEl)
 (function () {
-  const LANGS = ["en", "zh-TW", "ja"];
-  const LABELS = { en: "EN", "zh-TW": "中文", ja: "日本語" };
+  const LANGS = ["en", "zh-TW", "ja", "ko", "de", "es", "ru"];
+  const LABELS = { en: "EN", "zh-TW": "中文", ja: "日本語", ko: "한국어", de: "DE", es: "ES", ru: "RU" };
   const KEY = "ting39:lang";
-  const dict = { en: {}, "zh-TW": {}, ja: {} };
+  const dict = Object.fromEntries(LANGS.map((l) => [l, {}]));
   const listeners = [];
 
   function norm(l) {
@@ -20,6 +21,7 @@
     if (l.startsWith("zh")) return "zh-TW";
     if (l.startsWith("ja")) return "ja";
     if (l.startsWith("en")) return "en";
+    for (const k of ["ko", "de", "es", "ru"]) if (l.startsWith(k)) return k;
     return null;
   }
   function detect() {

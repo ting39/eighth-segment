@@ -336,3 +336,18 @@ that value; (3) position displays count in zones of 4 tiles (0-9 across the room
 Grid: l1(-3,0) l2(-3,1) l3(-2,1) l4(-3,-1); t2 gets a left exit to l1; l3 exits right into o2.
 Sources of truth: `tools/rooms_src/v3.py` → `src/rooms_v3.js`; route goals `tools/route-goals-v3.mjs` →
 `replays/route-v3.json`. New goal kinds: `lang:xx`.
+- 2026-10-27 ~22:40 (v3 session) — Engine + data done: `src/glyphs.js` (7 game languages, CODE, WORDS exit/up,
+  starburst 7x11 letters with staircase diagonals, hand-made 7x7 wide glyphs 出口上위나가기), sim faces `code`/`word`/`bar`
+  (+`mod`), sources `lang`, `letters:K`, pos zones of 4, `langSrc:'idle'`, part `lang` (globe selector), `g.lang`
+  in snapshots; solver/route `lang:xx` goals; render bezels per source (BEZEL table), ruler, faces, selector, knob
+  readout only when no display shows the value; main: v3 only (v1/v2 retired, save key eighth-segment/v3),
+  language synced with ting39:lang both ways; i18n-game: zh-TW ja ko de es ru for every UI string; 5x7 font has
+  Cyrillic + accents. v3.py: LEXICON l1 (code letters set in rock — dark strokes are tunnels; through B's 2nd
+  letter = EN/KO/RU, then A's 1st letter = ZH/JA/DE: verified by tools/langlocks.mjs), l2 (bar = letters of EXIT),
+  l3 INTERPRETER (E: letters:exit ∈{1,4,7} = EN/DE ✓ verified; U: letters:up ∈{0,1,7} = ZH/JA/KO; X point:
+  EXIT has 7 = DE), c3 dial = bus (headroom), c4 FAR DIAL reads it through its middle ({0,1,7}; c3 {1,4,7}),
+  o3 COUNT THE HOPS (bar = jumps mod 13 under a low roof; bus point inside the dial digit, in through b = 5/6),
+  o2 idle floor digit (stand still → falls, point), p2 burned-in code letters (sweeping which languages reach the
+  point). Decision: no separate SCREENSAVER room — any word puzzle there is solved by the menu, so idle wouldn't
+  be what it tests; idle recurs in o2 instead. Points: c2 p2 hall o3 l3 o2 = 6. 33 unit/world tests pass.
+  NEXT: tune p2, write tools/route-goals-v3.mjs and solve the full route, screenshots, deploy.

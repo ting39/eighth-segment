@@ -2,14 +2,17 @@
 // the game from its current state into a target room (or to a trigger).
 // Never produces false positives: every path is the real sim's output.
 import { step, snapshot, restore, restartRoom, IN, RW, RH, TS, SUB, K, HZ, neighbor } from '../src/sim.js';
+import { LANGS } from '../src/glyphs.js';
 
 const ACTIONS = [0, IN.LEFT, IN.RIGHT, IN.JUMP, IN.LEFT | IN.JUMP, IN.RIGHT | IN.JUMP];
 export const RESTART = 8;
 export const VOL = 16;    // VOL + v: set music volume to v (menu action)
 export const BRIGHT = 32; // BRIGHT + v: set brightness to v
 export const HUDTOP = 48, HUDBOT = 49;
+export const LANG = 64;   // LANG + i: set the language to LANGS[i] (menu action)
 export function applySetting(g, a) {
-  if (a >= HUDTOP) g.hudpos = a === HUDTOP ? 'top' : 'bottom';
+  if (a >= LANG) g.lang = LANGS[a - LANG];
+  else if (a >= HUDTOP) g.hudpos = a === HUDTOP ? 'top' : 'bottom';
   else if (a >= BRIGHT) g.bright = a - BRIGHT;
   else g.volume = a - VOL;
 }
@@ -31,13 +34,15 @@ function lcm(a, b) { const g = (x, y) => (y ? g(y, x % y) : x); return (a / g(a,
 
 // What parts of the counters matter in this room
 function roomProfile(room) {
-  const prof = { deathMod: 1, jumpMod: 1, timePeriod: 0, idle: false, visits: false, volume: false, bright: false, hud: !!room.hudSolid };
+  const prof = { deathMod: 1, jumpMod: 1, timePeriod: 0, idle: false, visits: false, volume: false, bright: false, hud: !!room.hudSolid,
+    lang: room.parts.some((p) => p.kind === 'lang') };
   for (const d of room.displays) {
-    const period = d.t === 'bits' ? 2 ** d.n * d.div : d.base ** (d.place + 1) * d.div;
+    const period = d.t === 'bar' ? (d.mod || 1) * d.div : d.t === 'bits' ? 2 ** d.n * d.div : d.base ** (d.place + 1) * d.div;
     if (d.src === 'deaths') prof.deathMod = lcm(prof.deathMod, period);
     if (d.src === 'jumps') prof.jumpMod = lcm(prof.jumpMod, period);
     if (d.src === 'time') prof.timePeriod = Math.max(prof.timePeriod, period * HZ);
-    if (d.src === 'idle') prof.idle = true;
+    if (d.src === 'idle' || d.langSrc === 'idle') prof.idle = true;
+    if (d.t === 'code' || d.t === 'word' || String(d.src).startsWith('letters:') || d.src === 'lang') prof.lang = true;
     if (d.src === 'visits') prof.visits = true;
     if (d.src === 'volume' || d.src2 === 'volume') prof.volume = true;
     if (d.src === 'bright' || d.burn || d.dim) prof.bright = true;
@@ -56,6 +61,7 @@ function key(g, prof, macro, cs = 0) {
   if (prof.volume) k += `|o${g.volume}`;
   if (prof.bright) k += `|b${g.bright}`;
   if (prof.hud) k += `|h${g.hudpos}`;
+  if (prof.lang) k += `|l${g.lang}`;
   k += `|${JSON.stringify(c.reg)}${JSON.stringify(c.sw)}${JSON.stringify(c.sock)}${g.carry || ''}${g.pending ? 'p' : ''}${g.knobCol ?? ''}`;
   return k;
 }
@@ -123,6 +129,7 @@ export function solve(g, goal, opts = {}) {
     if (prof.volume) for (let v = 0; v <= 9; v++) actions.push(VOL + v);
     if (prof.bright) for (let v = 0; v <= 9; v++) actions.push(BRIGHT + v);
     if (prof.hud) actions.push(HUDTOP, HUDBOT);
+    if (prof.lang) for (let i = 0; i < LANGS.length; i++) actions.push(LANG + i);
   }
 
   const seen = new Set();
@@ -137,7 +144,8 @@ export function solve(g, goal, opts = {}) {
     for (const a of actions) {
       if (a >= VOL && a < BRIGHT && node.s.volume === a - VOL) continue;
       if (a >= BRIGHT && a < HUDTOP && node.s.bright === a - BRIGHT) continue;
-      if (a >= HUDTOP && node.s.hudpos === (a === HUDTOP ? 'top' : 'bottom')) continue;
+      if (a >= LANG && node.s.lang === LANGS[a - LANG]) continue;
+      if (a >= HUDTOP && a < LANG && node.s.hudpos === (a === HUDTOP ? 'top' : 'bottom')) continue;
       restore(g, node.s);
       g.events.length = 0;
       let n = macro, ok = false, left = false, cost = macro;

@@ -38,8 +38,24 @@ export const PALETTES = {
   clock:  { lit: '#7dff8a', wall: '#0d3312', edge: '#46c457', bg0: '#030b04', bg1: '#08180a', hazard: '#ff6a3d', name: 'CLOCKWORK' },
   coord:  { lit: '#ff7ae3', wall: '#3a0d33', edge: '#c94fb5', bg0: '#0b030a', bg1: '#190818', hazard: '#ffd23d', name: 'COORDINATES' },
   over:   { lit: '#f2f4ff', wall: '#141724', edge: '#9aa3c9', bg0: '#05060b', bg1: '#0e1020', hazard: '#ff3d5a', name: 'OVERFLOW' },
+  lex:    { lit: '#c9a8ff', wall: '#24123d', edge: '#9a6fe0', bg0: '#07040c', bg1: '#120a1f', hazard: '#ff5a4a', name: 'LEXICON' },
   master: { lit: '#fff3c2', wall: '#1d1a0f', edge: '#c9b875', bg0: '#060604', bg1: '#141208', hazard: '#ff3d5a', name: 'MASTER READOUT' },
 };
+
+// What a display is wired to shows in its frame: one colour + pattern per kind of source, the same in every
+// wing, so a player can read a display's wiring even where the wire is hidden. (static displays have no frame)
+export const BEZEL = {
+  deaths: { c: '#ff4d6d', pat: 'solid' }, jumps: { c: '#ffb347', pat: 'dash' }, time: { c: '#7dff8a', pat: 'tick' },
+  idle: { c: '#8ab4ff', pat: 'dot' }, pos: { c: '#ff7ae3', pat: 'ruler' }, reg: { c: '#e8f0ff', pat: 'rivet' },
+  bus: { c: '#ffd23d', pat: 'double' }, bright: { c: '#fff27a', pat: 'dot' }, volume: { c: '#5ff2e6', pat: 'dash' },
+  lang: { c: '#b98cff', pat: 'double' }, visits: { c: '#e8f0ff', pat: 'dot' }, points: { c: '#ffffff', pat: 'solid' },
+};
+export function bezelKind(src, d) {
+  if (!src || src === 'static') return null;
+  if (src.startsWith('reg:')) return d && d.bus ? 'bus' : 'reg';
+  if (src.startsWith('letters:') || src === 'lang') return 'lang';
+  return BEZEL[src] ? src : null;
+}
 
 function hexA(hex, a) {
   const n = parseInt(hex.slice(1), 16);
@@ -141,21 +157,37 @@ export function createRenderer(canvas) {
     }
     // ghost segments (HUD digits are drawn per frame: their position is a setting); empty sockets are outlines
     for (const d of room.displays) {
-      if (d.hudAt || d.burn) continue;   // burn-in ghosts are drawn live: they answer to brightness
+      if (d.hudAt || d.burn || d.t === 'word') continue;   // burn-in and word ghosts are drawn live
       d.cells.forEach((cell, i) => {
         if (d.missing & (1 << i)) drawSocket(x, cell, hexA(pal.lit, 0.3));
-        else drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.075));
+        else drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.075), i);
       });
       if (d.icon) drawIcon(x, d, pal);
+    }
+    // a ruler printed along the top of the glass wherever a display counts position: zones of 4 tiles, 0-9
+    if (room.displays.some((d) => d.src === 'pos' || d.src2 === 'pos')) {
+      x.fillStyle = hexA(BEZEL.pos.c, 0.5);
+      for (let z = 0; z <= 10; z++) x.fillRect(Math.min(W - 1, z * 32), 0, 1, z % 5 ? 4 : 6);
+      for (let z = 0; z < 10; z++) R.segNum(x, String(z), z * 32 + 14, 1, hexA(BEZEL.pos.c, 0.55), null);
     }
     // decorative room text is drawn crisp on top each frame (see R.draw / drawTextQueue)
     return c;
   }
 
-  function drawCell(x, d, [cx, cy, cw, ch], color) {
+  function drawCell(x, d, [cx, cy, cw, ch], color, i) {
     const px = cx * TILE, py = cy * TILE, w = cw * TILE, h = ch * TILE;
     x.fillStyle = color;
     if (d.t === 'bits') { x.fillRect(px + 1, py + 1, w - 2, h - 2); return; }
+    if (d.t === 'bar') { x.fillRect(px + 1, py + 1, w - 2, h - 2); x.fillRect(px + 1, py + (cw >= ch ? 3 : 1), w - 2, 1); return; }
+    if (d.t === 'word') { x.beginPath(); x.arc(px + 4, py + 4, 3.2, 0, Math.PI * 2); x.fill(); return; }
+    if (d.t === 'code' && i !== undefined && DIAG.has(d.seg[i] % 14)) {
+      // a diagonal stroke: drawn slanted through its staircase step (h/m lean one way, j/k the other)
+      const s = d.seg[i] % 14, lean = s === 8 || s === 13 ? 1 : -1;
+      x.beginPath();
+      const x0 = lean > 0 ? px : px + w, x1 = lean > 0 ? px + w : px;
+      x.moveTo(x0 - lean * 1, py); x.lineTo(x0 + lean * 3, py); x.lineTo(x1 + lean * 1, py + h); x.lineTo(x1 - lean * 3, py + h);
+      x.closePath(); x.fill(); return;
+    }
     x.beginPath();
     if (cw >= ch) { // horizontal bar with pointed ends
       x.moveTo(px - 1, py + h / 2); x.lineTo(px + 2, py); x.lineTo(px + w - 2, py); x.lineTo(px + w + 1, py + h / 2);
@@ -165,6 +197,34 @@ export function createRenderer(canvas) {
       x.lineTo(px, py + h - 2); x.lineTo(px, py + 2);
     }
     x.closePath(); x.fill();
+  }
+
+  const DIAG = new Set([8, 10, 11, 13]);
+  const litAt = (d, i) => (d.litArr ? d.litArr[i] : d.lit & (1 << i));
+
+  // a thin frame around a display, in the colour + pattern of its source (see BEZEL)
+  function drawBezel(x, d, g) {
+    const k1 = bezelKind(d.src, d), k2 = d.sw ? bezelKind(d.src2, d) : null;
+    if (!k1 && !k2) return;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const [cx, cy, cw, ch] of d.cells) { x0 = Math.min(x0, cx); y0 = Math.min(y0, cy); x1 = Math.max(x1, cx + cw); y1 = Math.max(y1, cy + ch); }
+    const L = x0 * TILE - 2, T = y0 * TILE - 2, Rr = x1 * TILE + 1, B = y1 * TILE + 1;
+    const active = d.sw && g.c.sw[d.sw] ? 2 : 1;
+    const side = (k, half, a) => {      // half: 0 = whole frame, 1 = top+left, 2 = bottom+right
+      if (!k) return;
+      const st = BEZEL[k]; x.fillStyle = hexA(st.c, a);
+      const step = st.pat === 'dash' ? 4 : st.pat === 'dot' ? 3 : 1, on = st.pat === 'dash' ? 2 : 1;
+      const hline = (y) => { for (let i = L; i <= Rr; i += step) x.fillRect(i, y, Math.min(on, Rr - i + 1), 1); };
+      const vline = (xx) => { for (let i = T; i <= B; i += step) x.fillRect(xx, i, 1, Math.min(on, B - i + 1)); };
+      if (half !== 2) { hline(T); vline(L); }
+      if (half !== 1) { hline(B); vline(Rr); }
+      if (st.pat === 'double') { x.fillStyle = hexA(st.c, a * 0.5); if (half !== 2) x.fillRect(L + 2, T + 2, Rr - L - 3, 1); if (half !== 1) x.fillRect(L + 2, B - 2, Rr - L - 3, 1); }
+      if (st.pat === 'tick') for (let i = L + 3; i < Rr; i += 4) x.fillRect(i, T - 1, 1, 1);
+      if (st.pat === 'rivet') { x.fillStyle = hexA(st.c, Math.min(1, a * 2)); for (const [rx, ry] of [[L, T], [Rr - 1, T], [L, B - 1], [Rr - 1, B - 1]]) x.fillRect(rx, ry, 2, 2); }
+      if (st.pat === 'ruler') for (let i = 0; i <= RW; i += 4) if (i * TILE >= L && i * TILE <= Rr) x.fillRect(i * TILE, B + 1, 1, 2);
+    };
+    if (k2) { side(k1, 1, active === 1 ? 0.55 : 0.2); side(k2, 2, active === 2 ? 0.55 : 0.2); }
+    else side(k1, 0, 0.45);
   }
 
   function drawSocket(x, [cx, cy, cw, ch], color) {
@@ -182,6 +242,7 @@ export function createRenderer(canvas) {
     button: ['.###.', '#####', '.....', '#####', '#####'], knob: ['.###.', '#...#', '#.#.#', '#...#', '.###.'],
     switch: ['#....', '.#...', '..###', '..#.#', '..###'], bright: ['#.#.#', '.###.', '##.##', '.###.', '#.#.#'],
     volume: ['..#..', '.##.#', '###.#', '.##.#', '..#..'], seg: ['.....', '.....', '#####', '.....', '.....'],
+    lang: ['.###.', '#.#.#', '#####', '#.#.#', '.###.'], bus: ['#####', '#...#', '#.#.#', '#...#', '#####'],
   };
   R.glyph = function (x, name, px, py, color) {
     const gph = GLYPH[name]; if (!gph) return;
@@ -226,11 +287,14 @@ export function createRenderer(canvas) {
     if (R.lastBright !== undefined && R.lastBright !== bright) R.brightFlash = 1;
     R.lastBright = bright;
     R.brightFlash = (R.brightFlash || 0) * 0.94;
+    for (const d of room.displays) if (d.t === 'word' && !d.burn) d.cells.forEach((cell, i) => drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.07)));
+    for (const d of room.displays) drawBezel(x, d, g);
     for (const d of room.displays) if (d.burn) d.cells.forEach((cell, i) => {
-      if ((d.lit & (1 << i)) || (d.missing & ~(g.c.sock[d.sockKey] || 0) & (1 << i))) return;
+      if (litAt(d, i) || (d.missing & ~(g.c.sock[d.sockKey] || 0) & (1 << i))) return;
+      if (d.burnArr && !d.burnArr[i]) { drawCell(x, d, cell, hexA(pal.lit, 0.03)); return; }
       const a = bright === 9 ? 0.55 + 0.1 * Math.sin(performance.now() / 300) : 0.05 + 0.03 * bright;
-      drawCell(x, d, cell, hexA(pal.lit, Math.min(0.9, a + R.brightFlash * 0.45)));
-      if (bright === 9) { const [cx, cy, cw] = cell; x.fillStyle = 'rgba(255,255,255,0.5)'; x.fillRect(cx * TILE + 1, cy * TILE + 1, cw * TILE - 2, 1); }
+      drawCell(x, d, cell, hexA(pal.lit, Math.min(0.9, a + R.brightFlash * 0.45)), i);
+      if (bright === 9 && d.t !== 'word') { const [cx, cy, cw] = cell; x.fillStyle = 'rgba(255,255,255,0.5)'; x.fillRect(cx * TILE + 1, cy * TILE + 1, cw * TILE - 2, 1); }
     });
     // a burned-in mark on the glass: the brightness glyph and a 9, as faint as the brightness is low
     for (const m of room.burnMarks || []) {
@@ -254,18 +318,18 @@ export function createRenderer(canvas) {
     for (let di = 0; di < room.displays.length; di++) {
       const d = room.displays[di];
       let st = R.seg.get(d);
-      if (!st) { st = d.cells.map((_, i) => (d.lit & (1 << i) ? 1 : 0)); R.seg.set(d, st); }
+      if (!st || st.length !== d.cells.length || st.lang !== d.cells) { st = d.cells.map((_, i) => (litAt(d, i) ? 1 : 0)); st.lang = d.cells; R.seg.set(d, st); }
       for (let i = 0; i < d.cells.length; i++) {
-        const on = !!(d.lit & (1 << i));
+        const on = !!litAt(d, i);
         if (on) {
           if (st[i] < 1) { st[i] = 1.6; if (ui.onSegOn) ui.onSegOn(d, i); }
           else if (st[i] > 1) st[i] = Math.max(1, st[i] - 0.08);
         } else st[i] = Math.max(0, st[i] - 0.12);
         const b = Math.min(st[i], 1);
         if (b <= 0) continue;
-        drawCell(x, d, d.cells[i], hexA(pal.lit, (0.25 + 0.75 * b) * bf));
-        if (st[i] > 1 && R.opts.flashes) drawCell(x, d, d.cells[i], `rgba(255,255,255,${(st[i] - 1) * 0.8})`);
-        if (on && d.t !== 'bits') { // inner highlight line
+        drawCell(x, d, d.cells[i], hexA(pal.lit, (0.25 + 0.75 * b) * bf), i);
+        if (st[i] > 1 && R.opts.flashes) drawCell(x, d, d.cells[i], `rgba(255,255,255,${(st[i] - 1) * 0.8})`, i);
+        if (on && (d.t === 'digit' || (d.t === 'code' && !DIAG.has(d.seg[i] % 14)))) { // inner highlight line
           const [cx, cy, cw, ch] = d.cells[i];
           x.fillStyle = 'rgba(255,255,255,0.35)';
           if (cw >= ch) x.fillRect(cx * TILE + 2, cy * TILE + 3, cw * TILE - 4, 1);
@@ -284,15 +348,26 @@ export function createRenderer(canvas) {
         x.fillStyle = hexA(pal.lit, 0.35); x.fillRect(px0 + 1, py0 + 1, pt.w * TILE - 2, 1);
       } else if (pt.kind === 'knob') {
         const v = pt.reg === 'bright' ? g.bright : (g.c.reg[pt.reg] || 0);
-        // a small readout by the knob: you feel the dial turning
-        x.fillStyle = 'rgba(0,0,0,0.45)'; x.fillRect(px0 - 1, py0 - 10, 8, 9);
-        R.segNum(x, String(v % 10), px0 + 1, py0 - 9, hexA(pal.lit, 0.95), hexA(pal.lit, 0.12));
+        // a small readout by the knob, unless a display in the room already shows the same value
+        const src = pt.reg === 'bright' ? 'bright' : 'reg:' + pt.reg;
+        if (!room.displays.some((d) => d.src === src || d.src2 === src)) {
+          x.fillStyle = 'rgba(0,0,0,0.45)'; x.fillRect(px0 - 1, py0 - 10, 8, 9);
+          R.segNum(x, String(v % 10), px0 + 1, py0 - 9, hexA(pal.lit, 0.95), hexA(pal.lit, 0.12));
+        }
+        if (pt.bus) { x.fillStyle = hexA(BEZEL.bus.c, 0.6); x.fillRect(px0, py0 + 3, pt.w * TILE, 1); }
         x.fillStyle = hexA(pal.lit, 0.25); x.fillRect(px0, py0, pt.w * TILE, 2);
         for (let k = 0; k < pt.w * 2; k++) if ((k + v) % 3 === 0) { x.fillStyle = hexA(pal.lit, 0.9); x.fillRect(px0 + k * 4 + 1, py0, 2, 2); }
       } else if (pt.kind === 'switch') {
         const on = !!g.c.sw[pt.sw];
         x.fillStyle = hexA(pal.edge, 0.6); x.fillRect(px0 + 1, py0 + 5, 6, 3);
         x.fillStyle = hexA(pal.lit, 0.95); x.fillRect(px0 + (on ? 4 : 1), py0 + 1, 3, 4);
+      } else if (pt.kind === 'lang') {
+        // the language selector: a little globe in a violet frame
+        x.fillStyle = hexA(BEZEL.lang.c, 0.35); x.fillRect(px0, py0, 8, 8);
+        x.strokeStyle = hexA(BEZEL.lang.c, 0.95); x.lineWidth = 1;
+        x.beginPath(); x.arc(px0 + 4, py0 + 4, 3, 0, Math.PI * 2); x.stroke();
+        x.beginPath(); x.ellipse(px0 + 4, py0 + 4, 1.2, 3, 0, 0, Math.PI * 2); x.stroke();
+        x.fillStyle = hexA(BEZEL.lang.c, 0.95); x.fillRect(px0 + 1, py0 + 4, 6, 1);
       } else if (pt.kind === 'seg' && !g.flags.has('used:' + pt.key) && g.carry !== pt.key) {
         const bob = Math.round(Math.sin(t * 2.5 + pt.x) * 1.5);
         drawCell(x, { t: 'digit' }, pt.o === 'v' ? [pt.x, pt.y, 1, 1] : [pt.x, pt.y, 1, 1], hexA(pal.lit, 0.85));
@@ -419,7 +494,10 @@ export function createRenderer(canvas) {
       if (isWide(ch)) { glyphs.push([wideGlyph(ch), pad + Math.round(cx * k), q, Math.round((7 * p - WIDE_N * q) / 2)]); cx += WIDE_ADV; }
       else { glyphs.push([FONT57[ch] || FONT57['?'], pad + Math.round(cx * k), p, 0]); cx += 4; }
     }
-    c.width = Math.ceil(cx * k + 5 * p + pad * 2); c.height = Math.max(7 * p, WIDE_N * q) + pad * 2;
+    const top = 3 * p;                                   // accent marks sit above the cap height
+    for (const gl of glyphs) gl[3] += top;
+    c.width = Math.ceil(cx * k + 5 * p + pad * 2); c.height = Math.max(7 * p, WIDE_N * q) + pad * 2 + top;
+    c.top = top;
     const x = c.getContext('2d');
     x.fillStyle = `rgba(0,0,0,${0.85 * a})`;
     for (const [g, gx, z, dy] of glyphs) { const oo = Math.max(1, Math.round(z / 2)); for (const [px, py] of g) x.fillRect(gx + px * z - oo, pad + dy + py * z - oo, z + 2 * oo, z + 2 * oo); }
@@ -446,7 +524,7 @@ export function createRenderer(canvas) {
       const str = String(t.s).toUpperCase();
       const c = renderString(str, p, Math.round(adv * 100) / 100, `${r},${gg},${b}`, Math.round(a * 20) / 20, k);
       const gx = Math.round(ox + t.x * s - c.pad + (3 * k - 5 * p) / 2);
-      const gy = Math.round(oy + t.y * s - c.pad + (5 * k - 7 * p) / 2);
+      const gy = Math.round(oy + t.y * s - c.pad - c.top + (5 * k - 7 * p) / 2);
       sc.drawImage(c, gx, gy);
     }
     sc.restore();

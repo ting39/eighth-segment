@@ -1,17 +1,20 @@
 // Build (or verify) the full-game route: a list of goals solved in sequence from a new game.
 // usage: node tools/route.mjs            -> solve all segments, write replays/route.json
 //        node tools/route.mjs --from N   -> reuse stored segments < N, re-solve from N
+//        node tools/route.mjs --to N     -> stop after goal N (build the route room by room)
 import fs from 'node:fs';
 const log = (s) => fs.writeSync(1, s + '\n');
 import { buildWorld, createGame, snapshot } from '../src/sim.js';
 import { ROOMS, START_ROOM } from './world.mjs';
 import { solveAny, replay } from './solver.mjs';
-const { ROUTE } = await import(process.env.V2 ? './route-goals-v2.mjs' : './route-goals.mjs');
+import { LANGS } from '../src/glyphs.js';
+const { ROUTE } = await import('./route-goals-v3.mjs');
 
 export function parseGoal(s) {
   if (s.startsWith('at:')) return { at: s.slice(3).split(',').map(Number) };
   if (s.startsWith('vol:')) return { set: 16 + +s.slice(4) };
   if (s.startsWith('bright:')) return { set: 32 + +s.slice(7) };
+  if (s.startsWith('lang:')) return { set: 64 + LANGS.indexOf(s.slice(5)) };
   if (s === 'hud:top') return { set: 48 };
   if (s === 'hud:bottom') return { set: 49 };
   const m = s.match(/^(deaths|jumps|idle|visits|time|reg\.\w+|sw\.\w+):(\d+)(?:\/(\d+))?(?:@(\d+),(\d+))?$/);
@@ -22,12 +25,13 @@ export function parseGoal(s) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const fromIdx = process.argv.includes('--from') ? +process.argv[process.argv.indexOf('--from') + 1] : 0;
-  const file = new URL(process.env.V2 ? '../replays/route-v2.json' : '../replays/route.json', import.meta.url);
+  const file = new URL('../replays/route-v3.json', import.meta.url);
   const old = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : { segments: [] };
   const world = buildWorld(ROOMS);
   const g = createGame(world, START_ROOM);
   const segments = [];
-  for (let i = 0; i < ROUTE.length; i++) {
+  const toIdx = process.argv.includes('--to') ? +process.argv[process.argv.indexOf('--to') + 1] : ROUTE.length - 1;
+  for (let i = 0; i <= Math.min(toIdx, ROUTE.length - 1); i++) {
     const goalStr = ROUTE[i];
     if (i < fromIdx && old.segments[i] && old.segments[i].goal === goalStr) {
       replay(g, old.segments[i].inputs); g.events.length = 0; segments.push(old.segments[i]); continue;

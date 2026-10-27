@@ -1,18 +1,20 @@
 // Game shell: loop, states (title / play / pause / map / settings / ending), save, fx.
 import { buildWorld, createGame, step, restartRoom, respawn, snapshot, restore, updateDisplays, HZ, SUB, RW, RH, TILE, T, newCounters } from './sim.js';
-import { LANG_LABEL } from './i18n-game.js';
+import { LANGS, CODE, LANG_NAME } from './glyphs.js';
 import { createRenderer, W, H, PALETTES } from './render.js';
 import { createInput, DEFAULT_KEYS, keyName } from './input.js';
 import { digitMask } from './segments.js';
 import { initAudio, sfx, playSong, setLayers, setVolumes } from './audio.js';
 
 const params = new URLSearchParams(location.search);
-// ?v2 plays the redesign (Display Hall world); without it the original world stays live
-const V2 = params.has('v2');
-const { ROOMS, START_ROOM, ENDINGS } = await import(V2 ? './rooms_v2.js' : './rooms.js');
+// v3 is the only world now (v1 and v2 live on in git history)
+const V2 = true;
+const { ROOMS, START_ROOM, ENDINGS } = await import('./rooms_v3.js');
 const DEV = params.has('dev');
 const SHOT = params.has('shot');
-const SAVE_KEY = V2 ? 'eighth-segment/v2' : 'eighth-segment/v1';
+const SAVE_KEY = 'eighth-segment/v3';
+// the game language is the site's (localStorage "ting39:lang", via i18n.js) and also a world quantity
+const curLang = () => (globalThis.I18N && LANGS.includes(I18N.lang) ? I18N.lang : 'en');
 
 const world = buildWorld(ROOMS);
 const TOTAL_POINTS = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
@@ -34,12 +36,12 @@ const settings = Object.assign({
 for (const [act, codes] of Object.entries(DEFAULT_KEYS)) if (!settings.keys[act]) settings.keys[act] = [...codes];
 input.keys = settings.keys;
 const meta = Object.assign({ endings: [], bestTime: null, bestDeaths: null, clears: 0, revealed: [], hintsSeen: [] }, saved.meta || {});
-const gopts = () => ({ volume: settings.music, bright: settings.bright, hudpos: settings.hudpos });
+const gopts = () => ({ volume: settings.music, bright: settings.bright, hudpos: settings.hudpos, lang: curLang() });
 
 function applySettings() {
   setVolumes(settings.music, settings.sfx);
   R.opts.glow = settings.glow; R.opts.shake = settings.shake; R.opts.flashes = settings.flashes;
-  if (game) { game.volume = settings.music; game.bright = settings.bright; game.hudpos = settings.hudpos; }
+  if (game) { game.volume = settings.music; game.bright = settings.bright; game.hudpos = settings.hudpos; game.lang = curLang(); updateDisplays(game); }
   updateTouchVisibility();
 }
 
@@ -140,6 +142,7 @@ function handleEvents() {
       case 'drop': break;
       case 'slot': startEnding(e.id); break;
       case 'note': break;
+      case 'lang': sfx.ok(); R.flash = 0.4; R.burst(e.x * TILE + 4, e.y * TILE + 4, '#b98cff', 12, 0.9, 24); if (globalThis.I18N) I18N.set(e.lang); reveal('lang'); break;
     }
   }
   game.events.length = 0;
@@ -183,7 +186,8 @@ function fmtTime(sec) {
 const SPEEDS = [100, 90, 80, 70, 60, 50];
 function settingsMenu(back) {
   const items = [
-    ...(globalThis.I18N ? [{ label: 'LANGUAGE', value: () => LANG_LABEL[I18N.lang] || 'ENGLISH', adj: (d) => { const L = I18N.LANGS; I18N.set(L[(L.indexOf(I18N.lang) + (d || 1) + L.length) % L.length]); } }] : []),
+    // the language item always says LANGUAGE in English too, so nobody gets lost in a script they can't read
+    ...(globalThis.I18N ? [{ label: 'LANGUAGE', value: () => `${CODE[curLang()]} ${LANG_NAME[curLang()]}`, adj: (d) => { I18N.set(LANGS[(LANGS.indexOf(curLang()) + (d || 1) + LANGS.length) % LANGS.length]); } }] : []),
     { label: 'MUSIC VOLUME', value: () => settings.music, digit: true, adj: (d) => { settings.music = (settings.music + d + 10) % 10; } },
     { label: 'SOUND VOLUME', value: () => settings.sfx, digit: true, adj: (d) => { settings.sfx = (settings.sfx + d + 10) % 10; sfx.jump(); } },
     ...(meta.revealed.includes('bright') ? [{ label: 'BRIGHTNESS', value: () => settings.bright, digit: true, adj: (d) => { settings.bright = Math.max(0, Math.min(9, settings.bright + d)); } }] : []),
@@ -221,7 +225,6 @@ function titleMenu() {
     if (run && run.snap) { menu = confirmMenu('ERASE THE CURRENT RUN?', () => newGame(), () => { menu = titleMenu(); }); } else newGame();
   } });
   items.push({ label: 'SETTINGS', act: () => { menu = settingsMenu(() => { menu = titleMenu(); }); } });
-  items.push({ label: V2 ? 'PLAY THE ORIGINAL (V1)' : 'PLAY THE REDESIGN (V2)', act: () => { location.search = V2 ? '' : '?v2'; } });
   items.push({ label: 'MORE BY TING39', act: () => { saveAll(); location.href = 'https://ting39.github.io/'; } });
   return { title: null, items, i: 0 };
 }
@@ -332,6 +335,7 @@ const HINT_GLYPHS = {
   pos: ['00000', '01010', '11111', '01010', '00000'],
   idle: ['1111', '0010', '0100', '1111'],
   visits: ['1110', '1010', '1011', '1010', '1110'],
+  lang: ['01110', '10101', '11111', '10101', '01110'],
 };
 const roomStay = { id: null, d0: 0, s0: 0 };
 function drawHints(x, pal) {
@@ -342,7 +346,8 @@ function drawHints(x, pal) {
   if (stuck <= 0) return;
   const a = Math.min(1, stuck) * (0.75 + 0.15 * Math.sin(performance.now() / 400));
   for (const d of room.displays) {
-    const g = HINT_GLYPHS[d.src];
+    if (!d.cells.length) continue;
+    const g = HINT_GLYPHS[d.t === 'code' || d.t === 'word' || String(d.src).startsWith('letters:') ? 'lang' : d.src];
     if (!g || d.icon) continue;
     let x0 = Infinity, x1 = -Infinity, y0 = Infinity;
     for (const [cx, cy, cw] of d.cells) { x0 = Math.min(x0, cx); x1 = Math.max(x1, cx + cw); y0 = Math.min(y0, cy); }
@@ -467,6 +472,8 @@ function drawMap(x, pal) {
 
 // The Master Readout, drawn big: digits light one by one, then the point (you) arcs into the slot
 // you chose. Ending 3 reads 3.14159; the wrong slots read ten times too much / too little.
+// how many stray points light each of the readout's last three digits (the hall's R3..R5 use the same numbers)
+const POINTS_FOR = [2, 4, TOTAL_POINTS];
 const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
 function bigDigit(x, mask, px, py, on, ghost) {
   const L = 8;
@@ -486,12 +493,12 @@ function drawReadout(x, pal, e) {
   const settle = landed ? Math.min(1, (e.t - T1) * 2) : 0;
   const onCol = e.id === 3 && landed ? R.hexA('#ffffff', 0.55 + 0.45 * settle) : R.hexA(pal.lit, wrong ? 0.35 : 0.95);
   for (let i = 0; i < digits.length; i++) {
-    const earned = !V2 || e.id !== 3 || i < 3 || e.points >= i - 2;   // v2: the last three digits are your stray points
+    const earned = e.id !== 3 || i < 3 || e.points >= POINTS_FOR[i - 3];   // the last three digits are your stray points
     bigDigit(x, i < lit && earned ? digitMask(+digits[i]) : 0, x0 + i * pitch, y0, onCol, R.hexA(pal.lit, 0.07));
   }
   if (V2) { // the percent sign
     const px = x0 + digits.length * pitch + 1;
-    x.fillStyle = lit >= digits.length && (e.id !== 3 || e.points >= 4) ? onCol : R.hexA(pal.lit, 0.07);
+    x.fillStyle = lit >= digits.length ? onCol : R.hexA(pal.lit, 0.07);
     x.fillRect(px, y0 + 1, 3, 3); x.fillRect(px + 8, y0 + 17, 3, 3);
     for (let k = 0; k < 18; k++) x.fillRect(px + 10 - Math.round(k * 10 / 18), y0 + 1 + k, 2, 1);
   }
@@ -516,7 +523,7 @@ function drawEnding(x, pal) {
   let y = 54;
   R.text(end.title, (W - R.textWidth(end.title)) / 2, y, R.hexA(pal.lit, a)); y += 14;
   const lines = [...end.lines];
-  if (V2 && e.id === 3 && e.points < TOTAL_POINTS) lines.push(`${TOTAL_POINTS - e.points} DIGIT${TOTAL_POINTS - e.points > 1 ? 'S' : ''} STILL DARK. STRAY POINTS LIGHT THEM.`);
+  if (e.id === 3 && e.points < TOTAL_POINTS) lines.push(`${TOTAL_POINTS - e.points} STRAY POINT${TOTAL_POINTS - e.points > 1 ? 'S' : ''} STILL LOST.`);
   for (const line of lines.filter((l) => !/^[\d.]+$/.test(l))) { R.text(line, (W - R.textWidth(line)) / 2, y, R.hexA('#ffffff', a * 0.85)); y += 9; }
   y += 6;
   const stats = e.nudge ? ['THE POINT POPS BACK OUT.'] : [`TIME ${fmtTime(e.time)}`, `DEATHS ${e.deaths}   JUMPS ${e.jumps}`, `STRAY POINTS ${e.points}/${TOTAL_POINTS}`, `ENDING ${ENDINGS.indexOf(end) + 1} OF ${ENDINGS.length}${e.assisted ? '   (ASSISTED SPEED)' : ''}`];
@@ -602,6 +609,9 @@ document.addEventListener('visibilitychange', () => {
 });
 addEventListener('pagehide', () => { if (game && mode !== 'title' && mode !== 'ending' && run) saveRun(); });
 
+if (globalThis.I18N) I18N.onChange(() => { if (game) { game.lang = curLang(); updateDisplays(game); } R.invalidate(); });
+addEventListener('storage', (e) => { if (e.key === 'ting39:lang' && globalThis.I18N && e.newValue && e.newValue !== I18N.lang) I18N.set(e.newValue); });
+
 // ---------------------------------------------------------------- boot ---
 R.resize();
 applySettings();
@@ -610,6 +620,7 @@ if (SHOT) {
   const id = params.get('room') || START_ROOM;
   const c = newCounters();
   if (params.has('bright')) settings.bright = +params.get('bright');
+  if (params.has('lang') && globalThis.I18N) I18N.set(params.get('lang'));
   c.deaths = +params.get('deaths') || 0; c.jumps = +params.get('jumps') || 0; c.steps = (+params.get('time') || 0) * HZ;
   game = createGame(world, id, { ...gopts(), counters: c });
   mode = params.has('title') ? 'title' : 'play';

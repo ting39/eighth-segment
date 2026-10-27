@@ -1,6 +1,7 @@
 // Deterministic simulation. Pure integer math, fixed 120 Hz step.
 // Shared by the browser game, the solver and the tests.
 import { digitMask, segmentRects } from './segments.js';
+import { LANGS, CODE, STAR, STAR_SEGS, STAR_PITCH, STAR_W, STAR_H, DOT_H, dotGlyph, wordOf, lettersOf } from './glyphs.js';
 
 export const HZ = 120;
 export const SUB = 256;              // subpixels per pixel
@@ -92,7 +93,16 @@ function compileDisplay(roomId, d) {
   out.sockKey = `${roomId}:${d.key}`;
   out.missing = 0;
   for (const ch of d.sockets || '') out.missing |= 1 << 'abcdefg'.indexOf(ch);
-  if (d.t === 'bits') {
+  if (d.t === 'code') return compileCode(roomId, out);
+  if (d.t === 'word') return compileWord(roomId, out);
+  if (d.t === 'bar') {
+    // unary meter: value v lights the first v cells (left to right, or bottom to top)
+    const n = d.n, w = d.w || 1, h = d.h || 1, gap = d.gap ?? 0;
+    for (let i = 0; i < n; i++) {
+      const o = i * ((d.dir === 'v' ? h : w) + gap);
+      out.cells.push(d.dir === 'v' ? [d.x, d.y + (n - 1) * (h + gap) - o, w, h] : [d.x + o, d.y, w, h]);
+    }
+  } else if (d.t === 'bits') {
     const n = d.n, w = d.w || 1, h = d.h || 1, gap = d.gap ?? 1;
     for (let i = 0; i < n; i++) {
       // most significant bit first (left / top)
@@ -107,6 +117,50 @@ function compileDisplay(roomId, d) {
   for (const [x, y, w, h] of out.cells) {
     if (x < 0 || y < 0 || x + w > RW || y + h > RH) throw new Error(`${roomId}: display out of bounds`);
   }
+  return out;
+}
+
+// Starburst language-code display: n letters, every segment a cell (diagonals are two cells).
+function compileCode(roomId, out) {
+  const n = out.n || 2;
+  out.seg = [];
+  for (let k = 0; k < n; k++) STAR_SEGS.forEach((rects, si) => rects.forEach(([x, y, w, h]) => {
+    out.cells.push([out.x + k * STAR_PITCH + x, out.y + y, w, h]); out.seg.push(k * 14 + si);
+  }));
+  if (out.x + (n - 1) * STAR_PITCH + STAR_W > RW || out.y + STAR_H > RH || out.x < 0 || out.y < 0) throw new Error(`${roomId}: code display out of bounds`);
+  out.litBy = {};
+  for (const l of LANGS) {
+    const word = (out.text ? out.text[l] ?? out.text.en : CODE[l]).padEnd(n).slice(0, n);
+    const on = new Set();
+    [...word].forEach((ch, k) => (STAR[ch] || []).forEach((si) => on.add(k * 14 + si)));
+    out.litBy[l] = out.seg.map((sg) => (on.has(sg) ? 1 : 0));
+  }
+  return out;
+}
+
+// Dot-matrix word display: the word in the current language, every dot of each glyph box a cell.
+function wordLayout(word, x0, y0, align, w) {
+  const glyphs = [...word].map(dotGlyph);
+  const width = glyphs.reduce((a, gl) => a + gl.w + 1, 0) - 1;
+  let x = align === 'right' ? x0 + w - width : align === 'center' ? x0 + Math.floor((w - width) / 2) : x0;
+  const cells = [], on = [];
+  for (const gl of glyphs) {
+    const set = new Set(gl.px.map(([px, py]) => px + ',' + py));
+    for (let yy = 0; yy < DOT_H; yy++) for (let xx = 0; xx < gl.w; xx++) {
+      cells.push([x + xx, y0 + yy, 1, 1]); on.push(set.has(xx + ',' + yy) ? 1 : 0);
+    }
+    x += gl.w + 1;
+  }
+  return { cells, on, width };
+}
+function compileWord(roomId, out) {
+  out.layouts = {};
+  for (const l of LANGS) {
+    const lay = wordLayout(wordOf(out.word, l), out.x, out.y, out.align, out.w || 0);
+    for (const [x, y] of lay.cells) if (x < 0 || y < 0 || x >= RW || y >= RH) throw new Error(`${roomId}: word ${out.word} (${l}) out of bounds`);
+    out.layouts[l] = lay;
+  }
+  out.cells = out.layouts.en.cells;
   return out;
 }
 
@@ -144,6 +198,7 @@ export function createGame(world, roomId, opts = {}) {
     volume: opts.volume ?? 7,
     bright: opts.bright ?? 5,          // global display brightness 0-9
     hudpos: opts.hudpos || 'top',      // where the HUD sits: 'top' | 'bottom'
+    lang: LANGS.includes(opts.lang) ? opts.lang : 'en',   // the game language is a world quantity too
     carry: null,                       // key of the loose segment being carried
     pending: null,                     // a just-filled socket cell that stays air until you step out of it
     partIn: {},                        // transient: which switches the player is inside
@@ -203,6 +258,7 @@ export function sourceValue(g, d) {
   const p = g.p;
   const src = d.sw && g.c.sw[d.sw] ? d.src2 : d.src;
   if (src.startsWith('reg:')) return g.c.reg[src.slice(4)] || 0;
+  if (src.startsWith('letters:')) return lettersOf(src.slice(8), g.lang);
   switch (src) {
     case 'bright': return g.bright;
     case 'static': return d.val ?? 8;
@@ -211,27 +267,46 @@ export function sourceValue(g, d) {
     case 'time': return Math.floor(g.c.steps / HZ);
     case 'idle': return Math.floor(g.c.idle / HZ);
     case 'visits': return g.c.visits[g.room.id] || 0;
-    case 'pos': return Math.floor((p.x + PW / 2) / TS);
+    case 'pos': return Math.floor(Math.floor((p.x + PW / 2) / TS) / (d.zone ?? 4));   // zones of 4 tiles: 0-9 across the room
     case 'posy': return RH - 1 - Math.floor((p.y + PH / 2) / TS);
     case 'volume': return g.volume;
     case 'clock': return g.clockMinutes;
     case 'points': return g.points.size;
+    case 'lang': return LANGS.indexOf(g.lang);
     default: throw new Error(`unknown source ${d.src}`);
   }
 }
 
 export function displayValue(g, d) {
   const raw = Math.floor((sourceValue(g, d) + d.off) / d.div);
+  if (d.t === 'bar') return Math.max(0, Math.min(d.n, d.mod ? ((raw % d.mod) + d.mod) % d.mod : raw));
   if (d.t === 'bits') return ((raw % (1 << d.n)) + (1 << d.n)) % (1 << d.n);
   const v = Math.floor(raw / d.base ** d.place);
   return ((v % d.base) + d.base) % d.base;
 }
 
-// bitmask of lit cells for a display
+// the language a word/code display is showing: yours, or (attract mode) the one standing still has reached
+export function displayLang(g, d) {
+  if (d.langSrc === 'idle') return LANGS[(LANGS.indexOf(g.lang) + Math.floor(g.c.idle / HZ)) % LANGS.length];
+  return g.lang;
+}
+
+// lit cells for a display: a bitmask for digits/bits/bars, an array (d.litArr) for code/word faces
 export function displayLit(g, d) {
+  if (d.t === 'code' || d.t === 'word') {
+    const l = displayLang(g, d);
+    let arr;
+    if (d.t === 'code') arr = d.litBy[l];
+    else { const lay = d.layouts[l]; d.cells = lay.cells; arr = lay.on; }
+    d.burnArr = d.burn ? arr : null;
+    if (d.burn || (d.dim && g.bright === 0) || (d.needPoints && g.points.size < d.needPoints)) arr = d.cells.map(() => 0);
+    d.litArr = arr;
+    return -1;
+  }
   const v = displayValue(g, d);
   let m;
-  if (d.t === 'bits') {
+  if (d.t === 'bar') m = (1 << v) - 1;
+  else if (d.t === 'bits') {
     m = 0;
     for (let i = 0; i < d.n; i++) if (v & (1 << (d.n - 1 - i))) m |= 1 << i;
   } else m = digitMask(v);
@@ -251,9 +326,11 @@ export function updateDisplays(g) {
     d.lit = m;
     const holes = d.missing & ~(g.c.sock[d.sockKey] || 0);
     const burnSolid = d.burn && g.bright === 9;
+    const arr = m === -1 ? d.litArr : null;
     for (let i = 0; i < d.cells.length; i++) {
-      const on = m & (1 << i);
-      if (!on && !(burnSolid && !(holes & (1 << i)))) continue;
+      const on = arr ? arr[i] : m & (1 << i);
+      const burnable = d.burnArr ? d.burnArr[i] : !(holes & (1 << i));
+      if (!on && !(burnSolid && burnable)) continue;
       if (g.pending && g.pending.d === d && g.pending.i === i) continue;
       const [x, y, w, h] = d.cells[i];
       for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) dyn[yy * RW + xx] = on ? 1 : 2;
@@ -511,6 +588,14 @@ function usePartsAfterMove(g, wasGround) {
         g.events.push({ type: 'switch', sw: pt.sw, on: c.sw[pt.sw], x: pt.x, y: pt.y });
       }
       g.partIn[pt.key] = inside;
+    } else if (pt.kind === 'lang') {
+      // the language selector: walk into it and the whole machine changes language (the menu too)
+      const inside = overlapsTiles(p, pt.x, pt.y, 1, 1);
+      if (inside && !g.partIn[pt.key]) {
+        g.lang = LANGS[(LANGS.indexOf(g.lang) + 1) % LANGS.length];
+        g.events.push({ type: 'lang', lang: g.lang, x: pt.x, y: pt.y });
+      }
+      g.partIn[pt.key] = inside;
     } else if (pt.kind === 'seg') {
       if (!g.carry && !g.flags.has('used:' + pt.key) && overlapsTiles(p, pt.x, pt.y, 1, 1)) {
         g.carry = pt.key; g.carryO = pt.o || 'h';
@@ -583,7 +668,7 @@ export function snapshot(g) {
   return {
     room: g.room.id, p: { ...g.p }, c: structuredCloneCounters(g.c), spawn: { ...g.spawn },
     volume: g.volume, points: [...g.points], flags: [...g.flags],
-    bright: g.bright, hudpos: g.hudpos, carry: g.carry, carryO: g.carryO, knobCol: g.knobCol,
+    bright: g.bright, hudpos: g.hudpos, lang: g.lang, carry: g.carry, carryO: g.carryO, knobCol: g.knobCol,
     partIn: { ...g.partIn }, pending: g.pending ? { k: g.pending.d.key, i: g.pending.i } : null,
   };
 }
@@ -598,7 +683,7 @@ export function restore(g, s) {
   g.c = structuredCloneCounters(s.c);
   g.spawn = { ...s.spawn };
   g.volume = s.volume;
-  g.bright = s.bright ?? 5; g.hudpos = s.hudpos || 'top';
+  g.bright = s.bright ?? 5; g.hudpos = s.hudpos || 'top'; g.lang = s.lang || 'en';
   g.carry = s.carry || null; g.carryO = s.carryO; g.knobCol = s.knobCol ?? null; g.partIn = { ...(s.partIn || {}) };
   g.pending = s.pending ? { d: g.room.displays.find((d) => d.key === s.pending.k), i: s.pending.i } : null;
   g.points = new Set(s.points);

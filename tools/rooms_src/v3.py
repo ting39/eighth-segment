@@ -1,4 +1,5 @@
-"""EIGHTH SEGMENT v2 world: the Display Hall and its four wings. Writes src/rooms_v2.js."""
+"""EIGHTH SEGMENT v3 world: the Display Hall, its four wings and LEXICON. Writes src/rooms_v3.js.
+Grown from v2 (git history has v2.py); edit here and re-run, never hand-edit src/rooms_v3.js."""
 import os, sys, json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from roomgen import Room
@@ -60,8 +61,8 @@ r.rect(34, 12, 2, 1, '-')
 r.put(36, 15, 'o')
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i in (3, 4, 5): disp[f'R{i}']['needPoints'] = i - 2          # 100.### lights one digit per stray point
-disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2], needPoints=4); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6], needPoints=4)
+for i, n in ((3, 2), (4, 4), (5, 6)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
     disp[f'BEAM{i}'] = dict(s=2, val=1, src='static', src2='pos', sw='beams', at=[x, 12], wire=[[x+1, 19], [x+1, 20], [36, 20], [36, 12]] if i == 0 else None)
@@ -70,7 +71,7 @@ disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
 for k in list(disp):
     if disp[k].get('wire') is None: disp[k].pop('wire', None)
-emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, music='hall', wing='START', displays=disp,
+emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, music='hall', wing='START ', displays=disp,
      parts=[dict(kind='switch', x=37, y=10, sw='beams')],
      triggers=dict(a=dict(kind='slot', id=1), b=dict(kind='slot', id=2), c=dict(kind='slot', id=3)),
      always=True, hudBottom=True, burnMarks=[[30, 16]])
@@ -98,6 +99,7 @@ for y in range(22):
     for x in range(40):
         if r.g[y][x] == 'A': r.g[y][x] = '.'
 r.put(18, 11, '.')
+r.rect(0, 8, 1, 3, '.')                                           # v3: a door west, into LEXICON
 emit('t2', -2, 0, 'tally', 'PRESS', r,
      parts=[dict(kind='button', x=12, y=8, reg='t2'), dict(kind='button', x=18, y=11, reg='t2')],
      displays=dict(A=dict(s=3, src='reg:t2', at=[16, 8], wire=[[12, 7], [12, 5], [18, 5]])))
@@ -171,23 +173,23 @@ r.rect(30, 10, 9, 11, '.'); r.rect(34, 21, 4, 1, '.')
 r.rect(1, 9, 38, 1, '.'); r.rect(0, 9, 1, 1, '.')
 for (x, y, w) in [(31,18,3),(35,15,3),(31,12,3)]: r.rect(x, y, w, 1)
 gK = hang(r, 14, 9)
-r.put(32, 20, 'P'); r.put(22, 9, 'P'); r.put(3, 9, 'P')
+r.rect(20, 5, 10, 4, '.')                                          # v3: headroom over the dial (hop along it a click at a time)
+r.put(32, 20, 'P'); r.put(29, 9, 'P'); r.put(3, 9, 'P')
 emit('c3', 2, -1, 'clock', 'DIAL', r,
-     parts=[dict(kind='knob', x=23, y=10, w=6, reg='c3')],
-     displays=dict(K=dict(s=2, src='reg:c3', at=gK, wire=[[26, 11], [26, 13], [18, 13], [18, 8]], hint='knob')))
+     parts=[dict(kind='knob', x=22, y=10, w=6, reg='dial', bus=True)],
+     displays=dict(K=dict(s=2, src='reg:dial', bus=True, at=gK, wire=[[25, 11], [25, 13], [18, 13], [18, 8]], hint='knob')))
 
 # c4 (1,-1): TIMED DIAL -- a clock gate, a knob, a knob gate; then down to c1's trapdoors.
 # PANEL's way home (p3) drops in at x8..10, past the gates.
 r = Room('#')
 r.rect(5, 9, 34, 1, '.'); r.rect(39, 9, 1, 1, '.')
 r.rect(8, 0, 3, 9, '.')
-g1 = hang(r, 31, 9); g2 = hang(r, 13, 9)
+g1 = hang(r, 31, 9); carve_cells(r, 13, 6, 2)                      # v3: the second gate is a middle slot
 r.rect(5, 10, 3, 8, '.'); r.rect(2, 18, 32, 3, '.'); r.rect(30, 21, 4, 1, '.')
 r.put(37, 9, 'P'); r.put(9, 9, 'P'); r.put(3, 20, 'P')
-emit('c4', 1, -1, 'clock', 'TIMED DIAL', r,
-     parts=[dict(kind='knob', x=19, y=10, w=8, reg='c4')],
+emit('c4', 1, -1, 'clock', 'FAR DIAL', r,
      displays=dict(G=dict(s=2, src='time', off=3, at=g1, wire=[[35, 8], [35, 6]]),
-                   H=dict(s=2, src='reg:c4', at=g2, wire=[[22, 11], [22, 12], [17, 12], [17, 8]])))
+                   H=dict(s=2, src='reg:dial', bus=True, at=[13, 6], wire=[[17, 10], [24, 10], [24, 12], [39, 12]], hint='bus')))
 
 # ============================================================== COORDINATES
 def bridge(r, xs, y, s=2):
@@ -213,10 +215,13 @@ r.rect(1, 1, 38, 19, '.'); r.rect(39, 5, 1, 3, '.')
 r.rect(1, 8, 12, 13); r.rect(29, 8, 10, 13)
 bridge(r, (13, 17, 21, 25), 8)
 r.rect(13, 20, 16, 1, '^')
-r.put(5, 7, 'o')
+r.rect(0, 5, 1, 3, '.')                                            # v3: the west door from INTERPRETER (l3)
+carve_cells(r, 4, 8, 2, corners=False); r.rect(5, 9, 2, 2, '.'); r.rect(5, 12, 2, 2, '.')   # v3: an idle digit set in the floor:
+r.rect(5, 15, 2, 6, '.'); r.rect(5, 20, 2, 1, '^'); r.put(5, 10, 'o')                         # 0 while you move, 1 if you stop
 r.put(36, 7, 'P'); r.put(3, 7, 'P')
 dsp = {f'B{i}': dict(s=2, val=1, src='static', src2='pos', sw='o2', at=[x, 8]) for i, x in enumerate((13, 17, 21, 25))}
 dsp['B3']['wire'] = [[26, 16], [33, 16], [33, 6]]
+dsp['IDLE'] = dict(s=2, src='idle', at=[4, 8])
 emit('o2', -1, 1, 'coord', 'REWIRE', r, displays=dsp,
      parts=[dict(kind='switch', x=33, y=5, sw='o2')])
 
@@ -224,15 +229,16 @@ emit('o2', -1, 1, 'coord', 'REWIRE', r, displays=dsp,
 r = Room('#')
 r.rect(1, 1, 38, 19, '.'); r.rect(0, 5, 1, 3, '.')
 r.rect(1, 8, 6, 13); r.rect(15, 8, 6, 13); r.rect(33, 8, 6, 13)
-bridge(r, (7, 11), 8); bridge(r, (21, 25, 29), 8)
+bridge(r, (7, 11), 8)
 r.rect(7, 20, 8, 1, '^'); r.rect(21, 20, 12, 1, '^')
+r.rect(21, 1, 12, 6)                                               # v3: a low roof over the jump bridge: no hopping on it
 r.rect(34, 0, 3, 1, '.'); r.rect(34, 5, 3, 1, '-'); r.rect(34, 2, 3, 1, '-')
-r.put(3, 7, 'P'); r.put(17, 7, 'P'); r.put(37, 7, 'P')
+r.put(3, 7, 'P'); r.put(20, 7, 'P'); r.put(37, 7, 'P')
+r.put(17, 3, 'o')                                                  # inside the dial's upper cell: in through b (dial 5 or 6)
 dsp = {f'L{i}': dict(s=2, src='pos', off=3, at=[x, 8]) for i, x in enumerate((7, 11))}
-for i, x in enumerate((21, 25, 29)): dsp[f'R{i}'] = dict(s=2, val=1, src='static', src2='pos', sw='o3', at=[x, 8])
-dsp['R0']['wire'] = [[22, 16], [18, 16], [18, 6]]
-emit('o3', 1, 1, 'coord', 'WHERE AND WHEN', r, displays=dsp,
-     parts=[dict(kind='switch', x=18, y=5, sw='o3')])
+dsp['J'] = dict(t='bar', n=12, src='jumps', mod=13, at=[21, 8], hint='jumps', wire=[[21, 9], [18, 9], [18, 12]])
+dsp['DL'] = dict(s=2, src='reg:dial', bus=True, at=[16, 1])
+emit('o3', 1, 1, 'coord', 'COUNT THE HOPS', r, displays=dsp)
 
 # ============================================================== PANEL
 # p1 (0,-1): DIMMER -- walking left over the long knob turns the brightness down; the dim door is up top
@@ -251,16 +257,19 @@ emit('p1', 0, -1, 'over', 'DIMMER', r, wing='PANEL',
                              wire=[[20, 19], [20, 14], [31, 14], [31, 12]], hint='bright')),
      reveals=['bright'])
 
-# p2 (0,-2): BURN-IN -- at brightness 9 old burned-in bars glow and hold you; the glass shows old text
+# p2 (0,-2): BURN-IN -- at brightness 9 old burned-in bars glow and hold you; the glass shows old text.
+# v3: the machine's language code is burned in too (left): its letters are a climbing frame only at 9, and a
+# different frame in every language. The stray point sits over the gap between the letters.
 r = Room('#')
 r.rect(1, 1, 38, 20, '.'); r.rect(34, 21, 4, 1, '.'); r.rect(39, 3, 1, 3, '.')
 r.rect(27, 6, 12, 1)
-r.put(9, 4, 'o')
-r.put(32, 20, 'P'); r.put(35, 5, 'P')
-burn = [(31, 18), (25, 15), (19, 12), (13, 9), (19, 6), (8, 6)]
-emit('p2', 0, -2, 'over', 'BURN-IN', r, wing='PANEL',
-     displays={f'B{i}': dict(t='bits', n=1, w=3, val=0, burn=True, at=[x, y]) for i, (x, y) in enumerate(burn)},
-     text=[dict(s='HUD POSITION: BOTTOM', x=3, y=17, burn=True), dict(s='THE HALL WANTS IT DARK', x=3, y=19, burn=True)],
+r.put(8, 4, 'o')
+r.put(32, 20, 'P'); r.put(35, 5, 'P'); r.put(19, 20, 'P')
+burn = [(31, 18), (25, 15), (19, 12), (23, 9)]
+dsp = {f'B{i}': dict(t='bits', n=1, w=3, val=0, burn=True, at=[x, y]) for i, (x, y) in enumerate(burn)}
+dsp['CODE'] = dict(t='code', n=2, src='lang', burn=True, at=[1, 6])
+emit('p2', 0, -2, 'over', 'BURN-IN', r, wing='PANEL', displays=dsp,
+     text=[dict(s='HUD POSITION: BOTTOM', x=18, y=2, burn=True), dict(s='THE HALL WANTS IT DARK', x=18, y=4, burn=True)],
      burnMarks=[[27, 17]], reveals=['hudpos'])
 
 # p3 (1,-2): STATUS BAR -- your own HUD blocks the way in; at the bottom it bridges the pit
@@ -272,14 +281,81 @@ r.put(4, 20, '^'); r.put(14, 20, '^')
 r.put(18, 5, 'P'); r.put(20, 15, 'P')
 emit('p3', 1, -2, 'over', 'STATUS BAR', r, wing='PANEL', hudSolid=True)
 
+
+PIT_W = 12
+# ============================================================== LEXICON (v3): the words on the displays are in your language
+def code(x, y, n=2, **kw):
+    return dict(t='code', n=n, src='lang', at=[x, y], **kw)
+def seal_code_top(r, x, y, n=2):
+    """wall the tiles of a code display's top row that are not its a-bars (corners and the gaps between letters)"""
+    for k in range(n):
+        for dx in (0, 6, 7):
+            if k == n - 1 and dx == 7: continue
+            r.put(x + 8 * k + dx, y, '#')
+
+# l1 (-3,0): LANGUAGE -- a globe switch changes the language of everything, and the code letters with it. The letters
+# are set in rock: lit strokes are solid, dark strokes are tunnels. The way on runs through ONE letter's middle row:
+# B's second letter (open in EN KO RU: N O U), then A's first letter (open in ZH JA DE: Z J D). Nobody passes both.
+STAR = [[(1,0,5,1)],[(6,1,1,4)],[(6,6,1,4)],[(1,10,5,1)],[(0,6,1,4)],[(0,1,1,4)],[(1,5,2,1)],[(4,5,2,1)],
+        [(1,1,1,2),(2,3,1,2)],[(3,1,1,4)],[(5,1,1,2),(4,3,1,2)],[(2,6,1,2),(1,8,1,2)],[(3,6,1,4)],[(4,6,1,2),(5,8,1,2)]]
+def carve_code(r, x, y, n=2):
+    for k in range(n):
+        for rects in STAR:
+            for (dx, dy, w, h) in rects: r.rect(x + 8 * k + dx, y + dy, w, h, '.')
+        r.put(x + 8 * k + 3, y + 5, '.')                              # the hollow middle where the strokes meet
+r = Room('#')
+r.rect(39, 8, 1, 3, '.'); r.rect(37, 6, 2, 5, '.')                 # the door from PRESS (t2) and a landing with a globe
+carve_code(r, 22, 5); r.rect(37, 10, 1, 1, '.'); r.put(36, 10, '.')  # B: in at the second letter's right corner
+r.put(30, 10, '.'); r.rect(29, 10, 1, 6, '.')                      # ...out at its left corner, down the gap between the letters
+r.rect(17, 16, 18, 5, '.')                                         # the low hall under B
+r.rect(17, 3, 5, 13, '.')                                          # the middle: a climb with a second globe
+for (x, y, w) in [(19,18,2),(17,15,2),(20,12,2),(17,9,2),(20,6,2)]: r.rect(x, y, w, 1)
+r.rect(9, 3, 8, 1, '.')                                            # over A, to the gap between its letters
+carve_code(r, 2, 5); r.rect(9, 4, 1, 7, '.'); r.put(8, 10, '.')    # A: down the gap, in at the first letter's right corner
+r.put(2, 10, '.'); r.rect(1, 10, 1, 11, '.'); r.rect(1, 21, 2, 1, '.')   # ...out at its left corner, down to LETTERS (l2)
+r.put(38, 10, 'P'); r.put(19, 20, 'P'); r.put(10, 3, 'P')
+emit('l1', -3, 0, 'lex', 'LANGUAGE ', r, wing='LEXICON',
+     parts=[dict(kind='lang', x=37, y=7), dict(kind='lang', x=17, y=4)],
+     displays=dict(A=code(2, 5, wire=[[16, 4], [16, 2], [13, 2]]), B=code(22, 5, hint='lang', wire=[[36, 16], [36, 18], [35, 18]])))
+
+# l2 (-3,1): LETTERS -- the bridge is exactly as long as the word on the sign over the exit. No globe here: the menu has one.
+r = Room('#')
+r.rect(1, 0, 2, 1, '.'); r.rect(1, 1, 12, 20, '.')
+for (x, y, w) in [(9,17,3),(4,14,3),(9,11,3),(4,8,3)]: r.rect(x, y, w, 1)   # (a way back up to LANGUAGE)
+r.rect(13, 19, 26, 2, '.'); r.rect(13, 21, PIT_W, 1, '.')          # a low tunnel over a bottomless gap
+r.rect(39, 18, 1, 3, '.'); r.rect(36, 18, 3, 1, '.')
+r.put(11, 20, 'P'); r.put(37, 20, 'P')
+emit('l2', -3, 1, 'lex', 'LETTERS', r, wing='LEXICON',
+     displays=dict(BR=dict(t='bar', n=8, src='letters:exit', at=[13, 21], hint='lang', wire=[[13, 20], [12, 20], [12, 18]])),
+     text=[dict(s='EXIT', x=33, y=16, a=0.9)])
+
+# l3 (-2,1): INTERPRETER -- two gates count the letters of two different words. No language opens both.
+# E: EXIT has 1, 4 or 7 letters (EN, DE). U: UP has 0, 1 or 7 (ZH, JA, KO). X (a stray point): EXIT has 7 (DE).
+r = Room('#')
+r.rect(0, 18, 1, 3, '.'); r.rect(1, 18, 30, 3, '.')
+gE = hang(r, 9, 20)
+r.rect(31, 12, 8, 9, '.')
+for (x, y, w) in [(35,17,3),(31,14,3)]: r.rect(x, y, w, 1)
+r.rect(24, 12, 7, 1, '.'); carve_cells(r, 20, 9, 2); r.rect(17, 12, 3, 1, '.')     # U: a slot through its middle
+r.rect(17, 7, 2, 5, '.'); r.rect(17, 10, 2, 1, '-')
+r.rect(16, 7, 24, 1, '.'); r.rect(25, 5, 15, 2, '.')               # the way out east, to REWIRE (o2)
+carve_cells(r, 12, 4, 2); r.rect(10, 7, 2, 1, '.')                 # X: another slot, a stray point behind it
+r.put(10, 7, 'o')
+r.put(3, 20, 'P'); r.put(25, 20, 'P'); r.put(33, 20, 'P'); r.put(16, 7, 'P'); r.put(37, 7, 'P')
+emit('l3', -2, 1, 'lex', 'INTERPRETER', r, wing='LEXICON',
+     displays=dict(E=dict(s=2, src='letters:exit', at=gE, wire=[[13, 17], [16, 17], [16, 15]]),
+                   U=dict(s=2, src='letters:up', at=[20, 9], wire=[[22, 16], [22, 17]]),
+                   X=dict(s=2, src='letters:exit', at=[12, 4])),
+     text=[dict(s='EXIT', x=14, y=15, a=0.8), dict(s='UP', x=24, y=15, a=0.8), dict(s='EXIT', x=12, y=1, a=0.6)])
+
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),
   dict(id=2, title='TEN PERCENT', lines=['THE READOUT SAYS 10.0000 %.', 'CLOSER. SOMETHING IS STILL MISSING.']),
   dict(id=3, title='ONE HUNDRED PERCENT', lines=['EVERY NUMBER IN THE MACHINE READS TRUE.']),
 ]
-out = "// GENERATED by tools/rooms_src/v2.py -- edit there, not here.\n"
+out = "// GENERATED by tools/rooms_src/v3.py -- edit there, not here.\n"
 out += "export const START_ROOM = 'hall';\n"
 out += "export const ENDINGS = " + json.dumps(ENDINGS, indent=1) + ";\n"
 out += "export const ROOMS = " + json.dumps(OUT, indent=1) + ";\n"
-open(os.path.join(ROOT, 'src/rooms_v2.js'), 'w').write(out)
+open(os.path.join(ROOT, 'src/rooms_v3.js'), 'w').write(out)
 print('rooms', [o['id'] for o in OUT])
