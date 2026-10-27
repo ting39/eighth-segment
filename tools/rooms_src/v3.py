@@ -63,7 +63,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 6), (5, 10)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 11)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -392,6 +392,7 @@ r.rect(1, 1, 38, 20, '.'); r.rect(39, 18, 1, 3, '.')
 r.rect(6, 20, 28, 1, '^'); r.rect(6, 21, 28, 1)
 r.rect(36, 18, 3, 1); r.rect(34, 15, 2, 1)                         # steps up by the door
 r.rect(1, 20, 5, 1, '.'); r.rect(4, 21, 2, 1, '.')                # the way down, into CARRY HOME (t4)
+r.rect(0, 18, 1, 3, '.')                                           # ...and west, to NO SIGNAL (x1)
 r.put(20, 9, 'o')
 r.put(37, 20, 'P'); r.put(2, 20, 'P')
 emit('p4', -1, -2, 'over', 'DOWN', r, wing='PANEL', card=True,
@@ -422,6 +423,29 @@ r.put(37, 20, 'P')
 emit('s1', -3, -1, 'tally', 'CROSSTALK', r, wing='TALLY', secret=True,
      parts=[dict(kind='button', x=31, y=20, w=2, reg='dial', bus=True)],
      displays=dict(X=dict(s=2, src='reg:dial', bus=True, off=5, at=gX, hint='bus', wire=[[32, 19], [32, 16], [26, 16], [26, 17]])))
+
+# x1 (-2,-2): NO SIGNAL (west of DOWN's landing) -- STATUS BAR's lesson turned around. The HUD is solid here too, and the way runs through
+# both places it can sit: along the floor under the bottom HUD, up a shaft, along the ceiling under the top HUD.
+# Wherever you put it, it is in the way. Settings has had "HUD: OFF" since the first frame.
+# (Its deaths digits only let you walk through their bottom row when it is dark -- 1, 4, 7 -- so a player with
+# 11 or 14 or 41... deaths can walk through with the HUD on: the numbers still mean what they say.)
+HUD_X = (1, 5, 11, 15)
+def hud_zone(r, y):
+    """carve the HUD's digit cells at row y (s=1 digits, 3x5) and keep everything else rock"""
+    for x in HUD_X:
+        for (dx, dy) in [(1,0),(2,1),(2,3),(1,4),(0,3),(0,1),(1,2)]: r.put(x + dx, y + dy, '.')
+r = Room('#')
+r.rect(19, 18, 21, 3, '.')                                        # from DOWN (p4): a corridor west
+hud_zone(r, 16); hud_zone(r, 1)
+for x in (11, 13, 15, 17, 14, 18): r.put(x, 20, '.')             # the floor walk: corners, tunnels, through d
+for x in (11, 13, 15, 17, 14, 18): r.put(x, 5, '.')              # the ceiling walk, the same way
+r.rect(9, 1, 2, 20, '.')                                          # a shaft between the time digits and the deaths digits
+for (x, y) in [(9,18),(10,15),(9,12),(10,9),(9,6)]: r.put(x, y, '#')
+for x in (11, 13, 15, 17, 14, 18): r.put(x, 20, '.')             # (the walks again: the shaft carve doesn't reach them)
+r.rect(19, 1, 20, 5, '.'); r.rect(36, 6, 2, 12, '.')              # the far end, and a drop home
+r.put(28, 4, 'o')
+r.put(37, 20, 'P'); r.put(10, 20, 'P')
+emit('x1', -2, -2, 'over', 'NO SIGNAL', r, wing='PANEL', hudSolid=True)
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

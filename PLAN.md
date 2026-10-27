@@ -429,3 +429,10 @@ Progress log:
   need a `time:2` goal (the solver can't find "stand still 3 s" in a 10 s clock's state space). route.mjs now
   re-checks reused segments (a t3 edit had silently desynced the stored replay; see .learnings).
   38 tests pass. Pushing this milestone; NO SIGNAL (x1, HUD OFF) is written in scratch and comes next.
+- ~05:00 — **NO SIGNAL (x1, -2,-2)** in and proven: west of DOWN's landing. The solid HUD sits on the way wherever
+  it is (floor walk under the bottom HUD, ceiling walk under the top HUD); the setting that has been in the menu
+  since frame 1, HUD: OFF, clears both (`tools/hudlocks.mjs`: deaths 0 → top: floor ok / ceiling no; bottom:
+  floor no; off: both). A player whose deaths digits both read 1/4/7 (e.g. 14) walks through with the HUD on.
+  HUD 'off' is a world state now (g.hudpos 'off', main maps Settings→HUD to it, solver/route `hud:off`).
+  First placed at (-4,0) but an 8th map column would overflow ATLAS and move its secret corner → moved inside the
+  grid. Route: 23 rooms, 11/11 points, 240 s, D2; 38 tests pass. Readout needs 3/7/11.
