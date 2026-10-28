@@ -20,7 +20,7 @@ export const ROUTE = [
   // LETTERS: the bridge is as long as EXIT -> German (AUSGANG, 7); INTERPRETER: DE, then ZH for UP, then DE for X
   'lang:de', 'l3', 'at:33,20', 'at:16,7', 'event:point', 'at:37,7', 'o2',
   // REWIRE: the idle floor (stand still: fall through a stray point), the switch, east over the zones to BELOW
-  'at:5,7', 'event:point', 'at:34,7', 'sw.o2:1', 'at:36,7', 'o1', 'at:7,10', 'at:9,13', 'at:20,13', 'at:37,7', 'o3',
+  'at:5,7', 'event:point', 'at:36,7', 'o1', 'at:7,10', 'at:9,13', 'at:20,13', 'at:37,7', 'o3',
   // COUNT THE HOPS: over the zones, hop until the bridge is full, up the ladder into CLOCKWORK
   'at:20,7', 'jumps:12/13', 'at:37,7', 'c1',
   // CLOCKWORK: clock gate, stand still (point); the dial: DIAL wants {1,4,7}, FAR DIAL {0,1,7}, and the gold digit
@@ -46,7 +46,7 @@ export const ROUTE = [
   'at:32,11', 'at:37,9', 'x2', 'event:point', 'at:3,20', 'c3', 'at:32,11',
   'at:29,9', 'reg.dial:7', 'reg.dial:7@19,9', 'c4', 'at:37,9', 'at:9,9', 'c1', 'time:2', 'at:5,11', 'hall',
   // the support beams, PANEL, burn-in (the burned-in language code: point), the status bar, the long way home
-  'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'event:point',
+  'at:36,11', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'event:point',
   // round 2: west along BURN-IN's floor to DOWN: its name is the bridge for six seconds (too short in Chinese)
   'lang:de', 'at:2,20', 'p4', 'at:34,14', 'event:point', 'at:2,20',
   // round 2: NO SIGNAL, off DOWN's landing: the solid HUD is in the way wherever it sits -> Settings: HUD OFF
@@ -55,7 +55,7 @@ export const ROUTE = [
   // into CROSSTALK and home through LOOSE's false wall
   'e1', 'vol:2', 'at:29,12', 'at:26,9', 'at:17,7', 'at:4,14', 'idle:1', 'event:point', 'at:29,17', 'event:point', 's1', 'hud:top', 'vol:6',
   't3', 'at:13,17', 'at:3,11', 'at:6,5', 'at:12,5', 'at:2,3', 't4', 't1', 'hall',
-  'bright:9', 'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',
+  'bright:9', 'at:36,11', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',
   'at:35,5', 'p3',
   // round 2: ATTRACT MODE, east of STATUS BAR: stand still on the trapdoor and fall through the sign while it
   // shows the NEXT language -- in JA it shows KO as you fall (the only letter K's centre is open)

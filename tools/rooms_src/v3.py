@@ -54,7 +54,6 @@ for x in (21, 25, 29):          # hollow frames: with their top bars dark there 
 r.rect(21, 9, 18, 3, '.'); r.rect(33, 12, 6, 1); r.rect(39, 9, 1, 3, '.')
 r.rect(36, 0, 3, 9, '.')
 for y in (9, 6, 3): r.rect(36, y, 3, 1, '-')
-r.put(37, 10, 'w')
 # the hatch: a one-way gap in the upper right's floor, reached from below only by a burn-in rung (brightness 9,
 # which you only own after going up there): the lower hall's own way back up instead of CLOCKWORK again
 r.rect(34, 12, 2, 1, '-')
@@ -68,7 +67,7 @@ for i, n in ((3, 3), (4, 7), (5, 18)): disp[f'R{i}']['needPoints'] = n   # 100.#
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
-    disp[f'BEAM{i}'] = dict(s=2, val=1, src='static', src2='pos', sw='beams', at=[x, 12], wire=[[x+1, 19], [x+1, 20], [36, 20], [36, 12]] if i == 0 else None)
+    disp[f'BEAM{i}'] = dict(s=2, val=7, src='static', at=[x, 12])   # (final round: plain 7s -- their top bars are the floor; no switch, no zones)
 # v3: a gold digit hangs in the lower hall from frame 1. It reads the DIAL (in c3) plus three; its upper cell holds a
 # stray point that you can only get into when its middle bar is dark (0, 1, 7) -- the dial at 4, 7 or 8. CLOCKWORK's
 # own gates need {1,4,7} and {0,1,7}: only 7 opens all three.
@@ -85,7 +84,6 @@ disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 
 for k in list(disp):
     if disp[k].get('wire') is None: disp[k].pop('wire', None)
 emit('hall', 0, 0, 'boot', 'THE DISPLAY HALL', r, music='hall', wing='START ', displays=disp,
-     parts=[dict(kind='switch', x=37, y=10, sw='beams')],
      triggers=dict(a=dict(kind='slot', id=1), b=dict(kind='slot', id=2), c=dict(kind='slot', id=3), d=dict(kind='slot', id=4)),
      always=True, hudBottom=True, burnMarks=[[30, 16]])
 
@@ -235,29 +233,26 @@ emit('o1', 0, 1, 'coord', 'BELOW', r,
 r = Room('#')
 r.rect(1, 1, 38, 19, '.'); r.rect(39, 5, 1, 3, '.')
 r.rect(1, 8, 12, 13); r.rect(29, 8, 10, 13)
-bridge(r, (13, 17, 21, 25), 8)
+r.rect(13, 8, 16, 1)                                               # (final round: the horizontal-zone bridges are plain floor now)
 r.rect(13, 20, 16, 1, '^')
 r.rect(0, 5, 1, 3, '.')                                            # v3: the west door from INTERPRETER (l3)
 carve_cells(r, 4, 8, 2, corners=False); r.rect(5, 9, 2, 2, '.'); r.rect(5, 12, 2, 2, '.')   # v3: an idle digit set in the floor:
 r.rect(5, 15, 2, 6, '.'); r.rect(5, 20, 2, 1, '^'); r.put(5, 10, 'o')                         # 0 while you move, 1 if you stop
 r.put(36, 7, 'P'); r.put(3, 7, 'P')
-dsp = {f'B{i}': dict(s=2, val=1, src='static', src2='pos', sw='o2', at=[x, 8]) for i, x in enumerate((13, 17, 21, 25))}
-dsp['B3']['wire'] = [[26, 16], [33, 16], [33, 6]]
-dsp['IDLE'] = dict(s=2, src='idle', at=[4, 8])
-emit('o2', -1, 1, 'coord', 'REWIRE', r, displays=dsp,
-     parts=[dict(kind='switch', x=33, y=5, sw='o2')])
+dsp = {'IDLE': dict(s=2, src='idle', at=[4, 8])}
+emit('o2', -1, 1, 'coord', 'REWIRE', r, displays=dsp)
 
 # o3 (1,1): WHERE AND WHEN -- position, then a switch of your own, then up the ladder into c1
 r = Room('#')
 r.rect(1, 1, 38, 19, '.'); r.rect(0, 5, 1, 3, '.')
 r.rect(1, 8, 6, 13); r.rect(15, 8, 6, 13); r.rect(33, 8, 6, 13)
-bridge(r, (7, 11), 8)
+r.rect(7, 8, 8, 1)                                                 # (final round: plain floor, no horizontal zones)
 r.rect(7, 20, 8, 1, '^'); r.rect(21, 20, 12, 1, '^')
 r.rect(21, 1, 12, 6)                                               # v3: a low roof over the jump bridge: no hopping on it
 r.rect(34, 0, 3, 1, '.'); r.rect(34, 5, 3, 1, '-'); r.rect(34, 2, 3, 1, '-')
 r.rect(37, 1, 3, 3, '.')                                           # round 2: east, over the ladder, to ATLAS (o4)
 r.put(3, 7, 'P'); r.put(20, 7, 'P'); r.put(37, 7, 'P')
-dsp = {f'L{i}': dict(s=2, src='pos', off=3, at=[x, 8]) for i, x in enumerate((7, 11))}
+dsp = {}
 dsp['J'] = dict(t='bar', n=12, src='jumps', mod=13, at=[21, 8], hint='jumps', wire=[[21, 9], [18, 9], [18, 12]])
 emit('o3', 1, 1, 'coord', 'COUNT THE HOPS', r, displays=dsp)
 

@@ -1,4 +1,4 @@
-Status: done (redesign after user feedback, 2026-10-28; 30 rooms, route proven, 45 tests; see 'Redesign — end report')
+Status: done (redesign + final round, 2026-10-28; 30 rooms, route proven, 45 tests; see 'Redesign — end report' + addendum)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -696,3 +696,11 @@ Order: segword engine + bezels → LEXICON/DOWN/ENCORE/cuts → funnel → heigh
 **Known gaps:** REWIRE (o2) and COUNT THE HOPS (o3) still use horizontal position zones; LETTERS and INTERPRETER are
 now plain connecting rooms (no new word puzzle yet); the hall itself is still visually busy (only its exits were
 funnelled); the stroke-lattice vocabulary is 7 characters; still no human playtest.
+- ~15:50 — Final round: REWIRE (o2) and COUNT THE HOPS (o3) lose their horizontal-zone digits (plain floors; REWIRE's switch removed); the hall's support beams are plain 7s (their top bars the floor) and the hall switch is gone — nothing reads horizontal position any more, and the start room has one fewer thing in it. Route rebuilding.
+**Addendum (final round, ~16:05 CST; weekly ≈95%):** nothing reads horizontal position any more. REWIRE and COUNT THE
+HOPS had zone-digit bridges → plain floors (a height-layer copy right next to BELOW would have repeated it in
+consecutive rooms; REWIRE keeps its idle floor, COUNT THE HOPS its jumps bar); REWIRE's switch removed. The hall's
+support beams were zone digits behind a switch → fixed 7s (their top bars are the floor to the 100% approach) and the
+hall switch is gone, so the start room has one thing fewer. Route re-proven (30 rooms, 19/19, ending 4); 45 tests.
+Known gaps now: BELOW is the only height-layer room; REWIRE/INTERPRETER/LETTERS are simpler connecting rooms; the
+hall still holds the readout, socket, gold dial digit and burn-in bits (visible from the start, used later).
