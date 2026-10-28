@@ -28,9 +28,8 @@ export const ROUTE = [
   'at:3,20', 'at:37,20', 'c2', 'at:12,3', 'at:14,3', 'idle:1', 'event:point',
   // round 2: BABEL CLOCK (the language sign speaks every language in turn: letter one, wait between, letter two);
   // then down STILL's floor hole into ATLAS: the map of where you have been, and CROSSTALK's block is the last step
-  'c5', 'at:9,9', 'at:19,9', 'at:28,9', 'event:point',
-  // round 3: INTERMISSION, east of BABEL CLOCK: its gates read the seconds spent in the pause menu -> 1 + 13 = 14 s
-  'at:37,20', 'i1', 'pause:13', 'event:point', 'c5', 'at:3,20', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
+  // round 3: INTERMISSION (now east of STILL): its gates read the seconds spent in the pause menu -> 1 + 13 = 14 s
+  'at:37,20', 'i1', 'pause:13', 'event:point', 'c2', 'o4', 'at:9,17', 'at:4,17', 'at:4,14', 'at:4,11',
   'event:point',
   // round 2: TURN IT DOWN, east of ATLAS: the music volume is a wall (jump it at <=3) and a pillar (stand on it at 9)
   'at:37,20', 'vol:2', 'y1', 'at:22,20', 'vol:9', 'event:point',
@@ -54,7 +53,7 @@ export const ROUTE = [
   'x1', 'hud:off', 'at:10,20', 'event:point', 'at:30,20', 'at:10,20',
   // round 2: ENCORE, west off NO SIGNAL's shaft: volume <=3, EN/KO/RU, dial 7 (+4 = 1), and stand still -- then down
   // into CROSSTALK and home through LOOSE's false wall
-  'e1', 'vol:2', 'lang:en', 'at:29,12', 'at:26,9', 'at:17,7', 'at:4,14', 'idle:1', 'event:point', 'at:29,17', 'event:point', 's1', 'hud:top', 'vol:6',
+  'e1', 'vol:2', 'at:29,12', 'at:26,9', 'at:17,7', 'at:4,14', 'idle:1', 'event:point', 'at:29,17', 'event:point', 's1', 'hud:top', 'vol:6',
   't3', 'at:13,17', 'at:3,11', 'at:6,5', 'at:12,5', 'at:2,3', 't4', 't1', 'hall',
   'bright:9', 'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',
   'at:35,5', 'p3',
@@ -62,8 +61,7 @@ export const ROUTE = [
   // shows the NEXT language -- in JA it shows KO as you fall (the only letter K's centre is open)
   // round 2: NEGATIVE first (east along ATTRACT MODE's corridor): the map of rooms you have NOT been to is the solid
   // part; WALL CLOCK was visited on the way through CLOCKWORK, so the lid over the stray point is gone
-  'a1', 'n1', 'at:20,20', 'at:37,17', 'at:37,11', 'at:37,8', 'event:point', 'at:2,17', 'at:2,5', 'a1',
-  'lang:ja', 'at:19,6', 'idle:1', 'event:point', 'c3', 'reg.dial:7', 'reg.dial:7@19,9', 'c4', 'c1', 'hall',
+  'n1', 'at:20,20', 'at:37,17', 'at:37,11', 'at:37,8', 'event:point', 'at:2,17', 'at:2,5', 'p3', 'at:20,15', 'c4', 'c1', 'hall',
   // the hall's burn-in ghost (point: brightness 9), and the burn-in rung up through the hatch to the upper right
   'at:17,20', 'event:point', 'at:37,20', 'bright:9', 'at:36,11',
   // the dim bar wants it dark, then the 100% slot

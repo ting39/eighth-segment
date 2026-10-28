@@ -62,7 +62,7 @@ test('spawns are safe for every counter value, language and brightness', () => {
 
 test('the world has twenty-one stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 21);
+  assert.equal(pts, 19);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
 });
@@ -78,17 +78,6 @@ test('the wall clock reads the real time, and its tunnel is open only when every
   for (const t of [1200, 1112, 835, 2359, 1710, 1170 + 0]) assert.equal(tunnelOpen(t), [...String(t).padStart(4, '0')].every((c) => '017'.includes(c)), `at ${t}`);
 });
 
-test('ATTRACT MODE: standing still in the well drops you through the sign only in JA (shows KO as you fall) or ZH (one second later)', async () => {
-  const { step } = await import('../src/sim.js');
-  const through = [];
-  for (const lang of LANGS) {
-    const g = createGame(world, 'a1', { lang, spawn: { x: (19 * 8 + 1) * 256, y: (6 * 8 + 2) * 256 } });
-    for (let i = 0; i < 400; i++) step(g, 0);
-    if (Math.floor((g.p.y + 768) / 2048) >= 19 && !g.c.deaths) through.push(lang);
-  }
-  assert.deepEqual(through, ['zh-TW', 'ja']);
-});
-
 test("NEGATIVE: the map of rooms you have NOT been to is solid; WALL CLOCK's block is the lid over the stray point", () => {
   const g = createGame(world, 'n1');
   const lid = () => { updateDisplays(g); return [33, 34, 35].every((x) => g.dyn[9 * RW + x]); };
@@ -101,8 +90,7 @@ test("NEGATIVE: the map of rooms you have NOT been to is solid; WALL CLOCK's blo
 
 test('coming in through a door and dying respawns you on that side of the room\'s puzzle (no free points)', () => {
   const nearest = (id, x, y) => { let b = null, bd = 1e9; for (const s of world.rooms.get(id).spawns) { const d = (s.tx - x) ** 2 + (s.ty - y) ** 2; if (d < bd) { bd = d; b = s; } } return [b.tx, b.ty]; };
-  assert.deepEqual(nearest('c5', 39, 19), [37, 20], 'BABEL CLOCK from INTERMISSION: not behind the sign');
-  assert.deepEqual(nearest('a1', 39, 4), [36, 5], 'ATTRACT MODE from NEGATIVE: not in the chamber under the sign');
+  assert.deepEqual(nearest('o1', 0, 6), [3, 7], 'BELOW from REWIRE: on the near side');
 });
 
 test('LOOP: its sides meet; every lap counts as coming in again and lights one more step', async () => {

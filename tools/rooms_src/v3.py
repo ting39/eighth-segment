@@ -64,7 +64,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 20)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 18)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -79,7 +79,7 @@ disp['DIM'] = dict(t='bits', n=1, w=1, h=1, val=1, src='static', dim=True, at=[2
 # round -- then they open from the far side as shortcuts home.
 disp['TO_C1'] = dict(t='bits', n=1, w=1, h=3, val=1, src='static', untilVisit='c1', at=[39, 18])
 disp['TO_O1'] = dict(t='bits', n=1, w=2, h=1, val=1, src='static', untilVisit='o1', at=[26, 21])
-disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=21, at=[22, 8])
+disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=19, at=[22, 8])
 disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 18])
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
 for k in list(disp):
@@ -193,7 +193,6 @@ r.rect(1, 9, 38, 1, '.'); r.rect(0, 9, 1, 1, '.')
 for (x, y, w) in [(31,18,3),(35,15,3),(31,12,3)]: r.rect(x, y, w, 1)
 gK = hang(r, 14, 9)
 r.rect(20, 5, 10, 4, '.')                                          # v3: headroom over the dial (hop along it a click at a time)
-r.rect(24, 0, 2, 5, '.')                                           # round 2: ATTRACT MODE (a1) drops in here (one way)
 r.put(39, 9, '.'); r.rect(39, 18, 1, 3, '.')                       # round 2: east to WALL CLOCK (x2), and its way back
 r.rect(36, 10, 3, 1)                                              # ...with a ledge under that door (it hung over the shaft)
 r.put(32, 20, 'P'); r.put(29, 9, 'P'); r.put(3, 9, 'P')
@@ -369,26 +368,6 @@ emit('l3', -2, 1, 'lex', 'INTERPRETER', r, wing='LEXICON')
 
 
 # ============================================================== ROUND 2
-# c5 (3,0): BABEL CLOCK -- the LANGUAGE sign again, set in rock, but now it speaks every language in turn, one a
-# second, starting from yours. Its first letter's middle is open in ZH JA DE, its second's in EN KO RU (as in
-# LANGUAGE): run through letter one, wait in the gap between the letters, run through letter two when it opens.
-r = Room('#')
-r.rect(0, 18, 1, 3, '.'); r.rect(1, 16, 38, 5, '.')               # from STILL (c2), a low hall
-r.rect(1, 3, 10, 13, '.')                                         # the climb up to the sign
-for (x, y, w) in [(6,18,3),(2,15,3),(6,12,2)]: r.rect(x, y, w, 1)
-r.rect(8, 10, 3, 1)                                               # the landing at the tunnel's mouth
-carve_code(r, 12, 4)
-r.put(11, 9, '.'); r.put(12, 9, '.'); r.put(18, 9, '.'); r.put(19, 9, '.'); r.put(20, 9, '.'); r.put(26, 9, '.'); r.put(27, 9, '.')
-floor_code(r, 12, 4, [0, 1])
-r.rect(28, 4, 11, 6, '.')                                         # behind the sign: a pocket with a stray point
-r.rect(36, 10, 2, 6, '.')                                         # ...and a drop back down (too high to climb)
-r.put(33, 9, 'o')
-r.rect(39, 18, 1, 3, '.')                                          # round 3: east to INTERMISSION (i1)
-r.put(3, 20, 'P'); r.put(9, 9, 'P'); r.put(30, 9, 'P'); r.put(37, 20, 'P')   # (a spawn by the east door, or dying
-                                                                  # there respawned you behind the sign, at the point)
-emit('c5', 3, 0, 'clock', 'BABEL CLOCK', r,
-     displays=dict(S=dict(t='code', n=2, src='lang', langSrc='time', at=[12, 4], hint='time', wire=[[10, 2], [7, 2], [7, 3]])))
-
 # p4 (-1,-2): DOWN -- every room says its name as you come in. This one says it big, where the banner always is,
 # and for seven seconds the name is solid: the only floor over the spikes. Leave and come back to say it again.
 r = Room('#')
@@ -492,24 +471,6 @@ emit('y1', 3, 1, 'coord', 'TURN IT DOWN', r, wing='COORDINATES',
      displays=dict(WALL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[16, 12], hint='volume', wire=[[15, 11], [12, 11], [12, 13]]),
                    PIL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[26, 12])))
 
-# a1 (2,-2): ATTRACT MODE -- east of STATUS BAR. A shop-window sign: leave the controls alone and it shows off
-# the next language every second; touch anything and it snaps back to yours. The way on is a trapdoor (STILL's
-# floor: it opens after a second of standing still) over the first letter's centre, which is open only for K.
-# You fall without touching anything, so the sign has already moved one language on: to fall through KO, be in
-# the language before it (JA). Below: a stray point and a drop into DIAL.
-r = Room('#')
-r.rect(0, 3, 1, 3, '.'); r.rect(1, 1, 30, 5, '.')                 # from STATUS BAR (p3), under the sign's legend
-r.rect(31, 3, 9, 3, '.')                                           # ...and on east, to NEGATIVE (n1)
-r.put(19, 6, '.'); r.put(19, 7, '.')                              # the well, and its trapdoor
-carve_code(r, 16, 8)
-r.put(19, 19, '.'); r.rect(14, 19, 20, 2, '.')                    # under the sign: the chamber
-r.rect(24, 21, 2, 1, '.')                                         # down into DIAL (c3), one way
-r.put(29, 20, 'o')
-r.put(3, 5, 'P'); r.put(16, 20, 'P'); r.put(36, 5, 'P')            # (round 3: a spawn by the east door, or dying after
-                                                                  # coming in from NEGATIVE respawned you in the chamber)
-emit('a1', 2, -2, 'over', 'ATTRACT MODE', r, wing='PANEL',
-     displays=dict(S=dict(t='code', n=2, src='lang', langSrc='idle', at=[16, 8], legend=[21, 6], hint='idle', wire=[[15, 7], [12, 7], [12, 6]]),
-                   TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[19, 7])))
 
 # n1 (3,-2): NEGATIVE -- east of ATTRACT MODE. ATLAS inverted: the world map again, but here the rooms you have NOT
 # been to are the solid blocks. The stray point is in a pocket whose lid is one room's block: east of DIAL -- the
@@ -522,7 +483,7 @@ for y in (18, 15, 12, 9, 6): r.rect(37, y, 2, 1, '-')             # a ladder up 
 for y in (18, 15, 12, 9): r.rect(1, y, 2, 1, '-')                # ...and the west wall, back to the door (with every room
                                                                   # visited there is no other floor at all)
 r.put(2, 5, 'P'); r.put(20, 20, 'P')
-emit('n1', 3, -2, 'over', 'NEGATIVE', r, wing='PANEL',
+emit('n1', 2, -2, 'over', 'NEGATIVE', r, wing='PANEL',
      displays=dict(MAP=dict(t='map', src='visits', inv=True, at=[3, 5], cw=3, ch=1, gap=2, gapy=3)))
 
 # e1 (-3,-2): ENCORE -- west of NO SIGNAL, the last cell of the grid: the return trip that asks for everything at
@@ -549,7 +510,6 @@ r.put(27, 17, '.'); r.rect(29, 16, 2, 2, '.'); r.rect(29, 18, 2, 1, '-'); r.put(
 r.put(37, 12, 'P'); r.put(3, 20, 'P')
 emit('e1', -3, -2, 'tally', 'ENCORE', r, wing='TALLY',
      displays=dict(VOL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[30, 4], hint='volume'),
-                   S=dict(t='code', n=2, src='lang', at=[10, 2], hint='lang'),
                    D=dict(s=2, src='reg:dial', bus=True, off=4, at=[5, 11], hint='bus'),
                    TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[2, 15]),
                    WT=dict(s=1, src='reg:pv', place=1, at=[22, 14]), WO=dict(s=1, src='reg:pv', at=[26, 14], hint='reg')))
@@ -564,7 +524,7 @@ r.rect(9, 20, 18, 1, '.'); gT = hang(r, 11, 20); gO = hang(r, 19, 20)
 r.rect(27, 12, 12, 9, '.')                                        # behind the gates
 r.put(33, 20, 'o')
 r.put(3, 20, 'P'); r.put(29, 20, 'P')
-emit('i1', 4, 0, 'clock', 'INTERMISSION', r, wing='CLOCKWORK', offmap=True,
+emit('i1', 3, 0, 'clock', 'INTERMISSION', r, wing='CLOCKWORK', offmap=True,
      displays=dict(PT=dict(s=2, src='paused', place=1, at=gT, hint='paused', wire=[[10, 15], [6, 15], [6, 14]]),
                    PO=dict(s=2, src='paused', at=gO, wire=[[23, 15], [26, 15]])))
 
