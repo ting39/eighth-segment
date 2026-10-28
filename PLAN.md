@@ -1,4 +1,4 @@
-Status: in-progress (v3 round 6 running 2026-10-28 08:28 CST, unattended resume; hard stop weekly 92% or 18:00 CST)
+Status: done (v3 round 6 finished 2026-10-28 ~09:45 CST; weekly ~89%; see "Round 6 — end report")
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -631,3 +631,18 @@ set line 1 to done.
   are 0 / 2 / 24 (near side) and 44 (through the gate) — so you must leave the point after the 2, then cross the map.
   Lock test covers it ({0,2,24,44,48,80} → only 2). Cells carved, corners rock (every dark bar is a sealed hole).
   Route: PV exit now leaves 2; ENCORE takes both points. 32 rooms, 21/21, 339 s, D9; ending 4 re-proven; 46 tests.
+- 09:40 — Feel: PLACE VALUE's slot holes 24–25% per jump from within ±12 px (tight-fair; standing under is easy).
+  ENCORE's nook was 8.2% (a 1×1 cell up through a ledge) → 2×2 with a 2-wide ledge: 15.6% / 11.5%. Re-proven.
+
+### Round 6 — end report (2026-10-28 ~09:45 CST; weekly 88–89%, 5-hour 10%)
+**New:** PLACE VALUE (pv, east of TURN IT DOWN, over the LOOP hole): the game's fiction read literally. You are
+the decimal point. A readout, 2448, has a slot before it and after every digit. Step into one and the point sits
+there (new `dp` part). The gates read the whole-number part's last digit: 24 for the gate, then the lid wants a dark
+middle bar that no digit of 2448 has. The last slot sits past the end, after an empty place: 24480 — ending 4's
+"one digit further" as a puzzle. **Recurs far away:** ENCORE, at the other end of the world, shows the same number
+(00 from your first visit) with a stray point inside its ones digit behind the one bar only a 2 leaves dark. You
+can carry out 0 / 2 / 24 / 44, so you must leave the point after the 2 and then cross the map (one machine, two
+rooms, a plan across them). **Proof:** route 32 rooms, 21/21 points, 339 s; ending 4 re-proven; 46 tests (a lock test
+pins both rooms); luck 0% / 0.5%; jump rates 11–25%. Pushed. **Stopped** here with ~2–3 weekly points to spare
+(aim ≤91%); nothing half-built. **Known gaps:** still no human playtest; the `dp` slot's look (a small square) could
+use a nicer point glyph; PLACE VALUE's nudge ("WHERE DOES A NUMBER END?") is my wording in all 7 languages.

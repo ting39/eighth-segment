@@ -25,3 +25,13 @@ room and add a spawn on the door's side if needed.
 ## 2026-10-28 — never chain `npm test | grep … && git push`
 `grep` succeeds when it prints the ✖ line, so the push ran with a failing test (fixed 10 minutes later).
 Gate pushes on the test's own exit code: `npm test >log 2>&1 && git push`, then read the log.
+
+## 2026-10-28 — a digit "set in the rock" must still be carved
+Display cells drawn over '#' fail `display cells never overlap static tiles`. To embed a digit in rock (ENCORE's
+PLACE VALUE pair), `carve_cells(..., corners=False)`: corners stay rock, so every dark bar is a sealed hole and only
+the bar you mean to be the door connects anything. Then check every path through the digit, not just the door.
+
+## 2026-10-28 — luck.mjs counts any point in the room
+`node tools/luck.mjs e1 … event:point` read 91.5% because random players walk into ENCORE's *existing* chamber
+point. For a second point in a room, pin the lock in a unit test (which values open it) instead, or start the
+luck test past the old point.

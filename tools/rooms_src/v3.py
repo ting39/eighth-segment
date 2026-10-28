@@ -551,7 +551,7 @@ r.put(14, 20, 'o')
 # it). A pocket hides inside the ones digit, behind its lower-right bar -- dark only for a 2. Leave the point after
 # the 2 over there, and this opens over here. (Before PLACE VALUE it reads 00.)
 carve_cells(r, 22, 14, 1, corners=False); carve_cells(r, 26, 14, 1, corners=False)   # (corners stay rock: every dark bar is sealed)
-r.put(27, 17, '.'); r.put(29, 17, '.'); r.put(29, 18, '-'); r.put(27, 17, 'o')
+r.put(27, 17, '.'); r.rect(29, 16, 2, 2, '.'); r.rect(29, 18, 2, 1, '-'); r.put(27, 17, 'o')   # (a nook, up through a ledge: 8% -> wider)
 r.put(37, 12, 'P'); r.put(3, 20, 'P')
 emit('e1', -3, -2, 'tally', 'ENCORE', r, wing='TALLY',
      displays=dict(VOL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[30, 4], hint='volume'),
