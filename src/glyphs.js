@@ -22,9 +22,9 @@ export const wordOf = (key, lang) => (WORDS[key] || {})[lang] ?? (WORDS[key] || 
 // nodes two tiles apart, every unit stroke between neighbouring nodes is a segment (custom-layout segment displays
 // are how real hardware shows a small set of kanji). Lit strokes are solid like every other segment.
 export const SEGWORDS = {
-  up:   { en: 'UP', 'zh-TW': '上', ja: '上', ko: '위', de: 'AUF', es: 'SUBIR', ru: 'ВВЕРХ' },
+  up:   { en: 'UP', 'zh-TW': '上', ja: '上', ko: '위', de: 'AUF', es: 'SUBE', ru: 'ВЕРХ' },
   down: { en: 'DOWN', 'zh-TW': '下', ja: '下', ko: '아래', de: 'AB', es: 'BAJO', ru: 'ВНИЗ' },
-  gate: { en: 'GATE', 'zh-TW': '門', ja: '門', ko: '문', de: 'TOR', es: 'VERJA', ru: 'ДВЕРЬ' },
+  gate: { en: 'GATE', 'zh-TW': '門', ja: '門', ko: '문', de: 'TOR', es: 'REJA', ru: 'ВХОД' },
 };
 // lattice strokes: ['h', row, c0, c1] / ['v', col, r0, r1] in node units (0..4)
 const LAT_DEF = {

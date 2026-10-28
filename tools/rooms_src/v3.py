@@ -74,6 +74,11 @@ for i, x in enumerate((21, 25, 29)):
 # own gates need {1,4,7} and {0,1,7}: only 7 opens all three.
 disp['BUS'] = dict(s=2, src='reg:dial', bus=True, off=3, at=[16, 12])
 disp['DIM'] = dict(t='bits', n=1, w=1, h=1, val=1, src='static', dim=True, at=[20, 9])
+# redesign (user feedback 1): the start is a funnel. At first only TALLY's door (and the 1% slot) lead anywhere; the
+# door to CLOCKWORK and the hole down to COORDINATES are plugged until you have reached those rooms the long way
+# round -- then they open from the far side as shortcuts home.
+disp['TO_C1'] = dict(t='bits', n=1, w=1, h=3, val=1, src='static', untilVisit='c1', at=[39, 18])
+disp['TO_O1'] = dict(t='bits', n=1, w=2, h=1, val=1, src='static', untilVisit='o1', at=[26, 21])
 disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=21, at=[22, 8])
 disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 18])
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
@@ -266,14 +271,12 @@ for (x, y, w) in [(2,18,3),(5,15,3),(2,12,3)]: r.rect(x, y, w, 1)
 r.rect(31, 1, 8, 11, '.'); r.rect(32, 12, 7, 1); r.rect(31, 12, 1, 1)
 r.rect(34, 0, 4, 1, '.')
 for (x, y, w) in [(36,9,3),(32,6,3),(36,3,2)]: r.rect(x, y, w, 1)
-r.rect(19, 7, 6, 7); carve_cells(r, 20, 7, 2, corners=False); r.rect(19, 10, 6, 1, '.')   # v3: a slot that counts UP's letters
 r.put(35, 20, 'P'); r.put(3, 20, 'P'); r.put(34, 11, 'P'); r.put(10, 11, 'P')
 emit('p1', 0, -1, 'over', 'DIMMER', r, wing='PANEL',
      parts=[dict(kind='knob', x=12, y=20, w=16, reg='bright')],
-     displays=dict(UP=dict(s=2, src='letters:up', at=[20, 7]),
-                   DOOR=dict(t='bits', n=1, w=1, h=3, val=1, src='static', dim=True, at=[31, 9],
+     displays=dict(DOOR=dict(t='bits', n=1, w=1, h=3, val=1, src='static', dim=True, at=[31, 9],
                              wire=[[20, 19], [20, 14], [31, 14], [31, 12]], hint='bright')),
-     text=[dict(s='UP', x=21, y=5, a=0.8)], reveals=['bright'])
+     reveals=['bright'])
 
 # p2 (0,-2): BURN-IN -- at brightness 9 old burned-in bars glow and hold you; the glass shows old text
 r = Room('#')
@@ -325,34 +328,28 @@ def floor_code(r, x, y, ks):
     for k in ks:
         for dx in range(7):
             if r.g[y + 6][x + 8 * k + dx] == '.': r.put(x + 8 * k + dx, y + 6, '-')
+# (redesign, round 7) The word is now DRAWN BY SEGMENTS, in your language, and it is the only bridge west over the
+# spikes. Which strokes exist -- which tops to hop, which bars to stand on -- depends on the language; the globe on
+# the landing (and the menu) changes it. Word: L1_WORD below.
+L1_WORD = os.environ.get('L1_WORD', 'up')        # (sweep: UP crosses only in ES and RU -- EN, the default, must change language)
 r = Room('#')
-r.rect(39, 8, 1, 3, '.'); r.rect(37, 6, 2, 5, '.')                 # the door from PRESS (t2) and a landing with a globe
-carve_code(r, 22, 5); r.rect(37, 10, 1, 1, '.'); r.put(36, 10, '.')  # B: in at the second letter's right corner
-r.put(30, 10, '.'); r.rect(29, 10, 1, 6, '.')                      # ...out at its left corner, down the gap between the letters
-r.rect(17, 16, 18, 5, '.')                                         # the low hall under B
-r.rect(17, 3, 5, 13, '.')                                          # the middle: a climb with a second globe
-for (x, y, w) in [(19,18,2),(17,15,2),(20,12,2),(17,9,2),(20,6,2)]: r.rect(x, y, w, 1)
-r.rect(9, 3, 8, 1, '.')                                            # over A, to the gap between its letters
-carve_code(r, 2, 5); r.rect(9, 4, 1, 7, '.'); r.put(8, 10, '.')    # A: down the gap, in at the first letter's right corner
-r.put(2, 10, '.'); r.rect(1, 10, 1, 11, '.'); r.rect(1, 21, 2, 1, '.')   # ...out at its left corner, down to LETTERS (l2)
-floor_code(r, 22, 5, [1]); floor_code(r, 2, 5, [0])                # round 2: the tunnels have floors (KO/RU fell into l)
-r.rect(18, 0, 2, 3, '.')                                           # round 2: CROSSTALK (s1) drops in here (one way)
-r.put(38, 10, 'P'); r.put(19, 20, 'P'); r.put(10, 3, 'P')
+r.rect(39, 8, 1, 3, '.'); r.rect(35, 4, 4, 7, '.')                 # the door from PRESS (t2), a landing with a globe
+r.rect(1, 1, 34, 20, '.'); r.rect(4, 20, 31, 1, '^'); r.rect(1, 21, 2, 1, '.')   # the chamber: spikes; west, down to LETTERS (l2)
+r.rect(18, 0, 2, 1, '.'); r.rect(16, 4, 6, 1)                       # CROSSTALK (s1) drops in here, onto a ledge
+r.put(37, 10, 'P'); r.put(3, 20, 'P'); r.put(18, 3, 'P')
 emit('l1', -3, 0, 'lex', 'LANGUAGE ', r, wing='LEXICON',
-     parts=[dict(kind='lang', x=37, y=7), dict(kind='lang', x=17, y=4)],
-     displays=dict(A=code(2, 5, wire=[[16, 4], [16, 2], [13, 2]]), B=code(22, 5, hint='lang', wire=[[36, 16], [36, 18], [35, 18]])))
+     parts=[dict(kind='lang', x=36, y=7)],
+     displays=dict(W=dict(t='segword', word=L1_WORD, src='lang', at=[4, 9], align='center', w=31)))
 
 # l2 (-3,1): LETTERS -- the bridge is exactly as long as the word on the sign over the exit. No globe here: the menu has one.
 r = Room('#')
 r.rect(1, 0, 2, 1, '.'); r.rect(1, 1, 12, 20, '.')
 for (x, y, w) in [(9,17,3),(4,14,3),(9,11,3),(4,8,3)]: r.rect(x, y, w, 1)   # (a way back up to LANGUAGE)
-r.rect(13, 19, 26, 2, '.'); r.rect(13, 21, PIT_W, 1, '.')          # a low tunnel over a bottomless gap
+r.rect(13, 19, 26, 2, '.')                                         # a low tunnel (redesign: no more letter-counting bridge)
 r.rect(39, 18, 1, 3, '.'); r.rect(36, 18, 3, 1, '.')
 r.rect(0, 12, 1, 3, '.'); r.rect(1, 12, 3, 3, '.'); r.rect(1, 15, 3, 1)   # round 5: west, off a ledge, to FALL UP (fu)
 r.put(11, 20, 'P'); r.put(37, 20, 'P')
-emit('l2', -3, 1, 'lex', 'LETTERS', r, wing='LEXICON',
-     displays=dict(BR=dict(t='bar', n=8, src='letters:exit', at=[13, 21], hint='lang', wire=[[13, 20], [12, 20], [12, 18]])),
-     text=[dict(s='EXIT', x=33, y=16, a=0.9)])
+emit('l2', -3, 1, 'lex', 'LETTERS', r, wing='LEXICON')
 
 # l3 (-2,1): INTERPRETER -- two gates count the letters of two different words. No language opens both.
 # E: EXIT has 1, 4 or 7 letters (EN, DE). U: UP has 0, 1 or 7 (ZH, JA, KO). X (a stray point): EXIT has 7 (DE).
@@ -367,11 +364,7 @@ r.rect(16, 7, 24, 1, '.'); r.rect(25, 5, 15, 2, '.')               # the way out
 carve_cells(r, 12, 4, 2); r.rect(10, 7, 2, 1, '.')                 # X: another slot, a stray point behind it
 r.put(10, 7, 'o')
 r.put(3, 20, 'P'); r.put(25, 20, 'P'); r.put(33, 20, 'P'); r.put(16, 7, 'P'); r.put(37, 7, 'P')
-emit('l3', -2, 1, 'lex', 'INTERPRETER', r, wing='LEXICON',
-     displays=dict(E=dict(s=2, src='letters:exit', at=gE, wire=[[13, 17], [16, 17], [16, 15]]),
-                   U=dict(s=2, src='letters:up', at=[20, 9], wire=[[22, 16], [22, 17]]),
-                   X=dict(s=2, src='letters:exit', at=[12, 4])),
-     text=[dict(s='EXIT', x=14, y=15, a=0.8), dict(s='UP', x=24, y=15, a=0.8), dict(s='EXIT', x=12, y=1, a=0.6)])
+emit('l3', -2, 1, 'lex', 'INTERPRETER', r, wing='LEXICON')
 
 
 # ============================================================== ROUND 2
@@ -399,14 +392,14 @@ emit('c5', 3, 0, 'clock', 'BABEL CLOCK', r,
 # and for seven seconds the name is solid: the only floor over the spikes. Leave and come back to say it again.
 r = Room('#')
 r.rect(1, 1, 38, 20, '.'); r.rect(39, 18, 1, 3, '.')
-r.rect(6, 20, 28, 1, '^'); r.rect(6, 21, 28, 1)
-r.rect(36, 18, 3, 1); r.rect(34, 15, 2, 1)                         # steps up by the door
+r.rect(6, 21, 28, 1)                                               # (redesign: no spikes -- the card is a ladder now)
+r.rect(36, 18, 3, 1); r.rect(34, 15, 2, 1); r.rect(36, 12, 3, 1)   # steps up by the door (redesign: the card is drawn in segments, taller)
 r.rect(1, 20, 5, 1, '.'); r.rect(4, 21, 2, 1, '.')                # the way down, into CARRY HOME (t4)
 r.rect(0, 18, 1, 3, '.')                                           # ...and west, to NO SIGNAL (x1)
-r.put(20, 9, 'o')
+r.put(20, 6, 'o')
 r.put(37, 20, 'P'); r.put(2, 20, 'P')
 emit('p4', -1, -2, 'over', 'DOWN', r, wing='PANEL', card=True,
-     displays=dict(CARD=dict(t='word', word='down', src='static', at=[0, 13], align='right', w=34, until=7)))
+     displays=dict(CARD=dict(t='segword', word='down', src='static', at=[0, 9], align='right', w=34, until=7)))
 
 # o4 (2,1): ATLAS -- the world map, one block per room, lit once you have been there. Lit is solid, so the map is
 # a climbing frame made of everywhere you have been. The stray point is up in the corner, over a block that is

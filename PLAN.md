@@ -669,3 +669,5 @@ segment layout for a small character set (core77 "38 segment display"; Crystalfo
   (`untilVisit`) — shortcuts back to the hub.
 - **Height (point 4)**: COORDINATES position bridges → vertical columns reading `posy` (layer), cross at a layer.
 Order: segword engine + bezels → LEXICON/DOWN/ENCORE/cuts → funnel → height. Route proof + tests each milestone.
+- ~14:10 — l1 LANGUAGE redesigned: the segment word UP (ES SUBE, RU ВЕРХ, 上, 위…) is the only bridge over spikes; tools/wordlocks.mjs: crosses in ES/RU only (EN fails → the globe on the landing). GATE crossed EN/DE/RU, DOWN EN/RU.
+- ~14:30 — Letter-count gimmicks removed (DIMMER's UP slot, LETTERS' bar, INTERPRETER's three gates: plain rooms now). DOWN's title card is the word drawn in segments; spikes removed, the card is the only way up to the point for its 7 s (DE/ES/RU reach it; EN/ZH/JA/KO don't). Funnel: hall plugs TO_C1 (right door) and TO_O1 (floor hole) stay lit until c1 / o1 have been visited (`untilVisit`). Skill corrected. Route rebuilding.

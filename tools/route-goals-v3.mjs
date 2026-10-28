@@ -12,11 +12,13 @@ export const ROUTE = [
   'at:12,5', 'at:3,11', 's1', 'reg.dial:2', 'event:point', 't3', 'at:3,11', 'at:6,5', 'at:12,5', 'at:2,3', 't4',
   'event:pickup', 'at:26,20', 'jumps:1', 't1', 'hall', 'event:socket', 'at:3,12', 'at:5,9', 'at:12,9', 'event:slot/2',
   // LEXICON: through PRESS's west door; B's second letter in EN, a globe to ZH for A's first letter
-  'at:2,9', 'at:3,12', 'at:2,20', 't1', 'deaths:4', 't2', 'at:2,10', 'l1', 'at:19,20', 'event:lang', 'at:10,3', 'l2',
+  'at:2,9', 'at:3,12', 'at:2,20', 't1', 'deaths:4', 't2', 'at:2,10', 'l1',
+  // redesign: LANGUAGE's bridge is the word UP drawn in segments -- only SUBE (ES) / ВЕРХ (RU) cross; the menu here
+  'lang:es', 'at:31,8', 'at:2,12', 'l2',
   // round 5: FALL UP, west of LETTERS: pause 1 s so the trapdoor digit reads 1, fall through, come out of the ceiling
   'at:2,14', 'fu', 'pause:1', 'at:25,14', 'event:point', 'l2',
   // LETTERS: the bridge is as long as EXIT -> German (AUSGANG, 7); INTERPRETER: DE, then ZH for UP, then DE for X
-  'lang:de', 'l3', 'at:33,20', 'lang:zh-TW', 'at:16,7', 'lang:de', 'event:point', 'at:37,7', 'o2',
+  'lang:de', 'l3', 'at:33,20', 'at:16,7', 'event:point', 'at:37,7', 'o2',
   // REWIRE: the idle floor (stand still: fall through a stray point), the switch, east over the zones to BELOW
   'at:5,7', 'event:point', 'at:34,7', 'sw.o2:1', 'at:36,7', 'o1', 'at:22,7', 'at:37,7', 'o3',
   // COUNT THE HOPS: over the zones, hop until the bridge is full, up the ladder into CLOCKWORK
