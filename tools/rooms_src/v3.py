@@ -64,7 +64,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 18)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 19)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -74,7 +74,7 @@ for i, x in enumerate((21, 25, 29)):
 # own gates need {1,4,7} and {0,1,7}: only 7 opens all three.
 disp['BUS'] = dict(s=2, src='reg:dial', bus=True, off=3, at=[16, 12])
 disp['DIM'] = dict(t='bits', n=1, w=1, h=1, val=1, src='static', dim=True, at=[20, 9])
-disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=19, at=[22, 8])
+disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=20, at=[22, 8])
 disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 18])
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
 for k in list(disp):
@@ -490,6 +490,7 @@ r.rect(16, 12, 2, 9, '.')                                         # the doorway:
 r.rect(18, 3, 21, 18, '.')                                        # the far side
 r.rect(30, 9, 9, 1)                                               # a high ledge
 r.rect(36, 21, 2, 1, '.')                                          # round 3: a hole in the far corner, down to LOOP (lp)
+r.rect(39, 18, 1, 3, '.')                                          # round 6: east, over that hole, to PLACE VALUE (pv)
 r.rect(20, 18, 3, 1); r.rect(23, 15, 2, 1)                         # steps up beside the pillar (not over each other)
 r.put(34, 8, 'o')
 r.put(2, 20, 'P'); r.put(22, 20, 'P'); r.put(36, 8, 'P')
@@ -597,6 +598,33 @@ r.put(16, 3, 'o')
 r.put(37, 14, 'P'); r.put(5, 14, 'P'); r.put(26, 3, 'P')
 emit('fu', -4, 1, 'lex', 'FALL UP', r, wing='LEXICON', offmap=True, wrapV=True,
      displays=dict(T=dict(s=2, src='paused', at=[20, 15], hint='paused')))
+
+# pv (4,1): PLACE VALUE (round 6) -- east of TURN IT DOWN (offmap). You are the decimal point, and here that is
+# literal: a readout, 2 4 4 8, with a slot after every digit (and one before the first). Step into a slot and the
+# point sits there; the gates read the whole-number part (0, 2, 24, 244, 2448), its last digit. The first gate wants
+# a dark bottom bar (24); the lid over the stray point wants a dark middle (0/1/7), and no digit of 2448 has one.
+# The last slot is past the end of the number, after an empty place: 24480. The point went one digit further.
+r = Room('#')
+RD = [2, 7, 12, 17]                                                 # the readout's digits (2 4 4 8)
+for x in RD: carve_cells(r, x, 2, 2, corners=False)
+carve_cells(r, 22, 2, 2, corners=False)                            # ...and an empty place after the last one
+SLOTS = [(1, 0), (6, 2), (11, 24), (16, 44), (21, 48), (26, 80)]   # slot x, the whole-number part (mod 100) with the point there
+for (x, v) in SLOTS: r.rect(x, 8, 1, 3, '.')                       # each slot, with a hole up into it from below
+r.rect(0, 18, 1, 3, '.'); r.rect(1, 11, 10, 10, '.')               # from TURN IT DOWN (y1): the near side
+r.rect(3, 18, 6, 1, '-'); r.rect(3, 15, 8, 1, '-'); r.rect(1, 12, 2, 1, '-'); r.rect(5, 12, 6, 1, '-')
+r.put(11, 11, '.')                                                 # (a nook under the slot after the 4)
+r.rect(11, 20, 6, 1, '.'); gP = hang(r, 12, 20)                    # the gate, over the way through
+r.rect(17, 11, 10, 10, '.'); r.put(16, 11, '.')                    # the far side (and a nook under the slot after 2 4 4)
+r.rect(17, 18, 8, 1, '-'); r.rect(19, 15, 8, 1, '-'); r.rect(17, 12, 6, 1, '-'); r.rect(25, 12, 2, 1, '-')
+carve_cells(r, 28, 11, 2); r.put(27, 14, '.'); r.rect(32, 13, 3, 2, '.')   # the lid: a tunnel through its middle bar
+r.put(33, 14, 'o')
+r.rect(30, 2, 4, 7, '.'); r.rect(35, 2, 4, 7, '.')                 # (sealed: the whole-number part, tens and ones)
+r.put(2, 20, 'P'); r.put(20, 20, 'P')
+disp = {f'D{i}': dict(s=2, val=v, at=[x, 2]) for i, (x, v) in enumerate(zip(RD, [2, 4, 4, 8]))}
+disp['IT'] = dict(s=2, src='reg:pv', place=1, at=[30, 2]); disp['IO'] = dict(s=2, src='reg:pv', at=[35, 2])
+disp['G'] = dict(s=2, src='reg:pv', at=gP, hint='reg'); disp['L'] = dict(s=2, src='reg:pv', at=[28, 11])
+emit('pv', 4, 1, 'coord', 'PLACE VALUE', r, wing='COORDINATES', offmap=True, displays=disp,
+     parts=[dict(kind='dp', x=x, y=8, reg='pv', v=v) for (x, v) in SLOTS])
 
 ENDINGS = [
   dict(id=1, title='ONE PERCENT', lines=['THE READOUT SAYS 1.00000 %.', 'THE MACHINE SHRUGS. THE POINT POPS BACK OUT.']),

@@ -625,6 +625,14 @@ function usePartsAfterMove(g, wasGround) {
         g.events.push({ type: 'lang', lang: g.lang, x: pt.x, y: pt.y });
       }
       g.partIn[pt.key] = inside;
+    } else if (pt.kind === 'dp') {
+      // a decimal-point slot: step into it and the point sits here (the register holds the whole-number part)
+      const inside = overlapsTiles(p, pt.x, pt.y, 1, 1);
+      if (inside && !g.partIn[pt.key] && (c.reg[pt.reg] || 0) !== pt.v) {
+        c.reg[pt.reg] = pt.v;
+        g.events.push({ type: 'dp', reg: pt.reg, x: pt.x, y: pt.y });
+      }
+      g.partIn[pt.key] = inside;
     } else if (pt.kind === 'seg') {
       if (!g.carry && !g.flags.has('used:' + pt.key) && overlapsTiles(p, pt.x, pt.y, 1, 1)) {
         g.carry = pt.key; g.carryO = pt.o || 'h';

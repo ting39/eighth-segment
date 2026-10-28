@@ -32,6 +32,7 @@ const N = {
   e1: ['EVERYTHING YOU KNOW, ONCE MORE.', '你學過的一切，再來一次。', '知っていることを、もう一度全部。', '아는 것 전부, 한 번 더.', 'ALLES, WAS DU WEISST, NOCH EINMAL.', 'TODO LO QUE SABES, UNA VEZ MÁS.', 'ВСЁ, ЧТО ТЫ ЗНАЕШЬ, ЕЩЁ РАЗ.'],
   i1: ['THESE NUMBERS NEVER MOVE WHILE YOU PLAY.', '你在玩的時候，這些數字從不動。', 'プレイ中はこの数字は動かない。', '플레이하는 동안 이 숫자는 안 움직인다.', 'DIESE ZAHLEN BEWEGEN SICH NIE, WÄHREND DU SPIELST.', 'ESTOS NÚMEROS NO SE MUEVEN MIENTRAS JUEGAS.', 'ЭТИ ЧИСЛА НЕ МЕНЯЮТСЯ, ПОКА ТЫ ИГРАЕШЬ.'],
   fu: ['THE FLOOR IS A NUMBER. THE CEILING IS A DOOR.', '地板是一個數字。天花板是一扇門。', '床は数字。天井は扉。', '바닥은 숫자. 천장은 문.', 'DER BODEN IST EINE ZAHL. DIE DECKE EINE TÜR.', 'EL SUELO ES UN NÚMERO. EL TECHO, UNA PUERTA.', 'ПОЛ — ЭТО ЧИСЛО. ПОТОЛОК — ДВЕРЬ.'],
+  pv: ['WHERE DOES A NUMBER END?', '一個數字在哪裡結束？', '数はどこで終わる？', '숫자는 어디서 끝날까?', 'WO ENDET EINE ZAHL?', '¿DÓNDE TERMINA UN NÚMERO?', 'ГДЕ КОНЧАЕТСЯ ЧИСЛО?'],
   lp: ['THE ROOM COUNTS ITS VISITORS.', '這個房間會數訪客。', 'この部屋は訪問者を数える。', '이 방은 방문객을 센다.', 'DER RAUM ZÄHLT SEINE BESUCHER.', 'LA SALA CUENTA SUS VISITAS.', 'КОМНАТА СЧИТАЕТ ГОСТЕЙ.'],
 };
 const ORDER = ['en', 'zh-TW', 'ja', 'ko', 'de', 'es', 'ru'];

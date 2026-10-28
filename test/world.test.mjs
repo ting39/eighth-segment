@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildWorld, createGame, updateDisplays, collides, RW, RH, T } from '../src/sim.js';
+import { buildWorld, createGame, updateDisplays, displayLit, collides, RW, RH, T } from '../src/sim.js';
 import { LANGS } from '../src/glyphs.js';
 import { ROOMS } from '../src/rooms_v3.js';
 
@@ -60,9 +60,9 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has nineteen stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
+test('the world has twenty stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 19);
+  assert.equal(pts, 20);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
 });
@@ -123,4 +123,15 @@ test('every room has a stuck nudge in every game language, short enough to fit o
     assert.ok(row && row.length === LANGS.length && row.every((t) => t && t.length > 3), `nudge for ${id}`);
     row.forEach((t, i) => assert.ok([...t].length <= (i >= 1 && i <= 3 ? 26 : 52), `${id} ${LANGS[i]} too long: ${t}`));
   }
+});
+
+test('PLACE VALUE: the gate opens only with the point after a 4 (24, 244); the lid only past the end (24480)', () => {
+  const pv = world.rooms.get('pv');
+  const g = createGame(world, 'pv');
+  const at = (key) => pv.displays.find((d) => d.key === key);
+  const opens = (key, bar) => pv.parts.filter((pt) => { g.c.reg.pv = pt.v; return !(displayLit(g, at(key)) & bar); }).map((pt) => pt.v);
+  assert.deepEqual(opens('G', 8), [24, 44]);        // the gate's bottom bar (d) hangs over the way through
+  assert.deepEqual(opens('L', 64), [0, 80]);        // the lid's middle bar (g) is the tunnel; 0 is only on the near side
+  const near = pv.parts.filter((pt) => pt.x < 12).map((pt) => pt.v);
+  assert.deepEqual(near, [0, 2, 24]);
 });

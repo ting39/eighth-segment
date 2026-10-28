@@ -1,4 +1,4 @@
-Status: in-progress (v3 round 6 queued 2026-10-28 06:55 CST — resume after the 5-hour reset; see "Round 6 — queued" at the end; hard stop weekly 92% or 18:00 CST)
+Status: in-progress (v3 round 6 running 2026-10-28 08:28 CST, unattended resume; hard stop weekly 92% or 18:00 CST)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -612,3 +612,15 @@ idea from the game's own fiction (decimal point, segments, counters) that recurs
 ending/feel juice. Same rules: route proof + tests at every milestone, push only when proven, check usage at every
 milestone, aim to finish near 91%, hard stop at 92% weekly or 18:00 CST. End with a short "Round 6 — end report" and
 set line 1 to done.
+
+## V3 ROUND 6 (2026-10-28, resumed by the watchdog at 08:28 CST; weekly 86%, 5-hour 0%)
+- 08:55 — **PLACE VALUE (pv, 4,1)**, offmap, east of TURN IT DOWN (a door over the LOOP hole): the game's own
+  fiction, read literally. *You are the decimal point* (the hall's slots, ending 4's "one digit further"). A static
+  readout 2 4 4 8 with a slot before it and after every digit (new part `dp`: step in and the point sits there,
+  lit; `reg:pv` = the whole-number part mod 100: 0 / 2 / 24 / 44 / 48 / 80). A sealed pair shows that number; the gate
+  over the way through reads its last digit (bottom bar dark: 24, 244), the lid over the stray point reads it too
+  (middle bar dark: 0/1/7) — and no digit of 2448 has one. The last slot sits past the end, after an empty place:
+  24480. Home again through the gate with the point after the second 4 (244). Near side reaches only 0/2/24.
+  Luck test: 0% from the door, 0.5% from the far side (with 24 set); a slot found by chance 13.5% in 30 s.
+  Test pins the locks (gate {24,44}, lid {0,80}, near side {0,2,24}). Points 20 (hall needs 19; plug 20).
+  Route: 32 rooms, 20/20, 336 s, D7; ending 4 re-proven; 46 tests pass.

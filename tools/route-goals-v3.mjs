@@ -32,6 +32,9 @@ export const ROUTE = [
   'event:point',
   // round 2: TURN IT DOWN, east of ATLAS: the music volume is a wall (jump it at <=3) and a pillar (stand on it at 9)
   'at:37,20', 'vol:2', 'y1', 'at:22,20', 'vol:9', 'event:point',
+  // round 6: PLACE VALUE, east over the LOOP hole: you are the decimal point -- after the 4 (24) for the gate, past
+  // the end of 2448 (24480) for the lid, after the second 4 (244) to come home
+  'pv', 'reg.pv:24/100', 'at:20,20', 'reg.pv:80/100', 'event:point', 'reg.pv:44/100', 'at:5,20', 'y1',
   // round 3: LOOP, down the far corner: its sides meet, every lap is coming in again, one step appears per lap
   'at:35,20', 'lp', 'visits:7', 'at:31,17', 'at:36,14', 'at:31,11', 'at:36,8', 'at:31,5', 'at:36,2', 'y1',
   'vol:2', 'at:2,20', 'o4', 'vol:6',

@@ -139,6 +139,7 @@ function handleEvents() {
       }
       case 'point': sfx.point(); R.burst(e.x * TILE + 4, e.y * TILE + 4, '#ffffff', 24, 1.4); saveRun(); break;
       case 'bonk': sfx.bonk(); break;
+      case 'dp': sfx.seg(); R.burst(e.x * TILE + 4, e.y * TILE + 6, R.hexA(pal.lit, 0.9), 8, 0.6, 14); break;
       case 'button': sfx.move(); R.dust(e.x * TILE, e.y * TILE, R.hexA(pal.lit, 0.8)); break;
       case 'knob': sfx.seg(); if (e.reg === 'bright') { settings.bright = game.bright; reveal('bright'); } break;
       case 'switch': sfx.ok(); R.burst(e.x * TILE + 4, e.y * TILE + 4, R.hexA(pal.lit, 0.8), 6, 0.6, 16); break;
@@ -515,7 +516,7 @@ function drawMap(x, pal) {
 // you chose. Ending 3 reads 3.14159; the wrong slots read ten times too much / too little.
 // how many stray points light each of the readout's last three digits (the hall's R3..R5 use the same numbers)
 const CLOCK_POINT = 'x2:35,6';           // WALL CLOCK's stray point: the one beyond 100%
-const POINTS_FOR = [3, 7, 18];          // the hall needs 18; the wall clock's point is beyond 100%
+const POINTS_FOR = [3, 7, 19];          // the hall needs 19; the wall clock's point is beyond 100%
 const READOUTS = V2 ? { 1: ['100000', 0], 2: ['100000', 1], 3: ['100000', 2], 4: ['100000', 3] } : { 3: ['314159', 0], 1: ['314159', 1], 2: ['0314159', 0] };
 function bigDigit(x, mask, px, py, on, ghost) {
   const L = 8;

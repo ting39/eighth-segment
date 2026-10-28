@@ -399,6 +399,10 @@ export function createRenderer(canvas) {
         x.beginPath(); x.arc(px0 + 4, py0 + 4, 3, 0, Math.PI * 2); x.stroke();
         x.beginPath(); x.ellipse(px0 + 4, py0 + 4, 1.2, 3, 0, 0, Math.PI * 2); x.stroke();
         x.fillStyle = hexA(BEZEL.lang.c, 0.95); x.fillRect(px0 + 1, py0 + 4, 6, 1);
+      } else if (pt.kind === 'dp') {
+        // a decimal-point slot: the point glows in the one where it sits
+        const here = (g.c.reg[pt.reg] || 0) === pt.v;
+        x.fillStyle = hexA(pal.lit, here ? 0.95 : 0.16); x.fillRect(px0 + 2, py0 + 3, 4, 4);
       } else if (pt.kind === 'seg' && !g.flags.has('used:' + pt.key) && g.carry !== pt.key) {
         const bob = Math.round(Math.sin(t * 2.5 + pt.x) * 1.5);
         drawCell(x, { t: 'digit' }, pt.o === 'v' ? [pt.x, pt.y, 1, 1] : [pt.x, pt.y, 1, 1], hexA(pal.lit, 0.85));
