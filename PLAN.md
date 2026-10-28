@@ -1,4 +1,4 @@
-Status: in-progress (v3 redesign after user feedback 2026-10-28 13:12 — read the LAST section of V3_BRIEF.md first; hard stop weekly 97% or 18:00 CST)
+Status: done (redesign after user feedback, 2026-10-28; 30 rooms, route proven, 45 tests; see 'Redesign — end report')
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
@@ -673,3 +673,26 @@ Order: segword engine + bezels → LEXICON/DOWN/ENCORE/cuts → funnel → heigh
 - ~14:30 — Letter-count gimmicks removed (DIMMER's UP slot, LETTERS' bar, INTERPRETER's three gates: plain rooms now). DOWN's title card is the word drawn in segments; spikes removed, the card is the only way up to the point for its 7 s (DE/ES/RU reach it; EN/ZH/JA/KO don't). Funnel: hall plugs TO_C1 (right door) and TO_O1 (floor hole) stay lit until c1 / o1 have been visited (`untilVisit`). Skill corrected. Route rebuilding.
 - ~14:55 — **BELOW (o1) → height**: three bridges over spikes are one vertical display (`bar dir v single`: only the cell at your layer lights; src posy, div 3); a wall cuts the top layer, so you step down a layer or two before crossing; the far side climbs a one-way ladder. Layers probed: top blocked, middle/bottom cross. Route rebuilding.
 - ~15:10 — **Cut** BABEL CLOCK (c5) and ATTRACT MODE (a1) — 2-letter language codes set in rock, the misunderstanding; INTERMISSION moved to (3,0) east of STILL, NEGATIVE to (2,-2) east of STATUS BAR (map grid unchanged, lid puzzle intact); DIAL's ceiling hole closed; ENCORE's code sign removed (its volume/dial/stillness locks stay). Points 19 (hall needs 18; plug 19). Route rebuilding.
+
+### Redesign — end report (2026-10-28 ~15:25 CST; weekly 93%)
+1. **Start / routing → funnel.** From the first frame only TALLY's door (and the 1% slot) lead anywhere: the hall's
+   door to CLOCKWORK and its hole down to COORDINATES are lit plugs (`untilVisit`) that open once you have reached
+   those rooms the long way round — shortcuts home from the far side. The readout (the goal) is visible as before.
+2. **Function by segment geometry, not colour.** The coloured bezel frames are gone. Numbers stay 7-seg, words are
+   segment-drawn words, height is a vertical stack of bars, levels are bar graphs, the map is blocks.
+3. **Language = words drawn by segments.** New `segword` face: Latin/Cyrillic on the 14-seg starburst (Cyrillic set
+   designed — no published table exists), zh/ja/ko on a custom stroke-lattice segment display (5×5 nodes; real kanji
+   segment displays are custom layouts for a small character set). Lit strokes are solid; the word is the room's own,
+   in your language (UP/上/위/AUF/SUBE/ВЕРХ, DOWN/下/아래/AB/BAJO/ВНИЗ, GATE/門/문/TOR/REJA/ВХОД). LANGUAGE: the word
+   UP is the only bridge over spikes — EN can't cross, ES/RU can (globe or menu). DOWN's title card is drawn in
+   segments (DE/ES/RU reach the point on it). **Cut / removed** (the misunderstanding): BABEL CLOCK and ATTRACT MODE
+   (2-letter codes in rock), ENCORE's code sign, every letter-count gimmick (LETTERS, INTERPRETER, DIMMER's slot).
+4. **Height, not zones.** BELOW: three bridges stacked as one vertical display; only the one at your height is lit;
+   a wall cuts the top layer, so you choose a lower layer before stepping out. No flicker, no luck.
+5. **Research:** kanji/16-seg displays (core77 38-segment display, Crystalfontz forum, kanji-display patents,
+   Wikipedia 16/8-segment) → the lattice design.
+6. **Budget:** stopped at weekly 93% (limit 97%), before 18:00.
+**Proof:** route 30 rooms, 19/19 points, ending 4 re-proven; 45 tests. Skill `metroidbrainia-design` corrected.
+**Known gaps:** REWIRE (o2) and COUNT THE HOPS (o3) still use horizontal position zones; LETTERS and INTERPRETER are
+now plain connecting rooms (no new word puzzle yet); the hall itself is still visually busy (only its exits were
+funnelled); the stroke-lattice vocabulary is 7 characters; still no human playtest.
