@@ -64,7 +64,7 @@ r.rect(15, 12, 6, 7); carve_cells(r, 16, 12, 2, corners=False); r.rect(15, 15, 2
 r.put(13, 18, '#'); r.put(14, 16, '#'); r.put(18, 15, 'o')                                  # its dark middle bar is a tunnel
 r.put(16, 20, 'S'); r.put(5, 9, 'P'); r.put(36, 11, 'P'); r.put(18, 9, 'P'); r.put(37, 20, 'P'); r.put(2, 20, 'P')
 disp = {f'R{i}': dict(s=2, val=v, at=[x, 1]) for i, (x, v) in enumerate(zip(digits, [1,0,0,0,0,0]))}
-for i, n in ((3, 3), (4, 7), (5, 19)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
+for i, n in ((3, 3), (4, 7), (5, 20)): disp[f'R{i}']['needPoints'] = n   # 100.### : the stray points light the last digits (2, 4, all 6)
 disp['PCT0'] = dict(t='bits', n=1, val=1, at=[32, 2]); disp['PCT1'] = dict(t='bits', n=1, val=1, at=[34, 6])
 disp['SOCK'] = dict(s=4, val=7, sockets='a', at=[7, 10])
 for i, x in enumerate((21, 25, 29)):
@@ -74,7 +74,7 @@ for i, x in enumerate((21, 25, 29)):
 # own gates need {1,4,7} and {0,1,7}: only 7 opens all three.
 disp['BUS'] = dict(s=2, src='reg:dial', bus=True, off=3, at=[16, 12])
 disp['DIM'] = dict(t='bits', n=1, w=1, h=1, val=1, src='static', dim=True, at=[20, 9])
-disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=20, at=[22, 8])
+disp['PLUG'] = dict(t='bits', n=1, val=1, src='static', untilPoints=21, at=[22, 8])
 disp['BURN'] = dict(t='bits', n=1, w=3, val=0, src='static', burn=True, at=[35, 18])
 disp['RUNG'] = dict(t='bits', n=1, w=2, val=0, src='static', burn=True, at=[34, 15])
 for k in list(disp):
@@ -547,12 +547,18 @@ carve_cells(r, 5, 11, 2, corners=False); r.put(5, 14, '.'); r.put(8, 14, '.'); r
 r.rect(2, 14, 3, 1, '.'); r.rect(2, 15, 1, 4, '.')                # STILL's trapdoor at the corridor's end
 r.rect(1, 19, 31, 2, '.'); r.rect(30, 21, 2, 1, '.')              # the chamber, and down into CROSSTALK (s1)
 r.put(14, 20, 'o')
+# round 6: PLACE VALUE's whole-number part, once more, set in the rock over the chamber (the far end of the world from
+# it). A pocket hides inside the ones digit, behind its lower-right bar -- dark only for a 2. Leave the point after
+# the 2 over there, and this opens over here. (Before PLACE VALUE it reads 00.)
+carve_cells(r, 22, 14, 1, corners=False); carve_cells(r, 26, 14, 1, corners=False)   # (corners stay rock: every dark bar is sealed)
+r.put(27, 17, '.'); r.put(29, 17, '.'); r.put(29, 18, '-'); r.put(27, 17, 'o')
 r.put(37, 12, 'P'); r.put(3, 20, 'P')
 emit('e1', -3, -2, 'tally', 'ENCORE', r, wing='TALLY',
      displays=dict(VOL=dict(t='bar', dir='v', n=9, w=2, src='volume', at=[30, 4], hint='volume'),
                    S=dict(t='code', n=2, src='lang', at=[10, 2], hint='lang'),
                    D=dict(s=2, src='reg:dial', bus=True, off=4, at=[5, 11], hint='bus'),
-                   TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[2, 15])))
+                   TRAP=dict(t='bits', n=1, src='idle', inv=True, at=[2, 15]),
+                   WT=dict(s=1, src='reg:pv', place=1, at=[22, 14]), WO=dict(s=1, src='reg:pv', at=[26, 14], hint='reg')))
 
 # i1 (4,0): INTERMISSION (round 3) -- east of BABEL CLOCK, past the edge of the old map (offmap: ATLAS and NEGATIVE
 # don't know it). Two gates hang over the way in, reading one number the game clock never sees: the seconds you have

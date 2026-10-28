@@ -60,9 +60,9 @@ test('spawns are safe for every counter value, language and brightness', () => {
   }
 });
 
-test('the world has twenty stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
+test('the world has twenty-one stray points; the hall readout asks for all but the wall clock\'s (beyond 100%)', () => {
   const pts = [...world.rooms.values()].reduce((n, r) => n + r.items.filter((i) => i.kind === 'point').length, 0);
-  assert.equal(pts, 20);
+  assert.equal(pts, 21);
   const hall = world.rooms.get('hall');
   assert.equal(Math.max(...hall.displays.map((d) => d.needPoints || 0)), pts - 1);
 });
@@ -134,4 +134,8 @@ test('PLACE VALUE: the gate opens only with the point after a 4 (24, 244); the l
   assert.deepEqual(opens('L', 64), [0, 80]);        // the lid's middle bar (g) is the tunnel; 0 is only on the near side
   const near = pv.parts.filter((pt) => pt.x < 12).map((pt) => pt.v);
   assert.deepEqual(near, [0, 2, 24]);
+  // ...and ENCORE, at the far end of the world, reads the same number: its pocket opens only for a 2 (bar c dark),
+  // a value you can carry out of PLACE VALUE (0, 2, 24 from the near side; 44 through the gate)
+  const e1 = world.rooms.get('e1'), ge = createGame(world, 'e1'), wo = e1.displays.find((d) => d.key === 'WO');
+  assert.deepEqual([0, 2, 24, 44, 48, 80].filter((v) => { ge.c.reg.pv = v; return !(displayLit(ge, wo) & 4); }), [2]);
 });

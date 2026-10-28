@@ -624,3 +624,10 @@ set line 1 to done.
   Luck test: 0% from the door, 0.5% from the far side (with 24 set); a slot found by chance 13.5% in 30 s.
   Test pins the locks (gate {24,44}, lid {0,80}, near side {0,2,24}). Points 20 (hall needs 19; plug 20).
   Route: 32 rooms, 20/20, 336 s, D7; ending 4 re-proven; 46 tests pass.
+- 09:25 — **PLACE VALUE, far away (ENCORE, e1)**: the idea's second use, at the other end of the world, combined
+  with "one machine, many rooms": a HUD-sized pair in the rock over ENCORE's chamber reads PLACE VALUE's whole-number
+  part (00 until you've been there — the gate is shown long before it opens). A pocket with a stray point hides in
+  the ones digit behind its lower-right bar, which is dark only for a 2. The values you can carry out of PLACE VALUE
+  are 0 / 2 / 24 (near side) and 44 (through the gate) — so you must leave the point after the 2, then cross the map.
+  Lock test covers it ({0,2,24,44,48,80} → only 2). Cells carved, corners rock (every dark bar is a sealed hole).
+  Route: PV exit now leaves 2; ENCORE takes both points. 32 rooms, 21/21, 339 s, D9; ending 4 re-proven; 46 tests.

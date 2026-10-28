@@ -33,8 +33,8 @@ export const ROUTE = [
   // round 2: TURN IT DOWN, east of ATLAS: the music volume is a wall (jump it at <=3) and a pillar (stand on it at 9)
   'at:37,20', 'vol:2', 'y1', 'at:22,20', 'vol:9', 'event:point',
   // round 6: PLACE VALUE, east over the LOOP hole: you are the decimal point -- after the 4 (24) for the gate, past
-  // the end of 2448 (24480) for the lid, after the second 4 (244) to come home
-  'pv', 'reg.pv:24/100', 'at:20,20', 'reg.pv:80/100', 'event:point', 'reg.pv:44/100', 'at:5,20', 'y1',
+  // the end of 2448 (24480) for the lid, after the second 4 (244) to come home -- and leave it after the 2 (ENCORE)
+  'pv', 'reg.pv:24/100', 'at:20,20', 'reg.pv:80/100', 'event:point', 'reg.pv:44/100', 'at:5,20', 'reg.pv:2/100', 'y1',
   // round 3: LOOP, down the far corner: its sides meet, every lap is coming in again, one step appears per lap
   'at:35,20', 'lp', 'visits:7', 'at:31,17', 'at:36,14', 'at:31,11', 'at:36,8', 'at:31,5', 'at:36,2', 'y1',
   'vol:2', 'at:2,20', 'o4', 'vol:6',
@@ -52,7 +52,7 @@ export const ROUTE = [
   'x1', 'hud:off', 'at:10,20', 'event:point', 'at:30,20', 'at:10,20',
   // round 2: ENCORE, west off NO SIGNAL's shaft: volume <=3, EN/KO/RU, dial 7 (+4 = 1), and stand still -- then down
   // into CROSSTALK and home through LOOSE's false wall
-  'e1', 'vol:2', 'lang:en', 'at:29,12', 'at:26,9', 'at:17,7', 'at:4,14', 'idle:1', 'event:point', 's1', 'hud:top', 'vol:6',
+  'e1', 'vol:2', 'lang:en', 'at:29,12', 'at:26,9', 'at:17,7', 'at:4,14', 'idle:1', 'event:point', 'at:29,17', 'event:point', 's1', 'hud:top', 'vol:6',
   't3', 'at:13,17', 'at:3,11', 'at:6,5', 'at:12,5', 'at:2,3', 't4', 't1', 'hall',
   'bright:9', 'at:36,11', 'sw.beams:1', 'p1', 'at:3,20', 'at:3,11', 'lang:zh-TW', 'at:34,11', 'p2', 'bright:9', 'hud:bottom',
   'at:35,5', 'p3',
