@@ -1,4 +1,4 @@
-Status: done (v3 round 6 finished 2026-10-28 ~09:45 CST; weekly ~89%; see "Round 6 — end report")
+Status: in-progress (v3 redesign after user feedback 2026-10-28 13:12 — read the LAST section of V3_BRIEF.md first; hard stop weekly 97% or 18:00 CST)
 
 # O. EIGHTH SEGMENT — a hard, minimal precision platformer built on knowledge locks
 Read `~/Desktop/playground/NIGHT_PLAN.md` first (rules, approvals, protocols, HARD STOP rule).
