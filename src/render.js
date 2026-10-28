@@ -163,7 +163,7 @@ export function createRenderer(canvas) {
     }
     // ghost segments (HUD digits are drawn per frame: their position is a setting); empty sockets are outlines
     for (const d of room.displays) {
-      if (d.hudAt || d.burn || d.t === 'word') continue;   // burn-in and word ghosts are drawn live
+      if (d.hudAt || d.burn || d.t === 'word' || d.t === 'segword') continue;   // burn-in and word ghosts are drawn live
       d.cells.forEach((cell, i) => {
         if (d.missing & (1 << i)) drawSocket(x, cell, hexA(pal.lit, 0.3));
         else drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : d.t === 'map' ? 0.17 : 0.075), i);   // a map's unvisited rooms must read as rooms
@@ -288,8 +288,8 @@ export function createRenderer(canvas) {
     if (R.lastBright !== undefined && R.lastBright !== bright) R.brightFlash = 1;
     R.lastBright = bright;
     R.brightFlash = (R.brightFlash || 0) * 0.94;
-    for (const d of room.displays) if (d.t === 'word' && !d.burn) d.cells.forEach((cell, i) => drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.07)));
-    for (const d of room.displays) drawBezel(x, d, g);
+    for (const d of room.displays) if ((d.t === 'word' || d.t === 'segword') && !d.burn) d.cells.forEach((cell, i) => drawCell(x, d, cell, hexA(pal.lit, d.dim ? 0.04 : 0.07)));
+    // (no coloured frames: a display's function is told by its segment geometry -- user feedback, round 7)
     // a ruler printed along the top of the glass while any display counts position: zones of 4 tiles, 0-9
     if (room.displays.some((d) => (d.sw && g.c.sw[d.sw] ? d.src2 : d.src) === 'pos')) {
       x.fillStyle = hexA(BEZEL.pos.c, 0.5);

@@ -1,7 +1,7 @@
 // Deterministic simulation. Pure integer math, fixed 120 Hz step.
 // Shared by the browser game, the solver and the tests.
 import { digitMask, segmentRects } from './segments.js';
-import { LANGS, CODE, STAR, STAR_SEGS, STAR_PITCH, STAR_W, STAR_H, DOT_H, dotGlyph, wordOf, lettersOf } from './glyphs.js';
+import { LANGS, CODE, STAR, STAR_SEGS, STAR_PITCH, STAR_W, STAR_H, DOT_H, dotGlyph, wordOf, lettersOf, SEGWORDS, segLayout } from './glyphs.js';
 
 export const HZ = 120;
 export const SUB = 256;              // subpixels per pixel
@@ -95,6 +95,7 @@ function compileDisplay(roomId, d) {
   for (const ch of d.sockets || '') out.missing |= 1 << 'abcdefg'.indexOf(ch);
   if (d.t === 'code') return compileCode(roomId, out);
   if (d.t === 'word') return compileWord(roomId, out);
+  if (d.t === 'segword') return compileSegword(roomId, out);
   if (d.t === 'map') return out;                               // cells are laid out by buildWorld (it knows the grid)
   if (d.t === 'bar') {
     // unary meter: value v lights the first v cells (left to right, or bottom to top)
@@ -159,6 +160,17 @@ function compileWord(roomId, out) {
   for (const l of LANGS) {
     const lay = wordLayout(wordOf(out.word, l), out.x, out.y, out.align, out.w || 0);
     for (const [x, y] of lay.cells) if (x < 0 || y < 0 || x >= RW || y >= RH) throw new Error(`${roomId}: word ${out.word} (${l}) out of bounds`);
+    out.layouts[l] = lay;
+  }
+  out.cells = out.layouts.en.cells;
+  return out;
+}
+
+function compileSegword(roomId, out) {
+  out.layouts = {};
+  for (const l of LANGS) {
+    const lay = segLayout(SEGWORDS[out.word][l], out.x, out.y, out.align, out.w || 0);
+    for (const [x, y, w, h] of lay.cells) if (x < 0 || y < 0 || x + w > RW || y + h > RH) throw new Error(`${roomId}: segword ${out.word} (${l}) out of bounds`);
     out.layouts[l] = lay;
   }
   out.cells = out.layouts.en.cells;
@@ -320,7 +332,7 @@ export function displayLit(g, d) {
     d.litArr = gone ? d.cells.map(() => 0) : d.mapIds.map((id) => ((g.c.visits[id] ? 1 : 0) ^ (d.inv ? 1 : 0)));
     return -1;
   }
-  if (d.t === 'code' || d.t === 'word') {
+  if (d.t === 'code' || d.t === 'word' || d.t === 'segword') {
     const l = displayLang(g, d);
     let arr;
     if (d.t === 'code') arr = d.litBy[l];

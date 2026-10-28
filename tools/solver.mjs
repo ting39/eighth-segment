@@ -47,7 +47,7 @@ function roomProfile(room) {
     if (d.src === 'idle' || d.langSrc === 'idle') prof.idle = true;
     if (d.langSrc === 'time') { prof.timePeriod = lcm(prof.timePeriod || 1, LANGS.length * (d.every || 1) * HZ); prof.timeQuant = HZ / 5; }
     if (d.until) prof.here = Math.max(prof.here || 0, d.until * HZ);
-    if (d.t === 'code' || d.t === 'word' || String(d.src).startsWith('letters:') || d.src === 'lang') prof.lang = true;
+    if (d.t === 'code' || d.t === 'word' || d.t === 'segword' || String(d.src).startsWith('letters:') || d.src === 'lang') prof.lang = true;
     if (d.src === 'visits') prof.visits = true;
     if (d.src === 'volume' || d.src2 === 'volume') prof.volume = true;
     if (d.src === 'bright' || d.burn || d.dim) prof.bright = true;

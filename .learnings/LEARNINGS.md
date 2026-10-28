@@ -35,3 +35,11 @@ the bar you mean to be the door connects anything. Then check every path through
 `node tools/luck.mjs e1 … event:point` read 91.5% because random players walk into ENCORE's *existing* chamber
 point. For a second point in a room, pin the lock in a unit test (which values open it) instead, or start the
 luck test past the old point.
+
+## 2026-10-28 — user correction: "language" and "different design" were both misread (rounds 1–6)
+The user meant (a) display FUNCTION told by segment geometry (number/shape/placement of segments: 7-seg, 14/16-seg,
+bar graphs, rings), not coloured bezels or outlines; and (b) words/characters DRAWN BY SEGMENT DISPLAYS (lit segments
+solid, language change = different word = different geometry), not font-shaped letters in rock or letter counts.
+Six rounds were built on the misreading. When a user's design seed is one sentence, restate it as a concrete
+mock-up (a screenshot or ASCII sketch) and confirm before building rounds on it; an unattended run cannot ask, so
+put the interpretation at the top of the brief where the user will see it first.

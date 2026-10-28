@@ -646,3 +646,26 @@ rooms, a plan across them). **Proof:** route 32 rooms, 21/21 points, 339 s; endi
 pins both rooms); luck 0% / 0.5%; jump rates 11–25%. Pushed. **Stopped** here with ~2–3 weekly points to spare
 (aim ≤91%); nothing half-built. **Known gaps:** still no human playtest; the `dp` slot's look (a small square) could
 use a nicer point glyph; PLACE VALUE's nudge ("WHERE DOES A NUMBER END?") is my wording in all 7 languages.
+
+## V3 REDESIGN after user feedback (2026-10-28 ~13:20 CST) — read V3_BRIEF.md's LAST section first
+Research (point 5): real Kanji segment displays have no standard segment count — practical designs use a CUSTOM
+segment layout for a small character set (core77 "38 segment display"; Crystalfontz forum; kanji-display patents).
+16-seg is Latin-born; Cyrillic needs a custom table. → Plan:
+- **Face `segword`** (src/glyphs.js + sim): a meaningful word per language, DRAWN BY SEGMENTS, lit = solid.
+  Latin/Cyrillic: the 14-seg starburst (7×11 tiles, pitch 8; ≤5 letters fit) + new Cyrillic letters.
+  zh/ja/ko: a STROKE LATTICE — 5×5 nodes every 2 tiles (9×9 tiles), segments = unit horizontal/vertical strokes
+  between nodes (+ the few diagonals used), each 3 tiles node-to-node; hand-made glyphs for a small vocabulary.
+  Vocabulary (≤5 Latin letters): up = UP/上/上/위/AUF/SUBIR/ВВЕРХ; down = DOWN/下/下/아래/AB/BAJO/ВНИЗ;
+  gate = GATE/門/門/문/TOR/VERJA/ДВЕРЬ.
+- **Function by geometry, no colour bezels**: remove BEZEL frames + pos ruler colour cue; numbers stay 7-seg,
+  words are segwords, height is a vertical column, levels (volume/brightness) bar graphs, map blocks.
+- **Cut** rooms built on the misunderstanding: c5 BABEL CLOCK, a1 ATTRACT MODE (code letters set in rock).
+  Move INTERMISSION i1 to (3,0) (east of STILL), NEGATIVE n1 to (2,-2) (east of STATUS BAR).
+  **Redesign** l1 LANGUAGE (globe + a segword whose strokes are the climb), l2 LETTERS and l3 INTERPRETER (segword
+  bridges/gates instead of letter counts), p4 DOWN (title card drawn by segments), ENCORE's code tunnel → segword;
+  remove p1's UP-letter-count slot.
+- **Funnel (point 1)**: from the start only TALLY's door (+ the 1% slot); the hall's other exits (CLOCKWORK door,
+  COORDINATES hole, PANEL shaft) are plugs that open once you have reached the room beyond them from the far side
+  (`untilVisit`) — shortcuts back to the hub.
+- **Height (point 4)**: COORDINATES position bridges → vertical columns reading `posy` (layer), cross at a layer.
+Order: segword engine + bezels → LEXICON/DOWN/ENCORE/cuts → funnel → height. Route proof + tests each milestone.
