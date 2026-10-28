@@ -344,7 +344,7 @@ export function displayLit(g, d) {
   }
   const v = displayValue(g, d);
   let m;
-  if (d.t === 'bar') m = (1 << v) - 1;
+  if (d.t === 'bar') m = d.single ? (v < d.n ? 1 << v : 0) : (1 << v) - 1;   // single: one cell, at the value (a level indicator)
   else if (d.t === 'bits') {
     m = 0;
     for (let i = 0; i < d.n; i++) if (v & (1 << (d.n - 1 - i))) m |= 1 << i;

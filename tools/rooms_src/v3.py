@@ -217,19 +217,20 @@ emit('c4', 1, -1, 'clock', 'FAR DIAL', r,
 def bridge(r, xs, y, s=2):
     for x in xs: carve_cells(r, x, y, s)
 
-# o1 (0,1): BELOW -- position bridges. Left: always position. Right: static 1s until the switch in o2.
+# o1 (0,1): BELOW (redesign, user feedback 4) -- position is HEIGHT now, shown by a vertical display: three bridges
+# over the spikes, stacked, and only the one at YOUR height is lit (a level indicator). The top layer runs into a
+# wall: go down a layer (or two) before you step out. The lit bar always shows your height -- no flicker, no luck.
 r = Room('#')
-r.rect(26, 0, 2, 8, '.')
-r.rect(1, 1, 38, 19, '.'); r.rect(0, 5, 1, 3, '.'); r.rect(39, 5, 1, 3, '.')
-r.rect(1, 8, 5, 13); r.rect(18, 8, 9, 13); r.rect(36, 8, 3, 13)
-bridge(r, (6, 10, 14), 8); bridge(r, (27, 31), 8)
-r.rect(6, 20, 12, 1, '^'); r.rect(27, 20, 9, 1, '^')
-r.put(3, 7, 'P'); r.put(22, 7, 'P'); r.put(37, 7, 'P')
-dsp = {f'L{i}': dict(s=2, src='pos', at=[x, 8]) for i, x in enumerate((6, 10, 14))}
-dsp['L0'].update(wire=[[7, 16], [3, 16], [3, 12]], hint='pos')
-for i, x in enumerate((27, 31)): dsp[f'R{i}'] = dict(s=2, val=1, src='static', src2='pos', sw='o2', at=[x, 8])
-dsp['R0']['wire'] = [[28, 16], [24, 16], [24, 19], [0, 19]]
-emit('o1', 0, 1, 'coord', 'BELOW', r, displays=dsp)
+r.rect(26, 0, 2, 1, '.'); r.rect(1, 1, 38, 19, '.'); r.rect(0, 5, 1, 3, '.'); r.rect(39, 5, 1, 3, '.')
+r.rect(1, 8, 5, 13); r.rect(34, 8, 3, 1, '-'); r.rect(37, 8, 2, 1); r.rect(34, 20, 5, 1)  # near side; far side: a ladder
+r.rect(6, 11, 2, 1); r.rect(8, 14, 2, 1); r.rect(10, 17, 2, 1)      # down the near side, one step per layer
+r.rect(18, 1, 4, 10)                                               # a wall over the top layer
+r.rect(37, 17, 2, 1, '-'); r.rect(34, 14, 3, 1); r.rect(36, 11, 3, 1, '-')   # up the far side to the door
+r.rect(6, 20, 28, 1, '^')
+r.rect(25, 4, 4, 1)                                                # under the hall's hole
+r.put(3, 7, 'P'); r.put(37, 7, 'P'); r.put(26, 3, 'P')
+emit('o1', 0, 1, 'coord', 'BELOW', r,
+     displays=dict(H=dict(t='bar', dir='v', n=3, w=21, h=1, gap=2, single=True, src='posy', off=-5, div=3, at=[12, 11], hint='pos')))
 
 # o2 (-1,1): REWIRE -- a switch turns static 1s into position bridges (here, and in o1)
 r = Room('#')

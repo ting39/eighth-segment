@@ -20,7 +20,7 @@ export const ROUTE = [
   // LETTERS: the bridge is as long as EXIT -> German (AUSGANG, 7); INTERPRETER: DE, then ZH for UP, then DE for X
   'lang:de', 'l3', 'at:33,20', 'at:16,7', 'event:point', 'at:37,7', 'o2',
   // REWIRE: the idle floor (stand still: fall through a stray point), the switch, east over the zones to BELOW
-  'at:5,7', 'event:point', 'at:34,7', 'sw.o2:1', 'at:36,7', 'o1', 'at:22,7', 'at:37,7', 'o3',
+  'at:5,7', 'event:point', 'at:34,7', 'sw.o2:1', 'at:36,7', 'o1', 'at:7,10', 'at:9,13', 'at:20,13', 'at:37,7', 'o3',
   // COUNT THE HOPS: over the zones, hop until the bridge is full, up the ladder into CLOCKWORK
   'at:20,7', 'jumps:12/13', 'at:37,7', 'c1',
   // CLOCKWORK: clock gate, stand still (point); the dial: DIAL wants {1,4,7}, FAR DIAL {0,1,7}, and the gold digit
